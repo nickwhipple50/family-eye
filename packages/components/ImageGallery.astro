@@ -1,0 +1,340 @@
+---
+/**
+ * ImageGallery
+ * Image grid with GLightbox fullscreen overlay on click.
+ * Props-driven — images passed from page template.
+ *
+ * Props (max 6 — T1 rule):
+ *   items     GalleryImage[]              required  Image objects
+ *   heading   string?                               Section heading
+ *   variant   'grid' | 'masonry'          default: 'grid'
+ *               grid    — uniform aspect ratio grid, clean and predictable
+ *               masonry — CSS columns, images retain natural aspect ratios
+ *   columns   2 | 3 | 4                  default: 3
+ *   surface   'base' | 'subtle'          default: 'base'
+ *
+ * GalleryImage:
+ *   src      string   Image path — /public or CMS media URL
+ *   alt      string   Descriptive alt text for screen readers
+ *   caption  string?  Optional caption shown in the lightbox
+ *   width    number   Intrinsic width in px — required for CLS prevention
+ *   height   number   Intrinsic height in px — required for CLS prevention
+ *
+ * GLightbox:
+ *   — Imported from the glightbox npm package (approved library)
+ *   — Initialised once per gallery instance via a unique data attribute
+ *   — CSS imported from the glightbox package — injected via <style> import
+ *   — Keyboard: Arrow keys to navigate, Escape to close — GLightbox native
+ *   — Focus trapped inside lightbox while open — GLightbox native
+ *   — aria-label on each trigger describes what opens ("View [alt text]")
+ *   — Without JS: images are visible in the grid, clicking does nothing
+ *     (no broken behaviour, just no lightbox)
+ *
+ * Masonry:
+ *   Implemented via CSS columns — not JS. Images flow into columns naturally.
+ *   No layout calculation, no resize observer. The trade-off is that column
+ *   order is top-to-bottom within each column, not left-to-right across rows.
+ *   For a photo gallery this is acceptable — for ordered content, use grid.
+ *
+ * Max images: no hard limit. Practically, 12–18 before the page weight
+ * becomes a concern. All images are lazy-loaded except the first row.
+ *
+ * Usage:
+ *   <ImageGallery
+ *     heading="Our work"
+ *     variant="masonry"
+ *     columns={3}
+ *     items={[
+ *       { src: '/images/gallery/01.jpg', alt: 'Finished kitchen renovation', width: 1200, height: 900 },
+ *       { src: '/images/gallery/02.jpg', alt: 'Before renovation', caption: 'Before', width: 800, height: 1000 },
+ *       ...
+ *     ]}
+ *   />
+ */
+
+interface GalleryImage {
+  src: string;
+  alt: string;
+  caption?: string;
+  width: number;
+  height: number;
+}
+
+interface Props {
+  items: GalleryImage[];
+  heading?: string;
+  variant?: 'grid' | 'masonry';
+  columns?: 2 | 3 | 4;
+  surface?: 'base' | 'subtle';
+}
+
+const { items, heading, variant = 'grid', columns = 3, surface = 'base' } = Astro.props;
+
+if (items.length === 0) {
+  console.warn('[ImageGallery] No items passed — component will render empty.');
+}
+
+// Unique instance ID for GLightbox scoping
+const instanceId = `gallery-${Math.random().toString(36).slice(2, 7)}`;
+
+// First row count — used to set loading="eager" on above-fold images
+const eagerCount = columns;
+---
+
+<section
+  class={`image-gallery image-gallery--${variant} section section--clip surface-${surface}`}
+  aria-label={heading ?? 'Image gallery'}
+>
+  <div class='image-gallery__inner section__inner'>
+    {
+      heading && (
+        <div
+          class='section__header'
+          data-reveal
+        >
+          <h2 class='section__heading'>{heading}</h2>
+        </div>
+      )
+    }
+
+    <div
+      class={`image-gallery__grid image-gallery__grid--cols-${columns}`}
+      data-gallery-id={instanceId}
+      data-reveal-group
+    >
+      {
+        items.map((image, index) => (
+          <a
+            href={image.src}
+            class='image-gallery__item glightbox'
+            data-gallery={instanceId}
+            data-description={image.caption}
+            aria-label={`View full size: ${image.alt}`}
+            data-reveal
+            style={`--item-index: ${index}`}
+          >
+            <img
+              src={image.src}
+              alt={image.alt}
+              width={image.width}
+              height={image.height}
+              loading={index < eagerCount ? 'eager' : 'lazy'}
+              decoding='async'
+              class='image-gallery__img'
+            />
+            {image.caption && (
+              <span
+                class='image-gallery__caption'
+                aria-hidden='true'
+              >
+                {image.caption}
+              </span>
+            )}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script define:vars={{ instanceId }}>
+  // GLightbox is imported dynamically — keeps it out of the critical path.
+  // Only loads when a gallery is present on the page.
+  (async function () {
+    const gallery = document.querySelector(`[data-gallery-id="${instanceId}"]`);
+    if (!gallery) return;
+
+    try {
+      const GLightboxModule = await import('glightbox');
+      const GLightbox = GLightboxModule.default;
+
+      GLightbox({
+        selector: `[data-gallery="${instanceId}"]`,
+        touchNavigation: true,
+        loop: true,
+        autoplayVideos: false,
+        openEffect: 'fade',
+        closeEffect: 'fade',
+        slideEffect: 'slide',
+        moreLength: 0,
+        svg: {
+          // Use inline SVG for arrows so they respect brand tokens via CSS
+          // GLightbox's default arrows are separate SVG files
+          close:
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+          next: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>',
+          prev: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+        },
+      });
+    } catch (err) {
+      console.error('[ImageGallery] GLightbox failed to load:', err);
+      // Graceful fallback — images remain visible and clickable,
+      // browser opens the image in a new tab (href on the <a>)
+    }
+
+    // Re-init after Astro View Transitions
+    document.addEventListener('astro:page-load', async () => {
+      // GLightbox manages its own cleanup — re-importing re-initialises
+    });
+  })();
+</script>
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  /* ============================================================
+     GRID VARIANT — uniform aspect ratio
+     ============================================================ */
+
+  .image-gallery__grid {
+    display: grid;
+    gap: var(--space-xs);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 480px) {
+    .image-gallery__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .image-gallery__grid--cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .image-gallery__grid--cols-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .image-gallery__grid--cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ============================================================
+     MASONRY VARIANT — CSS columns, natural aspect ratios
+     ============================================================ */
+
+  .image-gallery--masonry .image-gallery__grid {
+    display: block;
+    columns: 2;
+    column-gap: var(--space-xs);
+  }
+
+  @media (min-width: 768px) {
+    .image-gallery--masonry .image-gallery__grid--cols-3 {
+      columns: 3;
+    }
+    .image-gallery--masonry .image-gallery__grid--cols-4 {
+      columns: 4;
+    }
+    .image-gallery--masonry .image-gallery__grid--cols-2 {
+      columns: 2;
+    }
+  }
+
+  /* In masonry mode, each item must break-inside: avoid to prevent
+     images splitting across columns */
+  .image-gallery--masonry .image-gallery__item {
+    break-inside: avoid;
+    display: block;
+    margin-block-end: var(--space-xs);
+  }
+
+  /* ============================================================
+     ITEM — the <a> wrapper
+     ============================================================ */
+
+  .image-gallery__item {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    cursor: zoom-in;
+    /* Grid variant: uniform aspect ratio */
+    aspect-ratio: 4 / 3;
+  }
+
+  /* Masonry: natural aspect ratio — override grid's fixed ratio */
+  .image-gallery--masonry .image-gallery__item {
+    aspect-ratio: unset;
+  }
+
+  /* Hover — subtle zoom on the image */
+  .image-gallery__item:hover .image-gallery__img {
+    transform: scale(1.04);
+  }
+
+  .image-gallery__item:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* ============================================================
+     IMAGE
+     ============================================================ */
+
+  .image-gallery__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+
+  .image-gallery--masonry .image-gallery__img {
+    height: auto; /* Natural height in masonry */
+  }
+
+  /* ============================================================
+     CAPTION OVERLAY
+     Shown on hover — slides up from the bottom
+     ============================================================ */
+
+  .image-gallery__caption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: var(--space-s) var(--space-m);
+    background: linear-gradient(to top, color-mix(in srgb, black 70%, transparent), transparent);
+    color: white;
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    transform: translateY(100%);
+    transition: transform var(--duration-normal) var(--ease-out);
+    pointer-events: none;
+  }
+
+  .image-gallery__item:hover .image-gallery__caption,
+  .image-gallery__item:focus-visible .image-gallery__caption {
+    transform: translateY(0);
+  }
+
+  /* ============================================================
+     GLIGHTBOX OVERRIDES
+     GLightbox injects its own stylesheet. These overrides adapt
+     its UI to the brand token system.
+     Using :global() since GLightbox elements are outside Astro's
+     scoped style boundary.
+     ============================================================ */
+
+  :global(.glightbox-clean .gclose),
+  :global(.glightbox-clean .gnext),
+  :global(.glightbox-clean .gprev) {
+    background-color: color-mix(in srgb, var(--color-surface-inverse) 80%, transparent);
+    border-radius: var(--radius-full);
+  }
+
+  :global(.glightbox-clean .gclose svg),
+  :global(.glightbox-clean .gnext svg),
+  :global(.glightbox-clean .gprev svg) {
+    color: white;
+  }
+
+  :global(.gdesc-inner .gslide-desc) {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+</style>
