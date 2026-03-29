@@ -8,3 +8,4 @@ export { default as StatsRow } from './StatsRow.astro';
 export { default as TeamGrid } from './TeamGrid.astro';
 export { default as TestimonialRow } from './TestimonialRow.astro';
 export { default as LogoBar } from './LogoBar.astro';
+export { default as ProcessSteps } from './ProcessSteps.astro';

@@ -1,0 +1,328 @@
+---
+/**
+ * ProcessSteps
+ * Ordered process / how-it-works section. Props-driven — not CMS.
+ * Two variants: numbered steps with connector line, or icon-driven steps.
+ *
+ * Props (max 6 — T1 rule):
+ *   items      StepItem[]                  required  3–6 steps
+ *   heading    string?                               Section heading
+ *   body       string?                               Supporting paragraph
+ *   variant    'numbered' | 'icon'         default: 'numbered'
+ *                numbered — large step numbers with horizontal connector line
+ *                icon     — Lucide icon per step, no connector
+ *   layout     'horizontal' | 'vertical'   default: 'horizontal'
+ *                horizontal — steps in a row at desktop (suits 3–4 steps)
+ *                vertical   — steps stacked (suits 5–6 steps or long content)
+ *   surface    'base' | 'subtle'           default: 'subtle'
+ *
+ * StepItem:
+ *   title      string     Step name / headline
+ *   body       string     Step description — 1–2 sentences
+ *   icon       IconName?  Icon from approved list — icon variant only
+ *
+ * Max items: 6. Beyond that the process isn't a process, it's a manual.
+ * Min items: 3. Fewer than 3 steps = use FeatureGrid instead.
+ *
+ * Connector line (numbered + horizontal):
+ *   Rendered as a CSS pseudo-element on the step number — a horizontal
+ *   line that runs from the centre of one number to the centre of the next.
+ *   Hidden on the last step and on mobile (vertical stack).
+ *   Pure CSS — no SVG, no JS measurement.
+ *
+ * Usage:
+ *   <ProcessSteps
+ *     heading="How it works"
+ *     variant="numbered"
+ *     layout="horizontal"
+ *     items={[
+ *       { title: 'Discovery call', body: 'We learn about your business and goals.' },
+ *       { title: 'Proposal',       body: 'You receive a fixed-price scope within 48 hours.' },
+ *       { title: 'Build',          body: 'We design and build to the agreed spec.' },
+ *       { title: 'Launch',         body: 'We deploy, hand over, and stay available.' },
+ *     ]}
+ *   />
+ */
+
+import Icon from './Icon.astro';
+import type { IconName } from './Icon.astro';
+
+interface StepItem {
+  title: string;
+  body: string;
+  icon?: IconName;
+}
+
+interface Props {
+  items: StepItem[];
+  heading?: string;
+  body?: string;
+  variant?: 'numbered' | 'icon';
+  layout?: 'horizontal' | 'vertical';
+  surface?: 'base' | 'subtle';
+}
+
+const {
+  items,
+  heading,
+  body,
+  variant = 'numbered',
+  layout = 'horizontal',
+  surface = 'subtle',
+} = Astro.props;
+
+if (items.length > 6) {
+  console.warn(`[ProcessSteps] ${items.length} items passed — max is 6. Truncating.`);
+}
+if (items.length < 3) {
+  console.warn(`[ProcessSteps] ${items.length} items — min is 3. Consider FeatureGrid instead.`);
+}
+
+const displayItems = items.slice(0, 6);
+
+// Warn if icon variant is used without icons
+if (variant === 'icon') {
+  displayItems.forEach((item, i) => {
+    if (!item.icon) {
+      console.warn(`[ProcessSteps] variant="icon" but item[${i}] "${item.title}" has no icon.`);
+    }
+  });
+}
+---
+
+<section
+  class={`process-steps process-steps--${variant} process-steps--${layout} section surface-${surface}`}
+  aria-label={heading ?? 'Our process'}
+>
+  <div class='process-steps__inner section__inner'>
+    {
+      (heading || body) && (
+        <div
+          class='section__header'
+          data-reveal
+        >
+          {heading && <h2 class='section__heading'>{heading}</h2>}
+          {body && <p class='section__body'>{body}</p>}
+        </div>
+      )
+    }
+
+    <ol
+      class='process-steps__list'
+      data-reveal-group
+    >
+      {
+        displayItems.map((item, index) => (
+          <li
+            class='process-steps__step'
+            data-reveal
+            style={`--item-index: ${index}; --step-total: ${displayItems.length}`}
+          >
+            {/* Step marker — number or icon */}
+            <div
+              class='process-steps__marker'
+              aria-hidden='true'
+            >
+              {variant === 'numbered' && (
+                <span class='process-steps__number'>{String(index + 1).padStart(2, '0')}</span>
+              )}
+              {variant === 'icon' && item.icon && (
+                <div class='process-steps__icon'>
+                  <Icon
+                    name={item.icon}
+                    size={24}
+                    stroke={1.75}
+                  />
+                </div>
+              )}
+              {/* Connector line — CSS handles visibility */}
+              {variant === 'numbered' && layout === 'horizontal' && (
+                <span
+                  class='process-steps__connector'
+                  aria-hidden='true'
+                />
+              )}
+            </div>
+
+            {/* Step text */}
+            <div class='process-steps__text'>
+              <h3 class='process-steps__title'>{item.title}</h3>
+              <p class='process-steps__description'>{item.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  /* ============================================================
+     LIST
+     ============================================================ */
+
+  .process-steps__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-l);
+    /* Default: single column (vertical on mobile) */
+    grid-template-columns: 1fr;
+  }
+
+  /* Horizontal layout — row at desktop */
+  @media (min-width: 640px) {
+    .process-steps--horizontal .process-steps__list {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+  }
+
+  /* Vertical layout — always single column */
+  .process-steps--vertical .process-steps__list {
+    max-width: var(--max-width-narrow);
+    margin-inline: auto;
+  }
+
+  /* ============================================================
+     STEP
+     ============================================================ */
+
+  .process-steps__step {
+    display: flex;
+    gap: var(--space-m);
+    align-items: flex-start;
+  }
+
+  /* Horizontal: stack marker above text */
+  .process-steps--horizontal .process-steps__step {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Vertical: marker left, text right */
+  .process-steps--vertical .process-steps__step {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  /* ============================================================
+     MARKER — shared
+     ============================================================ */
+
+  .process-steps__marker {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     NUMBERED MARKER
+     ============================================================ */
+
+  .process-steps__number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-full);
+    background-color: var(--color-accent);
+    color: var(--color-text-inverse);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--tracking-wide);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ============================================================
+     CONNECTOR LINE
+     Horizontal connector between numbered steps.
+     Runs from the right edge of the number circle to the
+     left edge of the next step's number circle.
+     Hidden on the last step.
+     ============================================================ */
+
+  .process-steps__connector {
+    display: none; /* Hidden on mobile */
+  }
+
+  @media (min-width: 640px) {
+    .process-steps--horizontal .process-steps__step:not(:last-child) .process-steps__connector {
+      display: block;
+      position: absolute;
+      /* Start just after the number circle */
+      left: 3rem;
+      top: 50%;
+      transform: translateY(-50%);
+      /* Width fills from here to the start of the next step's marker.
+         We can't know the exact width statically, so we use a large value
+         and let overflow handle it. The step grid's gap creates the actual gap. */
+      width: calc(100% + var(--space-l));
+      height: 1px;
+      background: linear-gradient(to right, var(--color-border-strong), var(--color-border));
+      z-index: 0;
+    }
+  }
+
+  /* ============================================================
+     ICON MARKER
+     ============================================================ */
+
+  .process-steps__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-lg);
+    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .process-steps__icon :global(svg) {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     STEP TEXT
+     ============================================================ */
+
+  .process-steps__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding-block-start: var(--space-s);
+  }
+
+  /* Vertical layout — no top padding, marker handles alignment */
+  .process-steps--vertical .process-steps__text {
+    padding-block-start: var(--space-2xs);
+  }
+
+  .process-steps__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-h5);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .process-steps__description {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+</style>
