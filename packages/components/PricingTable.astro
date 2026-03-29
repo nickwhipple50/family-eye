@@ -1,0 +1,391 @@
+---
+/**
+ * PricingTable
+ * CMS-driven pricing tiers. 2–3 tiers. One tier can be marked featured.
+ *
+ * Props (max 6 — T1 rule):
+ *   items      PricingTier[]               required  From Decap pricing collection
+ *   heading    string?                               Section heading
+ *   body       string?                               Supporting paragraph
+ *   surface    'base' | 'subtle'           default: 'base'
+ *   disclaimer string?                               Small print below tiers
+ *                                                    e.g. "All prices ex. VAT"
+ *
+ * PricingTier (mirrors Decap pricing collection schema):
+ *   name        string     Tier name — e.g. "Starter", "Pro", "Enterprise"
+ *   price       string     Display price — e.g. "$49", "£99/mo", "Custom"
+ *                          String, not number — handles "Custom", "From $X", etc.
+ *   period      string?    Billing period — e.g. "/month", "/year", "one-time"
+ *   description string?    One sentence — what this tier is for
+ *   features    string[]   List of included features — plain strings
+ *   cta         { label: string; href: string }  Action button
+ *   featured    boolean?   Highlights this tier visually. One per table max.
+ *   badge       string?    Small label on featured tier — e.g. "Most popular"
+ *
+ * Max tiers: 3. Four pricing tiers at T1 is a scope problem, not a design challenge.
+ * Min tiers: 2. A single tier is just a CTA — use CTABand instead.
+ *
+ * Featured tier:
+ *   Rendered slightly larger, with accent border + background tint.
+ *   On mobile, featured tier renders first regardless of array order.
+ *   Only the first tier with featured: true is treated as featured —
+ *   multiple featured tiers are ignored (second onwards treated as normal).
+ *
+ * Usage:
+ *   ---
+ *   import PricingTable from '@mmm/components/PricingTable.astro';
+ *   import { getCollection } from 'astro:content';
+ *   const pricing = await getCollection('pricing');
+ *   ---
+ *   <PricingTable
+ *     heading="Simple, transparent pricing"
+ *     body="No hidden fees. Cancel any time."
+ *     disclaimer="All prices exclude VAT."
+ *     items={pricing
+ *       .sort((a, b) => a.data.order - b.data.order)
+ *       .map(p => p.data)}
+ *   />
+ */
+
+interface PricingCta {
+  label: string;
+  href: string;
+}
+
+interface PricingTier {
+  name: string;
+  price: string;
+  period?: string;
+  description?: string;
+  features: string[];
+  cta: PricingCta;
+  featured?: boolean;
+  badge?: string;
+}
+
+interface Props {
+  items: PricingTier[];
+  heading?: string;
+  body?: string;
+  surface?: 'base' | 'subtle';
+  disclaimer?: string;
+}
+
+const { items, heading, body, surface = 'base', disclaimer } = Astro.props;
+
+if (items.length > 3) {
+  console.warn(`[PricingTable] ${items.length} tiers — max is 3. Truncating.`);
+}
+if (items.length < 2) {
+  console.warn(`[PricingTable] Only ${items.length} tier — use CTABand instead.`);
+}
+
+const displayItems = items.slice(0, 3);
+
+// Ensure only the first featured tier is treated as featured
+let featuredSeen = false;
+const processedItems = displayItems.map((item) => {
+  if (item.featured && !featuredSeen) {
+    featuredSeen = true;
+    return { ...item, featured: true };
+  }
+  return { ...item, featured: false };
+});
+
+// Sort: featured first on mobile (CSS order property)
+// We track the featured index for CSS --order custom property
+const itemsWithOrder = processedItems.map((item, i) => ({
+  ...item,
+  visualOrder: item.featured ? 0 : i + 1,
+}));
+---
+
+<section
+  class={`pricing section surface-${surface}`}
+  aria-label={heading ?? 'Pricing'}
+>
+  <div class='pricing__inner section__inner section__inner--centered'>
+    {
+      (heading || body) && (
+        <div
+          class='section__header'
+          data-reveal
+        >
+          {heading && <h2 class='section__heading'>{heading}</h2>}
+          {body && <p class='section__body'>{body}</p>}
+        </div>
+      )
+    }
+
+    <div
+      class={`pricing__grid pricing__grid--${displayItems.length}`}
+      data-reveal-group
+    >
+      {
+        itemsWithOrder.map((tier, index) => (
+          <article
+            class={`pricing__tier${tier.featured ? ' pricing__tier--featured' : ''}`}
+            data-reveal
+            style={`--item-index: ${index}; order: ${tier.visualOrder}`}
+            aria-label={`${tier.name} pricing tier`}
+          >
+            {tier.featured && tier.badge && (
+              <div
+                class='pricing__badge'
+                aria-label={tier.badge}
+              >
+                {tier.badge}
+              </div>
+            )}
+
+            <div class='pricing__tier-header'>
+              <h3 class='pricing__tier-name'>{tier.name}</h3>
+              {tier.description && <p class='pricing__tier-description'>{tier.description}</p>}
+            </div>
+
+            <div class='pricing__price-wrap'>
+              <span class='pricing__price'>{tier.price}</span>
+              {tier.period && <span class='pricing__period'>{tier.period}</span>}
+            </div>
+
+            <ul
+              class='pricing__features'
+              aria-label={`${tier.name} features`}
+            >
+              {tier.features.map((feature) => (
+                <li class='pricing__feature'>
+                  <svg
+                    class='pricing__check'
+                    width='16'
+                    height='16'
+                    viewBox='0 0 16 16'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    aria-hidden='true'
+                    focusable='false'
+                  >
+                    <path d='M2.5 8l4 4 7-7' />
+                  </svg>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div class='pricing__cta-wrap'>
+              <a
+                href={tier.cta.href}
+                class={`btn btn--full btn--lg ${tier.featured ? 'btn--primary' : 'btn--ghost'}`}
+              >
+                {tier.cta.label}
+              </a>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    {disclaimer && <p class='pricing__disclaimer'>{disclaimer}</p>}
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     SECTION + INNER
+     Uses global .section .surface-* .section__inner .section__inner--centered
+     .section__header .section__heading .section__body from globals.css.
+     Unique: pricing__inner needs full width for the grid.
+     ============================================================ */
+
+  .pricing__inner {
+    width: 100%;
+  }
+
+  /* Surface-subtle: card lifts off section background */
+  .surface-subtle .pricing__tier {
+    background-color: var(--color-surface-base);
+  }
+
+  /* ============================================================
+     GRID
+     ============================================================ */
+
+  .pricing__grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .pricing__grid {
+      flex-direction: row;
+      align-items: stretch;
+    }
+
+    .pricing__tier {
+      order: unset !important;
+    }
+  }
+
+  /* ============================================================
+     TIER CARD
+     Base card chrome from global .card — unique: flex layout, no hover.
+     ============================================================ */
+
+  .pricing__tier {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    flex: 1;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    padding: var(--space-l);
+    box-shadow: var(--card-shadow);
+  }
+
+  .pricing__tier--featured {
+    border-color: var(--color-accent);
+    border-width: 2px;
+    background-color: color-mix(in srgb, var(--color-accent) 4%, var(--color-surface-base));
+    box-shadow: var(--shadow-lg);
+  }
+
+  @media (min-width: 768px) {
+    .pricing__tier--featured {
+      transform: translateY(-0.5rem);
+      padding-block: var(--space-xl);
+    }
+  }
+
+  /* ============================================================
+     BADGE
+     ============================================================ */
+
+  .pricing__badge {
+    position: absolute;
+    top: calc(-1 * var(--space-s) - 0.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-accent);
+    color: var(--color-text-inverse);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    padding-block: var(--space-3xs);
+    padding-inline: var(--space-s);
+    border-radius: var(--radius-badge);
+    white-space: nowrap;
+  }
+
+  /* ============================================================
+     TIER HEADER
+     ============================================================ */
+
+  .pricing__tier-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .pricing__tier-name {
+    font-family: var(--font-heading);
+    font-size: var(--text-h4);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .pricing__tier-description {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* ============================================================
+     PRICE
+     ============================================================ */
+
+  .pricing__price-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2xs);
+    padding-block: var(--space-s);
+    border-block: 1px solid var(--color-border);
+  }
+
+  .pricing__price {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-black);
+    line-height: 1;
+    color: var(--color-text-heading);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .pricing__tier--featured .pricing__price {
+    color: var(--color-accent);
+  }
+
+  .pricing__period {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-regular);
+  }
+
+  /* ============================================================
+     FEATURES LIST
+     ============================================================ */
+
+  .pricing__features {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+  }
+
+  .pricing__feature {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-base);
+  }
+
+  .pricing__check {
+    color: var(--color-accent);
+    flex-shrink: 0;
+    margin-block-start: 0.2em;
+  }
+
+  /* ============================================================
+     CTA
+     Buttons use global .btn .btn--full .btn--lg .btn--primary .btn--ghost
+     ============================================================ */
+
+  .pricing__cta-wrap {
+    margin-block-start: auto;
+  }
+
+  /* ============================================================
+     DISCLAIMER
+     ============================================================ */
+
+  .pricing__disclaimer {
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+    text-align: center;
+    margin: 0;
+  }
+</style>

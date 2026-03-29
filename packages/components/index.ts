@@ -10,3 +10,4 @@ export { default as TestimonialRow } from './TestimonialRow.astro';
 export { default as LogoBar } from './LogoBar.astro';
 export { default as ProcessSteps } from './ProcessSteps.astro';
 export { default as ImageGallery } from './ImageGallery.astro';
+export { default as PricingTable } from './PricingTable.astro';
