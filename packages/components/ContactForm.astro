@@ -1,0 +1,779 @@
+---
+/**
+ * ContactForm + ContactSection
+ * Configurable contact form with optional map embed.
+ * Fields defined by the page template — no hardcoded field set.
+ * Submission handled by a custom endpoint (action prop).
+ * Spam protection via Netlify honeypot hidden field.
+ *
+ * Props (max 6 — T1 rule):
+ *   fields        FieldDef[]   required  Field definitions (see below)
+ *   action        string       required  Form POST endpoint URL
+ *                                        Netlify Forms: set to the page path,
+ *                                        add data-netlify="true" — handled automatically.
+ *                                        Formspree or custom: full URL.
+ *   heading       string?               Section heading
+ *   body          string?               Supporting paragraph
+ *   submitLabel   string?               Submit button text. default: 'Send message'
+ *   honeypotName  string?               Name for the hidden honeypot field.
+ *                                        default: 'bot-field'
+ *                                        Must match the field name registered in
+ *                                        the Netlify dashboard (if using Netlify Forms).
+ *
+ * FieldDef:
+ *   name         string                           Field name attr — used in form data
+ *   label        string                           Visible label
+ *   type         'text'|'email'|'tel'             Single-line inputs
+ *                'textarea'                        Multi-line
+ *                'select'                          Dropdown — requires options
+ *                'checkbox'                        Single boolean
+ *   required     boolean?                          default: false
+ *   placeholder  string?                           Input placeholder text
+ *   width        'full' | 'half'                   default: 'full'
+ *                                                  half: two fields share a row at desktop
+ *   options      string[]?                         select only — list of option strings
+ *   autocomplete string?                           HTML autocomplete value
+ *                                                  e.g. 'name', 'email', 'tel'
+ *
+ * Kit field presets (use these in page templates — don't reinvent):
+ *
+ *   Name (text, half, required):
+ *     { name:'name', label:'Your name', type:'text', required:true, width:'half', autocomplete:'name' }
+ *
+ *   Email (email, half, required):
+ *     { name:'email', label:'Email address', type:'email', required:true, width:'half', autocomplete:'email' }
+ *
+ *   Phone (tel, half):
+ *     { name:'phone', label:'Phone number', type:'tel', width:'half', autocomplete:'tel' }
+ *
+ *   Company (text, half):
+ *     { name:'company', label:'Company', type:'text', width:'half', autocomplete:'organization' }
+ *
+ *   Service interest (select, full):
+ *     { name:'service', label:'I'm interested in...', type:'select',
+ *       options:['Web design', 'SEO', 'Branding', 'Other'] }
+ *
+ *   Message (textarea, full, required):
+ *     { name:'message', label:'Message', type:'textarea', required:true,
+ *       placeholder:'Tell us about your project...' }
+ *
+ *   Consent (checkbox, full):
+ *     { name:'consent', label:'I agree to be contacted about my enquiry.', type:'checkbox', required:true }
+ *
+ * Netlify Forms setup:
+ *   1. Add data-netlify="true" to the form — this component does it automatically
+ *      when action starts with '/' (page-relative path).
+ *   2. Add a hidden input named "form-name" with the form's name value.
+ *      This component handles both automatically.
+ *   3. Register honeypotName in Netlify dashboard → Forms → Spam filters.
+ *
+ * Success/error state:
+ *   — JS intercepts submit, POSTs via fetch, shows inline success/error message.
+ *   — Without JS: native form POST to action URL — Netlify shows their default
+ *     success page. Acceptable fallback for T1.
+ *
+ * Map embed:
+ *   — Not handled in this component — add a separate <iframe> embed below
+ *     the component in the page template. Keep map outside the form semantics.
+ *
+ * Usage (Service Business kit):
+ *   <ContactForm
+ *     heading="Get in touch"
+ *     body="We'll get back to you within one business day."
+ *     action="/contact"
+ *     submitLabel="Send message"
+ *     fields={[
+ *       { name:'name',    label:'Your name',      type:'text',     required:true,  width:'half', autocomplete:'name' },
+ *       { name:'email',   label:'Email address',  type:'email',    required:true,  width:'half', autocomplete:'email' },
+ *       { name:'phone',   label:'Phone number',   type:'tel',                      width:'half', autocomplete:'tel' },
+ *       { name:'service', label:'Service',        type:'select',
+ *         options:['General enquiry','Web design','SEO','Other'] },
+ *       { name:'message', label:'Message',        type:'textarea', required:true },
+ *       { name:'consent', label:'I agree to be contacted about my enquiry.',
+ *         type:'checkbox', required:true },
+ *     ]}
+ *   />
+ */
+
+type FieldType = 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'checkbox';
+
+interface FieldDef {
+  name: string;
+  label: string;
+  type: FieldType;
+  required?: boolean;
+  placeholder?: string;
+  width?: 'full' | 'half';
+  options?: string[];
+  autocomplete?: string;
+}
+
+interface Props {
+  fields: FieldDef[];
+  action: string;
+  heading?: string;
+  body?: string;
+  submitLabel?: string;
+  honeypotName?: string;
+}
+
+const {
+  fields,
+  action,
+  heading,
+  body,
+  submitLabel = 'Send message',
+  honeypotName = 'bot-field',
+} = Astro.props;
+
+// Detect Netlify Forms — action is a page-relative path
+const isNetlify = action.startsWith('/');
+
+// Derive a form name from the action path for Netlify registration
+const formName = isNetlify
+  ? `contact-${action.replace(/\//g, '').replace(/[^a-z0-9-]/gi, '') || 'form'}`
+  : 'contact';
+
+// Unique ID for JS scoping
+const instanceId = `contact-form-${Math.random().toString(36).slice(2, 7)}`;
+
+// Validate: warn about select fields missing options
+fields.forEach((field) => {
+  if (field.type === 'select' && (!field.options || field.options.length === 0)) {
+    console.warn(
+      `[ContactForm] field "${field.name}" is type "select" but has no options defined.`
+    );
+  }
+});
+---
+
+<section
+  class='contact-form-section'
+  aria-label={heading ?? 'Contact'}
+>
+  <div class='contact-form-section__inner'>
+    {
+      (heading || body) && (
+        <div
+          class='contact-form-section__header'
+          data-reveal
+        >
+          {heading && <h2 class='contact-form-section__heading'>{heading}</h2>}
+          {body && <p class='contact-form-section__body'>{body}</p>}
+        </div>
+      )
+    }
+
+    <form
+      id={instanceId}
+      class='contact-form'
+      method='POST'
+      action={action}
+      novalidate
+      data-netlify={isNetlify ? 'true' : undefined}
+      data-netlify-honeypot={isNetlify ? honeypotName : undefined}
+    >
+      {/* Netlify hidden form-name field — required for Netlify Forms detection */}
+      {
+        isNetlify && (
+          <input
+            type='hidden'
+            name='form-name'
+            value={formName}
+          />
+        )
+      }
+
+      {/* Honeypot — hidden from real users, bots fill it in */}
+      <div
+        class='contact-form__honeypot'
+        aria-hidden='true'
+      >
+        <label>
+          Don't fill this out if you're human:
+          <input
+            type='text'
+            name={honeypotName}
+            tabindex='-1'
+            autocomplete='off'
+          />
+        </label>
+      </div>
+
+      {/* Field grid */}
+      <div class='contact-form__fields'>
+        {
+          fields.map((field) => {
+            const fieldId = `${instanceId}-${field.name}`;
+            const isHalf = field.width === 'half';
+            const isRequired = field.required ?? false;
+
+            return (
+              <div
+                class={`contact-form__field ${isHalf ? 'contact-form__field--half' : 'contact-form__field--full'} ${field.type === 'checkbox' ? 'contact-form__field--checkbox' : ''}`}
+              >
+                {/* All types except checkbox: label above input */}
+                {field.type !== 'checkbox' && (
+                  <label
+                    class='contact-form__label'
+                    for={fieldId}
+                  >
+                    {field.label}
+                    {isRequired && (
+                      <span
+                        class='contact-form__required'
+                        aria-hidden='true'
+                      >
+                        {' '}
+                        *
+                      </span>
+                    )}
+                  </label>
+                )}
+
+                {/* text | email | tel */}
+                {(field.type === 'text' || field.type === 'email' || field.type === 'tel') && (
+                  <input
+                    id={fieldId}
+                    class='contact-form__input'
+                    type={field.type}
+                    name={field.name}
+                    required={isRequired}
+                    placeholder={field.placeholder}
+                    autocomplete={field.autocomplete}
+                    aria-required={isRequired ? 'true' : undefined}
+                  />
+                )}
+
+                {/* textarea */}
+                {field.type === 'textarea' && (
+                  <textarea
+                    id={fieldId}
+                    class='contact-form__textarea'
+                    name={field.name}
+                    required={isRequired}
+                    placeholder={field.placeholder}
+                    rows={5}
+                    aria-required={isRequired ? 'true' : undefined}
+                  />
+                )}
+
+                {/* select */}
+                {field.type === 'select' && field.options && (
+                  <select
+                    id={fieldId}
+                    class='contact-form__select'
+                    name={field.name}
+                    required={isRequired}
+                    aria-required={isRequired ? 'true' : undefined}
+                  >
+                    <option
+                      value=''
+                      disabled
+                      selected
+                    >
+                      {field.placeholder ?? 'Select an option'}
+                    </option>
+                    {field.options.map((opt) => (
+                      <option value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                )}
+
+                {/* checkbox — label wraps input */}
+                {field.type === 'checkbox' && (
+                  <label
+                    class='contact-form__checkbox-label'
+                    for={fieldId}
+                  >
+                    <input
+                      id={fieldId}
+                      class='contact-form__checkbox'
+                      type='checkbox'
+                      name={field.name}
+                      required={isRequired}
+                      aria-required={isRequired ? 'true' : undefined}
+                    />
+                    <span class='contact-form__checkbox-text'>
+                      {field.label}
+                      {isRequired && (
+                        <span
+                          class='contact-form__required'
+                          aria-hidden='true'
+                        >
+                          {' '}
+                          *
+                        </span>
+                      )}
+                    </span>
+                  </label>
+                )}
+
+                {/* Validation error message slot — populated by JS */}
+                {field.type !== 'checkbox' && (
+                  <span
+                    class='contact-form__error'
+                    id={`${fieldId}-error`}
+                    aria-live='polite'
+                    role='alert'
+                  />
+                )}
+              </div>
+            );
+          })
+        }
+      </div>
+
+      {/* Submit */}
+      <div class='contact-form__submit-row'>
+        <button
+          type='submit'
+          class='contact-form__submit btn btn--primary'
+          data-label={submitLabel}
+        >
+          {submitLabel}
+        </button>
+      </div>
+
+      {/* Form-level status — success or error */}
+      <div
+        class='contact-form__status'
+        id={`${instanceId}-status`}
+        aria-live='polite'
+        role='status'
+      >
+      </div>
+    </form>
+  </div>
+</section>
+
+<script define:vars={{ instanceId, formName, isNetlify }}>
+  (function () {
+    function initForm() {
+      const form = document.getElementById(instanceId);
+      if (!form) return;
+
+      const statusEl = document.getElementById(`${instanceId}-status`);
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Clear previous status
+        if (statusEl) {
+          statusEl.textContent = '';
+          statusEl.className = 'contact-form__status';
+        }
+
+        // Basic client-side validation — check required fields
+        let isValid = true;
+        const requiredFields = form.querySelectorAll('[required]');
+
+        requiredFields.forEach((field) => {
+          const errorEl = document.getElementById(`${field.id}-error`);
+          const value = field.type === 'checkbox' ? field.checked : field.value.trim();
+
+          if (!value) {
+            isValid = false;
+            field.setAttribute('aria-invalid', 'true');
+            if (errorEl) errorEl.textContent = 'This field is required.';
+          } else {
+            field.removeAttribute('aria-invalid');
+            if (errorEl) errorEl.textContent = '';
+          }
+
+          // Email format check
+          if (field.type === 'email' && field.value) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(field.value)) {
+              isValid = false;
+              field.setAttribute('aria-invalid', 'true');
+              if (errorEl) errorEl.textContent = 'Please enter a valid email address.';
+            }
+          }
+        });
+
+        if (!isValid) {
+          // Focus the first invalid field
+          const firstInvalid = form.querySelector('[aria-invalid="true"]');
+          if (firstInvalid) firstInvalid.focus();
+          return;
+        }
+
+        // Submit
+        const submitBtn = form.querySelector('[type="submit"]');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sending…';
+        }
+
+        try {
+          const formData = new FormData(form);
+
+          // Netlify Forms requires 'form-name' in the body
+          if (isNetlify) {
+            formData.set('form-name', formName);
+          }
+
+          const response = await fetch(form.action, {
+            method: 'POST',
+            body: isNetlify ? new URLSearchParams(formData).toString() : formData,
+            headers: isNetlify ? { 'Content-Type': 'application/x-www-form-urlencoded' } : {},
+          });
+
+          if (response.ok) {
+            form.reset();
+            if (statusEl) {
+              statusEl.textContent = "Thanks — we'll be in touch soon.";
+              statusEl.classList.add('contact-form__status--success');
+            }
+          } else {
+            throw new Error(`Server responded with ${response.status}`);
+          }
+        } catch (err) {
+          console.error('[ContactForm] Submission error:', err);
+          if (statusEl) {
+            statusEl.textContent = 'Something went wrong. Please try again or contact us directly.';
+            statusEl.classList.add('contact-form__status--error');
+          }
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = submitBtn.dataset.label ?? 'Send message';
+          }
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initForm);
+    } else {
+      initForm();
+    }
+
+    document.addEventListener('astro:page-load', initForm);
+  })();
+</script>
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  .contact-form-section {
+    padding-block: var(--space-section-y);
+    padding-inline: var(--gutter);
+    background-color: var(--color-surface-base);
+  }
+
+  .contact-form-section__inner {
+    max-width: var(--max-width-narrow);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l-xl);
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+
+  .contact-form-section__header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  .contact-form-section__heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-h2);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .contact-form-section__body {
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* ============================================================
+     FORM
+     ============================================================ */
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+
+  /* ============================================================
+     HONEYPOT — visually hidden, not aria-hidden
+     Using positioning rather than display:none so bots
+     that detect display:none still fill it in
+     ============================================================ */
+
+  .contact-form__honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ============================================================
+     FIELD GRID
+     half-width fields pair up on desktop
+     ============================================================ */
+
+  .contact-form__fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-m);
+  }
+
+  @media (min-width: 600px) {
+    .contact-form__fields {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .contact-form__field--full {
+      grid-column: 1 / -1;
+    }
+
+    .contact-form__field--half {
+      grid-column: span 1;
+    }
+  }
+
+  /* ============================================================
+     FIELD WRAPPER
+     ============================================================ */
+
+  .contact-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  /* ============================================================
+     LABEL
+     ============================================================ */
+
+  .contact-form__label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-base);
+    line-height: var(--leading-snug);
+  }
+
+  .contact-form__required {
+    color: var(--color-error);
+  }
+
+  /* ============================================================
+     INPUTS
+     ============================================================ */
+
+  .contact-form__input,
+  .contact-form__textarea,
+  .contact-form__select {
+    width: 100%;
+    padding-block: var(--input-padding-y);
+    padding-inline: var(--input-padding-x);
+    font-family: var(--font-body);
+    font-size: var(--input-font-size);
+    line-height: var(--leading-normal);
+    color: var(--input-color);
+    background-color: var(--input-bg);
+    border: var(--input-border-width) solid var(--input-border-color);
+    border-radius: var(--input-radius);
+    transition:
+      border-color var(--duration-fast) var(--ease-default),
+      box-shadow var(--duration-fast) var(--ease-default);
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .contact-form__input::placeholder,
+  .contact-form__textarea::placeholder {
+    color: var(--input-placeholder);
+  }
+
+  .contact-form__input:focus,
+  .contact-form__textarea:focus,
+  .contact-form__select:focus {
+    outline: none;
+    border-color: var(--color-border-focus);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-focus) 20%, transparent);
+  }
+
+  /* Invalid state — set by JS after submit attempt */
+  .contact-form__input[aria-invalid='true'],
+  .contact-form__textarea[aria-invalid='true'],
+  .contact-form__select[aria-invalid='true'] {
+    border-color: var(--color-error);
+  }
+
+  .contact-form__input[aria-invalid='true']:focus,
+  .contact-form__textarea[aria-invalid='true']:focus,
+  .contact-form__select[aria-invalid='true']:focus {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 20%, transparent);
+  }
+
+  .contact-form__textarea {
+    resize: vertical;
+    min-height: 8rem;
+  }
+
+  /* Select — custom chevron via background-image */
+  .contact-form__select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none' stroke='%236b6b6b' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--input-padding-x) center;
+    padding-inline-end: calc(var(--input-padding-x) * 2.5);
+    cursor: pointer;
+  }
+
+  /* ============================================================
+     CHECKBOX
+     ============================================================ */
+
+  .contact-form__field--checkbox {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .contact-form__checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-s);
+    cursor: pointer;
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .contact-form__checkbox {
+    width: 1.125rem;
+    height: 1.125rem;
+    border: var(--input-border-width) solid var(--input-border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--input-bg);
+    appearance: none;
+    -webkit-appearance: none;
+    flex-shrink: 0;
+    margin-block-start: 0.15em; /* Optical alignment with label text */
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-default),
+      border-color var(--duration-fast) var(--ease-default);
+  }
+
+  .contact-form__checkbox:checked {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    /* Checkmark via background SVG */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 6l3 3 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 0.75rem;
+  }
+
+  .contact-form__checkbox:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* ============================================================
+     VALIDATION ERRORS
+     ============================================================ */
+
+  .contact-form__error {
+    font-size: var(--text-xs);
+    color: var(--color-error);
+    min-height: 1em; /* Prevent layout shift when error appears */
+    line-height: var(--leading-snug);
+  }
+
+  /* ============================================================
+     SUBMIT ROW
+     ============================================================ */
+
+  .contact-form__submit-row {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  /* Base button — mirrors pattern from Hero / CTABand */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: var(--btn-padding-y-lg);
+    padding-inline: var(--btn-padding-x-lg);
+    font-family: var(--font-body);
+    font-size: var(--btn-font-size);
+    font-weight: var(--btn-font-weight);
+    line-height: 1;
+    border-radius: var(--btn-radius);
+    text-decoration: none;
+    transition: var(--btn-transition);
+    cursor: pointer;
+    white-space: nowrap;
+    border: 2px solid transparent;
+  }
+
+  .btn--primary {
+    background-color: var(--color-accent);
+    color: var(--color-text-inverse);
+    border-color: var(--color-accent);
+  }
+
+  .btn--primary:hover:not(:disabled) {
+    background-color: var(--color-accent-dark);
+    border-color: var(--color-accent-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn--primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* ============================================================
+     STATUS MESSAGE
+     ============================================================ */
+
+  .contact-form__status {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    border-radius: var(--radius-md);
+    min-height: 0;
+  }
+
+  .contact-form__status:not(:empty) {
+    padding: var(--space-s) var(--space-m);
+  }
+
+  .contact-form__status--success {
+    background-color: var(--color-success-surface);
+    color: var(--color-success);
+  }
+
+  .contact-form__status--error {
+    background-color: var(--color-error-surface);
+    color: var(--color-error);
+  }
+</style>
