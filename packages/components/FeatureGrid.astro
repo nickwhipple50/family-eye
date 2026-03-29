@@ -1,0 +1,315 @@
+---
+/**
+ * FeatureGrid
+ * Icon + heading + body grid. 3–4 columns at desktop. Props-driven — not CMS.
+ *
+ * Props (max 6 — T1 rule):
+ *   items      FeatureItem[]   required  3–8 items (repeater max: 8)
+ *   heading    string?                   Optional section heading above the grid
+ *   body       string?                   Optional supporting paragraph below heading
+ *   columns    3 | 4                     default: 3
+ *   variant    'cards' | 'plain'         default: 'plain'
+ *                                        cards: each item in a bordered card with hover depth
+ *                                        plain: items on open background, no card chrome
+ *   surface    'base' | 'subtle'         default: 'base' — which background token to use
+ *
+ * FeatureItem:
+ *   icon     IconName   Icon name from the approved list in Icon.astro
+ *   heading  string     Feature name
+ *   body     string     One or two sentences max. Not enforced — just document it.
+ *
+ * Icon guidance:
+ *   Use names from the approved list in Icon.astro (e.g. 'briefcase', 'zap', 'shield').
+ *   New icon needed = add to Icon.astro first. Senior dev conversation if not on the list.
+ *   Icons render as inline SVG at build time — zero JS, zero HTTP requests.
+ *
+ * Usage:
+ *   <FeatureGrid
+ *     heading="Why clients choose us"
+ *     columns={3}
+ *     variant="cards"
+ *     items={[
+ *       {
+ *         icon: 'briefcase',
+ *         heading: "Fast turnaround",
+ *         body: "Most projects delivered within two weeks of kickoff."
+ *       },
+ *       ...
+ *     ]}
+ *   />
+ *
+ * Repeater max: 8 items. Beyond that the grid becomes noise — push back.
+ * Fewer than 3 items: use ServiceList instead.
+ */
+
+import Icon from './Icon.astro';
+import type { IconName } from './Icon.astro';
+
+interface FeatureItem {
+  icon: IconName;
+  heading: string;
+  body: string;
+}
+
+interface Props {
+  items: FeatureItem[];
+  heading?: string;
+  body?: string;
+  columns?: 3 | 4;
+  variant?: 'cards' | 'plain';
+  surface?: 'base' | 'subtle';
+}
+
+const {
+  items,
+  heading,
+  body,
+  columns = 3,
+  variant = 'plain',
+  surface = 'base',
+} = Astro.props;
+
+// Enforce repeater max — warn at build time, don't throw
+if (items.length > 8) {
+  console.warn(
+    `[FeatureGrid] ${items.length} items passed — max is 8. Truncating.`,
+  );
+}
+
+const displayItems = items.slice(0, 8);
+---
+
+<section
+  class={`feature-grid feature-grid--${variant} feature-grid--surface-${surface}`}
+  aria-labelledby={heading ? 'feature-grid-heading' : undefined}
+>
+  <div class='feature-grid__inner'>
+    {/* Optional header block */}
+    {
+      (heading || body) && (
+        <div
+          class='feature-grid__header'
+          data-reveal
+        >
+          {heading && (
+            <h2
+              class='feature-grid__heading'
+              id='feature-grid-heading'
+            >
+              {heading}
+            </h2>
+          )}
+          {body && <p class='feature-grid__body'>{body}</p>}
+        </div>
+      )
+    }
+
+    {/* Grid */}
+    <ul
+      class={`feature-grid__grid feature-grid__grid--cols-${columns}`}
+      role='list'
+      data-reveal-group
+    >
+      {
+        displayItems.map((item, index) => (
+          <li
+            class='feature-grid__item'
+            data-reveal
+            style={`--item-index: ${index}`}
+          >
+            {/* Icon wrapper — aria-hidden applied on Icon component */}
+            <div class='feature-grid__icon'>
+              <Icon
+                name={item.icon}
+                size={24}
+                stroke={1.75}
+              />
+            </div>
+
+            <div class='feature-grid__text'>
+              <h3 class='feature-grid__item-heading'>{item.heading}</h3>
+              <p class='feature-grid__item-body'>{item.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  .feature-grid {
+    padding-block: var(--space-section-y);
+    padding-inline: var(--gutter);
+  }
+
+  .feature-grid--surface-base {
+    background-color: var(--color-surface-base);
+  }
+  .feature-grid--surface-subtle {
+    background-color: var(--color-surface-subtle);
+  }
+
+  .feature-grid__inner {
+    max-width: var(--max-width-content);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l-xl);
+  }
+
+  /* ============================================================
+     HEADER BLOCK
+     ============================================================ */
+
+  .feature-grid__header {
+    text-align: center;
+    max-width: var(--max-width-narrow);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  .feature-grid__heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-h2);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .feature-grid__body {
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* ============================================================
+     GRID
+     ============================================================ */
+
+  .feature-grid__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-card-gap);
+  }
+
+  /* 2-col at tablet for both column counts */
+  @media (min-width: 600px) {
+    .feature-grid__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* 3-col at desktop */
+  @media (min-width: 960px) {
+    .feature-grid__grid--cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* 4-col at desktop — goes 2→4 (skips a 3-col step intentionally) */
+  @media (min-width: 960px) {
+    .feature-grid__grid--cols-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* ============================================================
+     ITEM — plain variant
+     ============================================================ */
+
+  .feature-grid__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  /* ============================================================
+     ITEM — cards variant
+     Card hover depth from addons.md: three-layer shadow + translateY
+     ============================================================ */
+
+  .feature-grid--cards .feature-grid__item {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    padding: var(--card-padding);
+    box-shadow: var(--card-shadow);
+    transition:
+      transform var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
+  }
+
+  .feature-grid--cards .feature-grid__item:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* Subtle surface + cards: card bg stays white so it lifts off the section */
+  .feature-grid--surface-subtle.feature-grid--cards .feature-grid__item {
+    background-color: var(--color-surface-base);
+  }
+
+  /* ============================================================
+     ICON
+     lucide-astro renders an <svg> at build time — zero JS.
+     Wrapper provides the tinted background pill + accent colour
+     via currentColor. Size + stroke set via Icon props.
+     ============================================================ */
+
+  .feature-grid__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-lg);
+    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  /* Icon component renders an <svg> — inherit colour, prevent overflow */
+  .feature-grid__icon :global(svg) {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     ITEM TEXT
+     ============================================================ */
+
+  .feature-grid__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .feature-grid__item-heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-h5);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .feature-grid__item-body {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+</style>
