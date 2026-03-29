@@ -1,0 +1,395 @@
+---
+/**
+ * StatsRow
+ * 3–4 animated stat counters. Props-driven — not CMS.
+ * Counters animate from 0 to their target value when scrolled into view.
+ *
+ * Props (max 6 — T1 rule):
+ *   items      StatItem[]                  required  3–4 stats (see below)
+ *   heading    string?                               Optional section heading
+ *   variant    'band' | 'cards'            default: 'band'
+ *                band  — stats in a row on a coloured surface, no card chrome
+ *                cards — each stat in its own card, suits base/subtle surface
+ *   surface    'base' | 'subtle' | 'inverse'  default: 'inverse'
+ *
+ * StatItem:
+ *   value      number    The final counter value — e.g. 127, 4.9, 98
+ *   suffix     string?   Appended after value — e.g. '+', '%', 'k', '★'
+ *   prefix     string?   Prepended before value — e.g. '$', '£'
+ *   label      string    Descriptor below the number — e.g. "Happy clients"
+ *   decimals   number?   Decimal places to display. default: 0
+ *                        Set to 1 for ratings (e.g. 4.9).
+ *
+ * Counter animation:
+ *   — easeOutQuart via requestAnimationFrame (addons.md spec)
+ *   — Duration controlled by --stat-counter-duration token (default 2000ms)
+ *   — Respects prefers-reduced-motion — token collapses to 0ms, counter
+ *     snaps to final value immediately
+ *   — toLocaleString() for automatic comma formatting on large numbers
+ *   — IntersectionObserver with threshold 0.3 — fires when 30% of the
+ *     section is visible, not on first pixel
+ *   — Fires once only — observer disconnects after first trigger
+ *
+ * Max items: 4. A fifth stat dilutes the visual weight of each number.
+ * Fewer than 3: reconsider whether StatsRow is the right component.
+ *
+ * Usage:
+ *   <StatsRow
+ *     variant="band"
+ *     surface="inverse"
+ *     items={[
+ *       { value: 127,  suffix: '+', label: 'Projects delivered' },
+ *       { value: 4.9,  suffix: '★', label: 'Average rating', decimals: 1 },
+ *       { value: 98,   suffix: '%', label: 'Client retention' },
+ *       { value: 12,   suffix: '+', label: 'Years in business' },
+ *     ]}
+ *   />
+ */
+
+interface StatItem {
+  value: number;
+  suffix?: string;
+  prefix?: string;
+  label: string;
+  decimals?: number;
+}
+
+interface Props {
+  items: StatItem[];
+  heading?: string;
+  variant?: 'band' | 'cards';
+  surface?: 'base' | 'subtle' | 'inverse';
+}
+
+const { items, heading, variant = 'band', surface = 'inverse' } = Astro.props;
+
+if (items.length > 4) {
+  console.warn(`[StatsRow] ${items.length} items passed — max is 4. Truncating.`);
+}
+if (items.length < 3) {
+  console.warn(`[StatsRow] ${items.length} items passed — minimum is 3 for visual balance.`);
+}
+const displayItems = items.slice(0, 4);
+
+// Unique ID so multiple StatsRow instances on one page don't conflict
+const instanceId = `stats-${Math.random().toString(36).slice(2, 7)}`;
+---
+
+<section
+  class={`stats-row stats-row--${variant} stats-row--surface-${surface}`}
+  aria-label={heading ?? 'Key statistics'}
+  id={instanceId}
+>
+  <div class='stats-row__inner'>
+    {
+      heading && (
+        <div
+          class='stats-row__header'
+          data-reveal
+        >
+          <h2 class='stats-row__heading'>{heading}</h2>
+        </div>
+      )
+    }
+
+    <ul class={`stats-row__items stats-row__items--${displayItems.length}`}>
+      {
+        displayItems.map((item, index) => (
+          <li
+            class='stats-row__item'
+            style={`--item-index: ${index}`}
+          >
+            <div
+              class='stats-row__number'
+              aria-live='polite'
+            >
+              {item.prefix && <span class='stats-row__prefix'>{item.prefix}</span>}
+              <span
+                class='stats-row__counter'
+                data-target={item.value}
+                data-decimals={item.decimals ?? 0}
+              >
+                {/* Initial value — JS updates this. If JS fails, shows final value. */}
+                {item.prefix}
+                {item.decimals ? item.value.toFixed(item.decimals) : item.value.toLocaleString()}
+                {item.suffix}
+              </span>
+              {item.suffix && <span class='stats-row__suffix'>{item.suffix}</span>}
+            </div>
+            <p class='stats-row__label'>{item.label}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+{
+  /* ── COUNTER SCRIPT ───────────────────────────────────────────────────────
+    Scoped to this instance via the unique instanceId.
+    No global namespace pollution — each StatsRow manages its own observer.
+    Script is is:inline — no separate file, no module import, no build step.
+    Small enough (~40 lines) to justify inline.
+    ──────────────────────────────────────────────────────────────────────── */
+}
+<script define:vars={{ instanceId }}>
+  (function () {
+    // easeOutQuart — matches addons.md spec
+    // Decelerates toward the end, giving numbers a satisfying "landing" feel
+    function easeOutQuart(t) {
+      return 1 - Math.pow(1 - t, 4);
+    }
+
+    function animateCounter(el, target, decimals, duration) {
+      // duration comes from CSS — read the computed token value
+      // If prefers-reduced-motion collapses the token to 0ms, snap immediately
+      if (duration <= 0) {
+        el.textContent = decimals ? target.toFixed(decimals) : target.toLocaleString();
+        return;
+      }
+
+      const start = performance.now();
+
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutQuart(progress);
+        const current = eased * target;
+
+        el.textContent = decimals
+          ? current.toFixed(decimals)
+          : Math.round(current).toLocaleString();
+
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          // Ensure final value is exact
+          el.textContent = decimals ? target.toFixed(decimals) : target.toLocaleString();
+        }
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    function initStats() {
+      const section = document.getElementById(instanceId);
+      if (!section) return;
+
+      // Read duration from CSS token on the section element
+      const rawDuration = getComputedStyle(section)
+        .getPropertyValue('--stat-counter-duration')
+        .trim();
+      // Parse "2000ms" or "2s" — CSS time values
+      const duration = rawDuration.endsWith('ms')
+        ? parseFloat(rawDuration)
+        : parseFloat(rawDuration) * 1000;
+
+      const counters = section.querySelectorAll('[data-target]');
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+
+            counters.forEach((el) => {
+              const target = parseFloat(el.dataset.target);
+              const decimals = parseInt(el.dataset.decimals ?? '0', 10);
+              animateCounter(el, target, decimals, duration);
+            });
+
+            // Fire once — disconnect after first trigger
+            observer.disconnect();
+          });
+        },
+        { threshold: 0.3 }
+      );
+
+      observer.observe(section);
+    }
+
+    // Initialise on DOMContentLoaded or immediately if DOM is already ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initStats);
+    } else {
+      initStats();
+    }
+
+    // Re-initialise after Astro View Transitions page navigation
+    document.addEventListener('astro:page-load', initStats);
+  })();
+</script>
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  .stats-row {
+    padding-block: var(--space-section-y-sm);
+    padding-inline: var(--gutter);
+  }
+
+  .stats-row--surface-base {
+    background-color: var(--color-surface-base);
+  }
+  .stats-row--surface-subtle {
+    background-color: var(--color-surface-subtle);
+  }
+  .stats-row--surface-inverse {
+    background-color: var(--color-surface-inverse);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, var(--color-mesh-a) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 50%, var(--color-mesh-b) 0%, transparent 60%);
+  }
+
+  .stats-row__inner {
+    max-width: var(--max-width-content);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+
+  .stats-row__heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-h2);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+    text-align: center;
+  }
+
+  .stats-row--surface-inverse .stats-row__heading {
+    color: var(--color-text-inverse);
+  }
+
+  /* ============================================================
+     ITEMS LIST
+     ============================================================ */
+
+  .stats-row__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-l);
+    /* Default: single column on mobile */
+    grid-template-columns: 1fr;
+  }
+
+  /* 2-col at small tablet for all counts */
+  @media (min-width: 480px) {
+    .stats-row__items {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* At desktop, fill a single row regardless of item count (3 or 4) */
+  @media (min-width: 768px) {
+    .stats-row__items--3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .stats-row__items--4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* ============================================================
+     ITEM
+     ============================================================ */
+
+  .stats-row__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    text-align: center;
+  }
+
+  /* Cards variant — card chrome per item */
+  .stats-row--cards .stats-row__item {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    padding: var(--card-padding);
+    box-shadow: var(--card-shadow);
+  }
+
+  /* Inverse + cards — card lifts off dark surface */
+  .stats-row--cards.stats-row--surface-inverse .stats-row__item {
+    background-color: color-mix(
+      in srgb,
+      var(--color-surface-inverse) 80%,
+      var(--color-surface-base)
+    );
+    border-color: color-mix(in srgb, var(--color-text-inverse) 15%, transparent);
+  }
+
+  /* Band variant — dividers between items at desktop */
+  @media (min-width: 768px) {
+    .stats-row--band .stats-row__item + .stats-row__item {
+      border-inline-start: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+    }
+  }
+
+  /* ============================================================
+     NUMBER
+     ============================================================ */
+
+  .stats-row__number {
+    display: flex;
+    align-items: baseline;
+    gap: 0.1em;
+    line-height: 1;
+  }
+
+  .stats-row__counter {
+    font-family: var(--font-heading);
+    font-size: var(--text-4xl);
+    font-weight: var(--font-weight-black);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-accent);
+    /* tabular-nums keeps width stable during animation */
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stats-row--surface-inverse .stats-row__counter {
+    color: var(--color-text-inverse);
+  }
+
+  .stats-row__prefix,
+  .stats-row__suffix {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+  }
+
+  .stats-row--surface-inverse .stats-row__prefix,
+  .stats-row--surface-inverse .stats-row__suffix {
+    color: color-mix(in srgb, var(--color-text-inverse) 70%, transparent);
+  }
+
+  /* ============================================================
+     LABEL
+     ============================================================ */
+
+  .stats-row__label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .stats-row--surface-inverse .stats-row__label {
+    color: color-mix(in srgb, var(--color-text-inverse) 60%, transparent);
+  }
+</style>
