@@ -1,0 +1,357 @@
+---
+/**
+ * LogoBar
+ * Client or partner logos. Marquee or static row. Props-driven — not CMS.
+ *
+ * Props (max 6 — T1 rule):
+ *   items    LogoItem[]                  required  Logo objects (see below)
+ *   heading  string?                               Optional label above logos.
+ *                                                  e.g. "Trusted by" or "As seen in"
+ *   variant  'marquee' | 'static'        default: 'marquee'
+ *              marquee — continuous horizontal scroll, seamless loop, CSS only
+ *              static  — logos in a centred flex row, wraps on small screens
+ *   surface  'base' | 'subtle' | 'inverse'  default: 'subtle'
+ *   speed    'slow' | 'normal' | 'fast'  default: 'normal'
+ *              Maps to --marquee-speed token variants. Marquee only — ignored
+ *              for static variant.
+ *
+ * LogoItem:
+ *   src     string   Path to logo image — SVG preferred, PNG acceptable.
+ *                    Logos should be provided as monochrome or on transparent
+ *                    background. CSS applies opacity and handles dark surfaces.
+ *   alt     string   Company name — used as alt text. Keep to the name only,
+ *                    no "logo of" prefix.
+ *   width   number   Intrinsic image width in px — required for CLS prevention.
+ *   height  number   Intrinsic image height in px — required for CLS prevention.
+ *
+ * Marquee implementation:
+ *   — Logos are duplicated at render time (Astro, not JS) so the loop appears
+ *     seamless. The duplicate set is aria-hidden to avoid announcing twice.
+ *   — Animation is pure CSS via @keyframes — zero JS, zero IntersectionObserver.
+ *   — prefers-reduced-motion: animation-duration collapses to 0ms via token,
+ *     which pauses the marquee. Content remains visible and accessible.
+ *   — Pauses on hover via animation-play-state: paused — useful for logos with
+ *     fine detail the user wants to read.
+ *   — --marquee-speed token controls duration. Adjust in theme.css if the
+ *     default 40s feels too fast or slow for a given logo count.
+ *
+ * Speed variants:
+ *   slow   → 60s per loop  (many logos, or client prefers subtle motion)
+ *   normal → 40s per loop  (default — token value)
+ *   fast   → 25s per loop  (few logos, or high-energy brand)
+ *
+ * Logo guidance:
+ *   — Aim for consistent visual weight across logos. Resize to equal height.
+ *   — Mix of wide and square logos looks uneven — adjust width per item.
+ *   — 6–12 logos works well for marquee. Under 6 = use static instead.
+ *   — Static variant: 4–8 logos. More than 8 wraps awkwardly.
+ *
+ * Usage:
+ *   <LogoBar
+ *     heading="Trusted by"
+ *     variant="marquee"
+ *     speed="normal"
+ *     items={[
+ *       { src: '/images/logos/acme.svg', alt: 'Acme Corp', width: 120, height: 40 },
+ *       { src: '/images/logos/globex.svg', alt: 'Globex', width: 100, height: 40 },
+ *       ...
+ *     ]}
+ *   />
+ */
+
+interface LogoItem {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+}
+
+interface Props {
+  items: LogoItem[];
+  heading?: string;
+  variant?: 'marquee' | 'static';
+  surface?: 'base' | 'subtle' | 'inverse';
+  speed?: 'slow' | 'normal' | 'fast';
+}
+
+const { items, heading, variant = 'marquee', surface = 'subtle', speed = 'normal' } = Astro.props;
+
+if (variant === 'marquee' && items.length < 4) {
+  console.warn(
+    `[LogoBar] Marquee variant with ${items.length} logos will look sparse. Consider 'static' variant or adding more logos.`
+  );
+}
+if (variant === 'static' && items.length > 8) {
+  console.warn(
+    `[LogoBar] Static variant with ${items.length} logos may wrap awkwardly. Consider 'marquee' variant.`
+  );
+}
+
+// Speed map — CSS custom property override values
+const speedMap = {
+  slow: '60s',
+  normal: '40s',
+  fast: '25s',
+} as const;
+
+const marqueeSpeed = speedMap[speed];
+---
+
+<section
+  class={`logo-bar logo-bar--${variant} logo-bar--surface-${surface}`}
+  aria-label={heading ?? 'Client logos'}
+>
+  <div class='logo-bar__inner'>
+    {
+      heading && (
+        <p
+          class='logo-bar__heading'
+          aria-hidden='false'
+        >
+          {heading}
+        </p>
+      )
+    }
+
+    {/* ── STATIC VARIANT ──────────────────────────────────── */}
+    {
+      variant === 'static' && (
+        <ul class='logo-bar__static'>
+          {items.map((logo) => (
+            <li class='logo-bar__item'>
+              <img
+                src={logo.src}
+                alt={logo.alt}
+                width={logo.width}
+                height={logo.height}
+                loading='lazy'
+                decoding='async'
+                class='logo-bar__logo'
+              />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    {/* ── MARQUEE VARIANT ─────────────────────────────────── */}
+    {
+      variant === 'marquee' && (
+        <div
+          class='logo-bar__marquee-wrap'
+          style={`--marquee-speed: ${marqueeSpeed}`}
+        >
+          {/*
+          Two identical tracks side by side.
+          Track 1 animates from 0 → -50% of total width.
+          When it reaches -50%, it snaps back to 0 — at that point
+          track 2 is exactly where track 1 started, making the loop seamless.
+          Track 2 is aria-hidden — same content, presentational duplicate only.
+        */}
+          <ul
+            class='logo-bar__track'
+            aria-label='Client logos'
+          >
+            {items.map((logo) => (
+              <li class='logo-bar__item'>
+                <img
+                  src={logo.src}
+                  alt={logo.alt}
+                  width={logo.width}
+                  height={logo.height}
+                  loading='lazy'
+                  decoding='async'
+                  class='logo-bar__logo'
+                />
+              </li>
+            ))}
+          </ul>
+
+          <ul
+            class='logo-bar__track'
+            aria-hidden='true'
+          >
+            {items.map((logo) => (
+              <li class='logo-bar__item'>
+                <img
+                  src={logo.src}
+                  alt=''
+                  width={logo.width}
+                  height={logo.height}
+                  loading='lazy'
+                  decoding='async'
+                  class='logo-bar__logo'
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  .logo-bar {
+    padding-block: var(--space-section-y-sm);
+    padding-inline: var(--gutter);
+    overflow: hidden; /* Clip marquee overflow */
+  }
+
+  .logo-bar--surface-base {
+    background-color: var(--color-surface-base);
+  }
+  .logo-bar--surface-subtle {
+    background-color: var(--color-surface-subtle);
+  }
+  .logo-bar--surface-inverse {
+    background-color: var(--color-surface-inverse);
+  }
+
+  .logo-bar__inner {
+    max-width: var(--max-width-content);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+
+  /* ============================================================
+     HEADING — label above logos, not a section heading
+     <p> not <h2> — LogoBar is a supporting element, not a content
+     section. An <h2> here would inflate the heading hierarchy.
+     ============================================================ */
+
+  .logo-bar__heading {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+    text-align: center;
+    margin: 0;
+  }
+
+  .logo-bar--surface-inverse .logo-bar__heading {
+    color: color-mix(in srgb, var(--color-text-inverse) 50%, transparent);
+  }
+
+  /* ============================================================
+     LOGO SHARED STYLES
+     Logos are greyscale at rest, full opacity on hover.
+     On inverse surfaces, logos are white (CSS filter).
+     ============================================================ */
+
+  .logo-bar__logo {
+    display: block;
+    height: var(--logo-bar-height); /* 2.5rem — token */
+    width: auto;
+    object-fit: contain;
+    /* Greyscale + reduced opacity — logos read as supporting, not primary */
+    filter: grayscale(100%);
+    opacity: 0.55;
+    transition:
+      opacity var(--duration-normal) var(--ease-out),
+      filter var(--duration-normal) var(--ease-out);
+  }
+
+  .logo-bar__logo:hover {
+    filter: grayscale(0%);
+    opacity: 1;
+  }
+
+  /* Inverse surface — logos need to be visible on dark bg */
+  .logo-bar--surface-inverse .logo-bar__logo {
+    filter: grayscale(100%) brightness(0) invert(1);
+    opacity: 0.6;
+  }
+
+  .logo-bar--surface-inverse .logo-bar__logo:hover {
+    filter: grayscale(100%) brightness(0) invert(1);
+    opacity: 1;
+  }
+
+  /* ============================================================
+     STATIC VARIANT
+     ============================================================ */
+
+  .logo-bar__static {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-l-xl);
+  }
+
+  .logo-bar__static .logo-bar__item {
+    display: flex;
+    align-items: center;
+  }
+
+  /* ============================================================
+     MARQUEE VARIANT
+     ============================================================ */
+
+  .logo-bar__marquee-wrap {
+    /* Full bleed within the section — ignore inner max-width */
+    width: 100%;
+    display: flex;
+    overflow: hidden;
+    /* Fade edges — logos gracefully enter/exit rather than hard-clipping */
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
+
+  /* Pause on hover — user can inspect logos */
+  .logo-bar__marquee-wrap:hover .logo-bar__track {
+    animation-play-state: paused;
+  }
+
+  .logo-bar__track {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--marquee-gap); /* --space-xl token */
+    /* Padding at ends so edge logos have breathing room */
+    padding-inline: calc(var(--marquee-gap) / 2);
+    flex-shrink: 0;
+    /* Both tracks animate at the same rate — seamless handoff */
+    animation: marquee-scroll var(--marquee-speed) linear infinite;
+  }
+
+  .logo-bar__track .logo-bar__item {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     MARQUEE KEYFRAME
+     Translates the full width of one track (50% of both tracks combined).
+     This moves track 1 out of view exactly as track 2 fills its place.
+     ============================================================ */
+
+  @keyframes marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+</style>
