@@ -1,0 +1,402 @@
+---
+/**
+ * ServiceList
+ * CMS-driven list of services. Icon or image per item — never both.
+ * Informational only — no links. (T3 CPT singles handle linked service pages.)
+ *
+ * Props (max 6 — T1 rule):
+ *   items    ServiceItem[]    required  Services from Decap CMS collection
+ *   heading  string?                    Section heading
+ *   body     string?                    Supporting paragraph
+ *   variant  'list-icon'                Vertical list, icon left of text
+ *            'list-image'               Vertical list, image left of text
+ *            'grid-icon'                2–3 col grid, icon above text
+ *            'grid-image'               2–3 col grid, image above text
+ *            default: 'grid-icon'
+ *   surface  'base' | 'subtle'          default: 'base'
+ *   columns  2 | 3                      Grid variants only. default: 3
+ *                                       Ignored for list variants.
+ *
+ * ServiceItem (mirrors Decap CMS services collection schema):
+ *   name         string     Service name
+ *   description  string     One to three sentences
+ *   icon?        IconName   Icon from approved list — used in icon variants
+ *   image?       object     { src, alt } — used in image variants
+ *     image.src  string     Path to image in /public or CMS media
+ *     image.alt  string     Descriptive alt text
+ *
+ * Variant drives which media field is used:
+ *   icon variants  → item.icon is rendered, item.image is ignored
+ *   image variants → item.image is rendered, item.icon is ignored
+ *   If the required media field is absent, the item renders without media
+ *   and a build-time warning fires.
+ *
+ * Max items: 6. Beyond that the list becomes noise. Push back at CMS level
+ * (maxLength enforced in Decap config) and at build time (warn + truncate).
+ *
+ * Usage:
+ *   ---
+ *   import ServiceList from '@mmm/components/ServiceList.astro';
+ *   import { getCollection } from 'astro:content';
+ *   const services = await getCollection('services');
+ *   ---
+ *   <ServiceList
+ *     heading="What we do"
+ *     variant="grid-icon"
+ *     columns={3}
+ *     items={services.map(s => s.data)}
+ *   />
+ */
+
+import Icon from './Icon.astro';
+import type { IconName } from './Icon.astro';
+
+interface ServiceImage {
+  src: string;
+  alt: string;
+}
+
+interface ServiceItem {
+  name: string;
+  description: string;
+  icon?: IconName;
+  image?: ServiceImage;
+}
+
+interface Props {
+  items: ServiceItem[];
+  heading?: string;
+  body?: string;
+  variant?: 'list-icon' | 'list-image' | 'grid-icon' | 'grid-image';
+  surface?: 'base' | 'subtle';
+  columns?: 2 | 3;
+}
+
+const { items, heading, body, variant = 'grid-icon', surface = 'base', columns = 3 } = Astro.props;
+
+// Enforce max
+if (items.length > 6) {
+  console.warn(`[ServiceList] ${items.length} items passed — max is 6. Truncating.`);
+}
+const displayItems = items.slice(0, 6);
+
+// Derived flags — used in template and for per-item validation
+const isGrid = variant.startsWith('grid');
+const useIcon = variant.endsWith('icon');
+const useImage = variant.endsWith('image');
+
+// Warn if expected media fields are missing
+displayItems.forEach((item, i) => {
+  if (useIcon && !item.icon) {
+    console.warn(
+      `[ServiceList] item[${i}] "${item.name}" is missing icon — variant is "${variant}"`
+    );
+  }
+  if (useImage && !item.image) {
+    console.warn(
+      `[ServiceList] item[${i}] "${item.name}" is missing image — variant is "${variant}"`
+    );
+  }
+});
+---
+
+<section
+  class={`service-list service-list--${variant} service-list--surface-${surface}`}
+  aria-labelledby={heading ? 'service-list-heading' : undefined}
+>
+  <div class='service-list__inner'>
+    {
+      (heading || body) && (
+        <div
+          class='service-list__header'
+          data-reveal
+        >
+          {heading && (
+            <h2
+              class='service-list__heading'
+              id='service-list-heading'
+            >
+              {heading}
+            </h2>
+          )}
+          {body && <p class='service-list__subheading'>{body}</p>}
+        </div>
+      )
+    }
+
+    <ul
+      class={[
+        'service-list__items',
+        isGrid
+          ? `service-list__items--grid service-list__items--cols-${columns}`
+          : 'service-list__items--list',
+      ].join(' ')}
+      data-reveal-group
+    >
+      {
+        displayItems.map((item, index) => (
+          <li
+            class='service-list__item'
+            data-reveal
+            style={`--item-index: ${index}`}
+          >
+            {/* Icon media */}
+            {useIcon && item.icon && (
+              <div class='service-list__icon'>
+                <Icon
+                  name={item.icon}
+                  size={24}
+                  stroke={1.75}
+                />
+              </div>
+            )}
+
+            {/* Image media */}
+            {useImage && item.image && (
+              <div class='service-list__image-wrap'>
+                <img
+                  src={item.image.src}
+                  alt={item.image.alt}
+                  width={600}
+                  height={400}
+                  loading='lazy'
+                  decoding='async'
+                  class='service-list__image'
+                />
+              </div>
+            )}
+
+            {/* Text */}
+            <div class='service-list__text'>
+              <h3 class='service-list__item-name'>{item.name}</h3>
+              <p class='service-list__item-description'>{item.description}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  .service-list {
+    padding-block: var(--space-section-y);
+    padding-inline: var(--gutter);
+  }
+
+  .service-list--surface-base {
+    background-color: var(--color-surface-base);
+  }
+  .service-list--surface-subtle {
+    background-color: var(--color-surface-subtle);
+  }
+
+  .service-list__inner {
+    max-width: var(--max-width-content);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l-xl);
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+
+  .service-list__header {
+    text-align: center;
+    max-width: var(--max-width-narrow);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  .service-list__heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-h2);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .service-list__subheading {
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* ============================================================
+     LIST LAYOUT — shared reset
+     ============================================================ */
+
+  .service-list__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ============================================================
+     LIST VARIANTS — vertical stacked rows
+     list-icon: icon left, text right
+     list-image: image left, text right
+     ============================================================ */
+
+  .service-list__items--list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m-l);
+  }
+
+  .service-list--list-icon .service-list__item,
+  .service-list--list-image .service-list__item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-m);
+  }
+
+  /* Divider between list items */
+  .service-list--list-icon .service-list__item + .service-list__item,
+  .service-list--list-image .service-list__item + .service-list__item {
+    padding-block-start: var(--space-m-l);
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  /* Image in list mode — fixed width, constrained height */
+  .service-list--list-image .service-list__image-wrap {
+    width: 7rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+  }
+
+  /* ============================================================
+     GRID VARIANTS — multi-column
+     grid-icon: icon above text
+     grid-image: image above text
+     ============================================================ */
+
+  .service-list__items--grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-card-gap);
+  }
+
+  @media (min-width: 600px) {
+    .service-list__items--grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 960px) {
+    .service-list__items--cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .service-list__items--cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .service-list--grid-icon .service-list__item,
+  .service-list--grid-image .service-list__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    padding: var(--card-padding);
+    box-shadow: var(--card-shadow);
+    transition:
+      transform var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
+  }
+
+  .service-list--grid-icon .service-list__item:hover,
+  .service-list--grid-image .service-list__item:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* Subtle surface: card bg stays white so it lifts off the section */
+  .service-list--surface-subtle .service-list--grid-icon .service-list__item,
+  .service-list--surface-subtle .service-list--grid-image .service-list__item {
+    background-color: var(--color-surface-base);
+  }
+
+  /* Image in grid mode — full width, fixed aspect */
+  .service-list--grid-image .service-list__image-wrap {
+    width: calc(100% + calc(var(--card-padding) * 2));
+    margin-inline: calc(var(--card-padding) * -1);
+    margin-block-start: calc(var(--card-padding) * -1);
+    border-radius: var(--card-radius) var(--card-radius) 0 0;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+  }
+
+  /* ============================================================
+     ICON
+     ============================================================ */
+
+  .service-list__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-lg);
+    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .service-list__icon :global(svg) {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     IMAGE
+     ============================================================ */
+
+  .service-list__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ============================================================
+     TEXT
+     ============================================================ */
+
+  .service-list__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .service-list__item-name {
+    font-family: var(--font-heading);
+    font-size: var(--text-h5);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .service-list__item-description {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+</style>
