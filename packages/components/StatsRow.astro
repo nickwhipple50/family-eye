@@ -80,14 +80,11 @@ const instanceId = `stats-${Math.random().toString(36).slice(2, 7)}`;
   aria-label={heading ?? 'Key statistics'}
   id={instanceId}
 >
-  <div class='stats-row__inner'>
+  <div class="stats-row__inner">
     {
       heading && (
-        <div
-          class='stats-row__header'
-          data-reveal
-        >
-          <h2 class='stats-row__heading'>{heading}</h2>
+        <div class="stats-row__header" data-reveal>
+          <h2 class="stats-row__heading">{heading}</h2>
         </div>
       )
     }
@@ -95,17 +92,11 @@ const instanceId = `stats-${Math.random().toString(36).slice(2, 7)}`;
     <ul class={`stats-row__items stats-row__items--${displayItems.length}`}>
       {
         displayItems.map((item, index) => (
-          <li
-            class='stats-row__item'
-            style={`--item-index: ${index}`}
-          >
-            <div
-              class='stats-row__number'
-              aria-live='polite'
-            >
-              {item.prefix && <span class='stats-row__prefix'>{item.prefix}</span>}
+          <li class="stats-row__item" style={`--item-index: ${index}`}>
+            <div class="stats-row__number" aria-live="polite">
+              {item.prefix && <span class="stats-row__prefix">{item.prefix}</span>}
               <span
-                class='stats-row__counter'
+                class="stats-row__counter"
                 data-target={item.value}
                 data-decimals={item.decimals ?? 0}
               >
@@ -114,9 +105,9 @@ const instanceId = `stats-${Math.random().toString(36).slice(2, 7)}`;
                 {item.decimals ? item.value.toFixed(item.decimals) : item.value.toLocaleString()}
                 {item.suffix}
               </span>
-              {item.suffix && <span class='stats-row__suffix'>{item.suffix}</span>}
+              {item.suffix && <span class="stats-row__suffix">{item.suffix}</span>}
             </div>
-            <p class='stats-row__label'>{item.label}</p>
+            <p class="stats-row__label">{item.label}</p>
           </li>
         ))
       }

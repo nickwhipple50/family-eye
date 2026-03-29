@@ -85,14 +85,11 @@ function buildStars(rating: number): number[] {
   class={`testimonial-row testimonial-row--${variant} testimonial-row--surface-${surface}`}
   aria-label={heading ?? 'Testimonials'}
 >
-  <div class='testimonial-row__inner'>
+  <div class="testimonial-row__inner">
     {
       heading && (
-        <div
-          class='testimonial-row__header'
-          data-reveal
-        >
-          <h2 class='testimonial-row__heading'>{heading}</h2>
+        <div class="testimonial-row__header" data-reveal>
+          <h2 class="testimonial-row__heading">{heading}</h2>
         </div>
       )
     }
@@ -105,21 +102,17 @@ function buildStars(rating: number): number[] {
           data-reveal-group
         >
           {displayItems.map((item, index) => (
-            <li
-              class='testimonial-row__card'
-              data-reveal
-              style={`--item-index: ${index}`}
-            >
+            <li class="testimonial-row__card" data-reveal style={`--item-index: ${index}`}>
               {/* Rating stars */}
               {item.rating && (
                 <div
-                  class='testimonial-row__stars'
+                  class="testimonial-row__stars"
                   aria-label={`${Math.round(item.rating)} out of 5 stars`}
                 >
                   {buildStars(item.rating).map((filled) => (
                     <span
                       class={`testimonial-row__star${filled ? ' testimonial-row__star--filled' : ''}`}
-                      aria-hidden='true'
+                      aria-hidden="true"
                     >
                       ★
                     </span>
@@ -128,16 +121,16 @@ function buildStars(rating: number): number[] {
               )}
 
               {/* Quote — CSS adds opening mark via ::before */}
-              <blockquote class='testimonial-row__quote'>
+              <blockquote class="testimonial-row__quote">
                 <p>{item.quote}</p>
               </blockquote>
 
               {/* Attribution */}
-              <footer class='testimonial-row__attribution'>
-                <cite class='testimonial-row__cite'>
-                  <span class='testimonial-row__name'>{item.name}</span>
+              <footer class="testimonial-row__attribution">
+                <cite class="testimonial-row__cite">
+                  <span class="testimonial-row__name">{item.name}</span>
                   {(item.role || item.company) && (
-                    <span class='testimonial-row__meta'>
+                    <span class="testimonial-row__meta">
                       {[item.role, item.company].filter(Boolean).join(', ')}
                     </span>
                   )}
@@ -152,19 +145,16 @@ function buildStars(rating: number): number[] {
     {/* ── FEATURED VARIANT ──────────────────────────────────── */}
     {
       variant === 'featured' && featuredItem && (
-        <figure
-          class='testimonial-row__featured'
-          data-reveal
-        >
+        <figure class="testimonial-row__featured" data-reveal>
           {featuredItem.rating && (
             <div
-              class='testimonial-row__stars testimonial-row__stars--lg'
+              class="testimonial-row__stars testimonial-row__stars--lg"
               aria-label={`${Math.round(featuredItem.rating)} out of 5 stars`}
             >
               {buildStars(featuredItem.rating).map((filled) => (
                 <span
                   class={`testimonial-row__star${filled ? ' testimonial-row__star--filled' : ''}`}
-                  aria-hidden='true'
+                  aria-hidden="true"
                 >
                   ★
                 </span>
@@ -172,15 +162,15 @@ function buildStars(rating: number): number[] {
             </div>
           )}
 
-          <blockquote class='testimonial-row__quote testimonial-row__quote--featured'>
+          <blockquote class="testimonial-row__quote testimonial-row__quote--featured">
             <p>{featuredItem.quote}</p>
           </blockquote>
 
-          <figcaption class='testimonial-row__attribution testimonial-row__attribution--featured'>
-            <cite class='testimonial-row__cite'>
-              <span class='testimonial-row__name'>{featuredItem.name}</span>
+          <figcaption class="testimonial-row__attribution testimonial-row__attribution--featured">
+            <cite class="testimonial-row__cite">
+              <span class="testimonial-row__name">{featuredItem.name}</span>
               {(featuredItem.role || featuredItem.company) && (
-                <span class='testimonial-row__meta'>
+                <span class="testimonial-row__meta">
                   {[featuredItem.role, featuredItem.company].filter(Boolean).join(', ')}
                 </span>
               )}

@@ -101,13 +101,10 @@ const marqueeSpeed = speedMap[speed];
   class={`logo-bar logo-bar--${variant} logo-bar--surface-${surface}`}
   aria-label={heading ?? 'Client logos'}
 >
-  <div class='logo-bar__inner'>
+  <div class="logo-bar__inner">
     {
       heading && (
-        <p
-          class='logo-bar__heading'
-          aria-hidden='false'
-        >
+        <p class="logo-bar__heading" aria-hidden="false">
           {heading}
         </p>
       )
@@ -116,17 +113,17 @@ const marqueeSpeed = speedMap[speed];
     {/* ── STATIC VARIANT ──────────────────────────────────── */}
     {
       variant === 'static' && (
-        <ul class='logo-bar__static'>
+        <ul class="logo-bar__static">
           {items.map((logo) => (
-            <li class='logo-bar__item'>
+            <li class="logo-bar__item">
               <img
                 src={logo.src}
                 alt={logo.alt}
                 width={logo.width}
                 height={logo.height}
-                loading='lazy'
-                decoding='async'
-                class='logo-bar__logo'
+                loading="lazy"
+                decoding="async"
+                class="logo-bar__logo"
               />
             </li>
           ))}
@@ -137,10 +134,7 @@ const marqueeSpeed = speedMap[speed];
     {/* ── MARQUEE VARIANT ─────────────────────────────────── */}
     {
       variant === 'marquee' && (
-        <div
-          class='logo-bar__marquee-wrap'
-          style={`--marquee-speed: ${marqueeSpeed}`}
-        >
+        <div class="logo-bar__marquee-wrap" style={`--marquee-speed: ${marqueeSpeed}`}>
           {/*
           Two identical tracks side by side.
           Track 1 animates from 0 → -50% of total width.
@@ -148,39 +142,33 @@ const marqueeSpeed = speedMap[speed];
           track 2 is exactly where track 1 started, making the loop seamless.
           Track 2 is aria-hidden — same content, presentational duplicate only.
         */}
-          <ul
-            class='logo-bar__track'
-            aria-label='Client logos'
-          >
+          <ul class="logo-bar__track" aria-label="Client logos">
             {items.map((logo) => (
-              <li class='logo-bar__item'>
+              <li class="logo-bar__item">
                 <img
                   src={logo.src}
                   alt={logo.alt}
                   width={logo.width}
                   height={logo.height}
-                  loading='lazy'
-                  decoding='async'
-                  class='logo-bar__logo'
+                  loading="lazy"
+                  decoding="async"
+                  class="logo-bar__logo"
                 />
               </li>
             ))}
           </ul>
 
-          <ul
-            class='logo-bar__track'
-            aria-hidden='true'
-          >
+          <ul class="logo-bar__track" aria-hidden="true">
             {items.map((logo) => (
-              <li class='logo-bar__item'>
+              <li class="logo-bar__item">
                 <img
                   src={logo.src}
-                  alt=''
+                  alt=""
                   width={logo.width}
                   height={logo.height}
-                  loading='lazy'
-                  decoding='async'
-                  class='logo-bar__logo'
+                  loading="lazy"
+                  decoding="async"
+                  class="logo-bar__logo"
                 />
               </li>
             ))}

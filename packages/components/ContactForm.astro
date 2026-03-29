@@ -147,61 +147,39 @@ fields.forEach((field) => {
 });
 ---
 
-<section
-  class='contact-form-section'
-  aria-label={heading ?? 'Contact'}
->
-  <div class='contact-form-section__inner'>
+<section class="contact-form-section" aria-label={heading ?? 'Contact'}>
+  <div class="contact-form-section__inner">
     {
       (heading || body) && (
-        <div
-          class='contact-form-section__header'
-          data-reveal
-        >
-          {heading && <h2 class='contact-form-section__heading'>{heading}</h2>}
-          {body && <p class='contact-form-section__body'>{body}</p>}
+        <div class="contact-form-section__header" data-reveal>
+          {heading && <h2 class="contact-form-section__heading">{heading}</h2>}
+          {body && <p class="contact-form-section__body">{body}</p>}
         </div>
       )
     }
 
     <form
       id={instanceId}
-      class='contact-form'
-      method='POST'
+      class="contact-form"
+      method="POST"
       action={action}
       novalidate
       data-netlify={isNetlify ? 'true' : undefined}
       data-netlify-honeypot={isNetlify ? honeypotName : undefined}
     >
       {/* Netlify hidden form-name field — required for Netlify Forms detection */}
-      {
-        isNetlify && (
-          <input
-            type='hidden'
-            name='form-name'
-            value={formName}
-          />
-        )
-      }
+      {isNetlify && <input type="hidden" name="form-name" value={formName} />}
 
       {/* Honeypot — hidden from real users, bots fill it in */}
-      <div
-        class='contact-form__honeypot'
-        aria-hidden='true'
-      >
+      <div class="contact-form__honeypot" aria-hidden="true">
         <label>
           Don't fill this out if you're human:
-          <input
-            type='text'
-            name={honeypotName}
-            tabindex='-1'
-            autocomplete='off'
-          />
+          <input type="text" name={honeypotName} tabindex="-1" autocomplete="off" />
         </label>
       </div>
 
       {/* Field grid */}
-      <div class='contact-form__fields'>
+      <div class="contact-form__fields">
         {
           fields.map((field) => {
             const fieldId = `${instanceId}-${field.name}`;
@@ -214,16 +192,10 @@ fields.forEach((field) => {
               >
                 {/* All types except checkbox: label above input */}
                 {field.type !== 'checkbox' && (
-                  <label
-                    class='contact-form__label'
-                    for={fieldId}
-                  >
+                  <label class="contact-form__label" for={fieldId}>
                     {field.label}
                     {isRequired && (
-                      <span
-                        class='contact-form__required'
-                        aria-hidden='true'
-                      >
+                      <span class="contact-form__required" aria-hidden="true">
                         {' '}
                         *
                       </span>
@@ -235,7 +207,7 @@ fields.forEach((field) => {
                 {(field.type === 'text' || field.type === 'email' || field.type === 'tel') && (
                   <input
                     id={fieldId}
-                    class='contact-form__input'
+                    class="contact-form__input"
                     type={field.type}
                     name={field.name}
                     required={isRequired}
@@ -249,7 +221,7 @@ fields.forEach((field) => {
                 {field.type === 'textarea' && (
                   <textarea
                     id={fieldId}
-                    class='contact-form__textarea'
+                    class="contact-form__textarea"
                     name={field.name}
                     required={isRequired}
                     placeholder={field.placeholder}
@@ -262,16 +234,12 @@ fields.forEach((field) => {
                 {field.type === 'select' && field.options && (
                   <select
                     id={fieldId}
-                    class='contact-form__select'
+                    class="contact-form__select"
                     name={field.name}
                     required={isRequired}
                     aria-required={isRequired ? 'true' : undefined}
                   >
-                    <option
-                      value=''
-                      disabled
-                      selected
-                    >
+                    <option value="" disabled selected>
                       {field.placeholder ?? 'Select an option'}
                     </option>
                     {field.options.map((opt) => (
@@ -282,25 +250,19 @@ fields.forEach((field) => {
 
                 {/* checkbox — label wraps input */}
                 {field.type === 'checkbox' && (
-                  <label
-                    class='contact-form__checkbox-label'
-                    for={fieldId}
-                  >
+                  <label class="contact-form__checkbox-label" for={fieldId}>
                     <input
                       id={fieldId}
-                      class='contact-form__checkbox'
-                      type='checkbox'
+                      class="contact-form__checkbox"
+                      type="checkbox"
                       name={field.name}
                       required={isRequired}
                       aria-required={isRequired ? 'true' : undefined}
                     />
-                    <span class='contact-form__checkbox-text'>
+                    <span class="contact-form__checkbox-text">
                       {field.label}
                       {isRequired && (
-                        <span
-                          class='contact-form__required'
-                          aria-hidden='true'
-                        >
+                        <span class="contact-form__required" aria-hidden="true">
                           {' '}
                           *
                         </span>
@@ -312,10 +274,10 @@ fields.forEach((field) => {
                 {/* Validation error message slot — populated by JS */}
                 {field.type !== 'checkbox' && (
                   <span
-                    class='contact-form__error'
+                    class="contact-form__error"
                     id={`${fieldId}-error`}
-                    aria-live='polite'
-                    role='alert'
+                    aria-live="polite"
+                    role="alert"
                   />
                 )}
               </div>
@@ -325,10 +287,10 @@ fields.forEach((field) => {
       </div>
 
       {/* Submit */}
-      <div class='contact-form__submit-row'>
+      <div class="contact-form__submit-row">
         <button
-          type='submit'
-          class='contact-form__submit btn btn--primary'
+          type="submit"
+          class="contact-form__submit btn btn--primary"
           data-label={submitLabel}
         >
           {submitLabel}
@@ -337,10 +299,10 @@ fields.forEach((field) => {
 
       {/* Form-level status — success or error */}
       <div
-        class='contact-form__status'
+        class="contact-form__status"
         id={`${instanceId}-status`}
-        aria-live='polite'
-        role='status'
+        aria-live="polite"
+        role="status"
       >
       </div>
     </form>

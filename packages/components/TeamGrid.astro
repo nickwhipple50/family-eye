@@ -103,53 +103,40 @@ function avatarColourIndex(name: string): number {
 }
 ---
 
-<section
-  class={`team-grid team-grid--surface-${surface}`}
-  aria-label={heading ?? 'Team'}
->
-  <div class='team-grid__inner'>
+<section class={`team-grid team-grid--surface-${surface}`} aria-label={heading ?? 'Team'}>
+  <div class="team-grid__inner">
     {
       heading && (
-        <div
-          class='team-grid__header'
-          data-reveal
-        >
-          <h2 class='team-grid__heading'>{heading}</h2>
+        <div class="team-grid__header" data-reveal>
+          <h2 class="team-grid__heading">{heading}</h2>
         </div>
       )
     }
 
-    <ul
-      class={`team-grid__grid team-grid__grid--cols-${columns}`}
-      data-reveal-group
-    >
+    <ul class={`team-grid__grid team-grid__grid--cols-${columns}`} data-reveal-group>
       {
         displayItems.map((member, index) => {
           const initials = getInitials(member.name);
           const colourIndex = avatarColourIndex(member.name);
 
           return (
-            <li
-              class='team-grid__card'
-              data-reveal
-              style={`--item-index: ${index}`}
-            >
+            <li class="team-grid__card" data-reveal style={`--item-index: ${index}`}>
               {/* Avatar — photo or initials fallback */}
-              <div class='team-grid__avatar-wrap'>
+              <div class="team-grid__avatar-wrap">
                 {member.photo ? (
                   <img
                     src={member.photo.src}
                     alt={member.photo.alt}
                     width={400}
                     height={400}
-                    loading='lazy'
-                    decoding='async'
-                    class='team-grid__photo'
+                    loading="lazy"
+                    decoding="async"
+                    class="team-grid__photo"
                   />
                 ) : (
                   <div
                     class={`team-grid__initials team-grid__initials--colour-${colourIndex}`}
-                    aria-hidden='true'
+                    aria-hidden="true"
                   >
                     {initials}
                   </div>
@@ -157,10 +144,10 @@ function avatarColourIndex(name: string): number {
               </div>
 
               {/* Text */}
-              <div class='team-grid__text'>
-                <h3 class='team-grid__name'>{member.name}</h3>
-                <p class='team-grid__role'>{member.role}</p>
-                {member.bio && <p class='team-grid__bio'>{member.bio}</p>}
+              <div class="team-grid__text">
+                <h3 class="team-grid__name">{member.name}</h3>
+                <p class="team-grid__role">{member.role}</p>
+                {member.bio && <p class="team-grid__bio">{member.bio}</p>}
               </div>
             </li>
           );
