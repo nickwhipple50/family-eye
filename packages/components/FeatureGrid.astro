@@ -71,33 +71,47 @@ const displayItems = items.slice(0, 8);
 ---
 
 <section
-  class={`feature-grid feature-grid--${variant} feature-grid--surface-${surface}`}
+  class={`feature-grid feature-grid--${variant} section surface-${surface}`}
   aria-label={heading ?? 'Features'}
 >
-  <div class="feature-grid__inner">
+  <div class='feature-grid__inner section__inner'>
     {/* Optional header block */}
     {
       (heading || body) && (
-        <div class="feature-grid__header" data-reveal>
-          {heading && <h2 class="feature-grid__heading">{heading}</h2>}
-          {body && <p class="feature-grid__body">{body}</p>}
+        <div
+          class='section__header'
+          data-reveal
+        >
+          {heading && <h2 class='section__heading'>{heading}</h2>}
+          {body && <p class='section__body'>{body}</p>}
         </div>
       )
     }
 
     {/* Grid */}
-    <ul class={`feature-grid__grid feature-grid__grid--cols-${columns}`} data-reveal-group>
+    <ul
+      class={`feature-grid__grid feature-grid__grid--cols-${columns}`}
+      data-reveal-group
+    >
       {
         displayItems.map((item, index) => (
-          <li class="feature-grid__item" data-reveal style={`--item-index: ${index}`}>
+          <li
+            class='feature-grid__item'
+            data-reveal
+            style={`--item-index: ${index}`}
+          >
             {/* Icon wrapper — aria-hidden applied on Icon component */}
-            <div class="feature-grid__icon">
-              <Icon name={item.icon} size={24} stroke={1.75} />
+            <div class='feature-grid__icon'>
+              <Icon
+                name={item.icon}
+                size={24}
+                stroke={1.75}
+              />
             </div>
 
-            <div class="feature-grid__text">
-              <h3 class="feature-grid__item-heading">{item.heading}</h3>
-              <p class="feature-grid__item-body">{item.body}</p>
+            <div class='feature-grid__text'>
+              <h3 class='feature-grid__item-heading'>{item.heading}</h3>
+              <p class='feature-grid__item-body'>{item.body}</p>
             </div>
           </li>
         ))
@@ -110,56 +124,6 @@ const displayItems = items.slice(0, 8);
   /* ============================================================
      SECTION
      ============================================================ */
-
-  .feature-grid {
-    padding-block: var(--space-section-y);
-    padding-inline: var(--gutter);
-  }
-
-  .feature-grid--surface-base {
-    background-color: var(--color-surface-base);
-  }
-  .feature-grid--surface-subtle {
-    background-color: var(--color-surface-subtle);
-  }
-
-  .feature-grid__inner {
-    max-width: var(--max-width-content);
-    margin-inline: auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-l-xl);
-  }
-
-  /* ============================================================
-     HEADER BLOCK
-     ============================================================ */
-
-  .feature-grid__header {
-    text-align: center;
-    max-width: var(--max-width-narrow);
-    margin-inline: auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-s);
-  }
-
-  .feature-grid__heading {
-    font-family: var(--font-heading);
-    font-size: var(--text-h2);
-    font-weight: var(--font-weight-heading, var(--font-weight-bold));
-    line-height: var(--leading-tight);
-    letter-spacing: var(--tracking-snug);
-    color: var(--color-text-heading);
-    margin: 0;
-  }
-
-  .feature-grid__body {
-    font-size: var(--text-md);
-    line-height: var(--leading-relaxed);
-    color: var(--color-text-muted);
-    margin: 0;
-  }
 
   /* ============================================================
      GRID

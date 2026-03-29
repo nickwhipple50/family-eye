@@ -76,15 +76,18 @@ const instanceId = `stats-${Math.random().toString(36).slice(2, 7)}`;
 ---
 
 <section
-  class={`stats-row stats-row--${variant} stats-row--surface-${surface}`}
+  class={`stats-row stats-row--${variant} section section--compact surface-${surface}`}
   aria-label={heading ?? 'Key statistics'}
   id={instanceId}
 >
-  <div class="stats-row__inner">
+  <div class='stats-row__inner section__inner'>
     {
       heading && (
-        <div class="stats-row__header" data-reveal>
-          <h2 class="stats-row__heading">{heading}</h2>
+        <div
+          class='section__header'
+          data-reveal
+        >
+          <h2 class='section__heading'>{heading}</h2>
         </div>
       )
     }
@@ -92,11 +95,17 @@ const instanceId = `stats-${Math.random().toString(36).slice(2, 7)}`;
     <ul class={`stats-row__items stats-row__items--${displayItems.length}`}>
       {
         displayItems.map((item, index) => (
-          <li class="stats-row__item" style={`--item-index: ${index}`}>
-            <div class="stats-row__number" aria-live="polite">
-              {item.prefix && <span class="stats-row__prefix">{item.prefix}</span>}
+          <li
+            class='stats-row__item'
+            style={`--item-index: ${index}`}
+          >
+            <div
+              class='stats-row__number'
+              aria-live='polite'
+            >
+              {item.prefix && <span class='stats-row__prefix'>{item.prefix}</span>}
               <span
-                class="stats-row__counter"
+                class='stats-row__counter'
                 data-target={item.value}
                 data-decimals={item.decimals ?? 0}
               >
@@ -105,9 +114,9 @@ const instanceId = `stats-${Math.random().toString(36).slice(2, 7)}`;
                 {item.decimals ? item.value.toFixed(item.decimals) : item.value.toLocaleString()}
                 {item.suffix}
               </span>
-              {item.suffix && <span class="stats-row__suffix">{item.suffix}</span>}
+              {item.suffix && <span class='stats-row__suffix'>{item.suffix}</span>}
             </div>
-            <p class="stats-row__label">{item.label}</p>
+            <p class='stats-row__label'>{item.label}</p>
           </li>
         ))
       }
@@ -214,51 +223,6 @@ const instanceId = `stats-${Math.random().toString(36).slice(2, 7)}`;
   /* ============================================================
      SECTION
      ============================================================ */
-
-  .stats-row {
-    padding-block: var(--space-section-y-sm);
-    padding-inline: var(--gutter);
-  }
-
-  .stats-row--surface-base {
-    background-color: var(--color-surface-base);
-  }
-  .stats-row--surface-subtle {
-    background-color: var(--color-surface-subtle);
-  }
-  .stats-row--surface-inverse {
-    background-color: var(--color-surface-inverse);
-    background-image:
-      radial-gradient(ellipse at 20% 50%, var(--color-mesh-a) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 50%, var(--color-mesh-b) 0%, transparent 60%);
-  }
-
-  .stats-row__inner {
-    max-width: var(--max-width-content);
-    margin-inline: auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-l);
-  }
-
-  /* ============================================================
-     HEADER
-     ============================================================ */
-
-  .stats-row__heading {
-    font-family: var(--font-heading);
-    font-size: var(--text-h2);
-    font-weight: var(--font-weight-heading, var(--font-weight-bold));
-    line-height: var(--leading-tight);
-    letter-spacing: var(--tracking-snug);
-    color: var(--color-text-heading);
-    margin: 0;
-    text-align: center;
-  }
-
-  .stats-row--surface-inverse .stats-row__heading {
-    color: var(--color-text-inverse);
-  }
 
   /* ============================================================
      ITEMS LIST

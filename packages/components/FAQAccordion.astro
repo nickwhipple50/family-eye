@@ -80,42 +80,55 @@ const instanceId = `faq-${Math.random().toString(36).slice(2, 7)}`;
 ---
 
 <section
-  class={`faq faq--surface-${surface}`}
+  class={`faq section surface-${surface}`}
   aria-label={heading ?? 'Frequently asked questions'}
   id={instanceId}
 >
-  <div class="faq__inner">
+  <div class='faq__inner section__inner section__inner--narrow'>
     {
       (heading || body) && (
-        <div class="faq__header" data-reveal>
-          {heading && <h2 class="faq__heading">{heading}</h2>}
-          {body && <p class="faq__body">{body}</p>}
+        <div
+          class='section__header'
+          data-reveal
+        >
+          {heading && <h2 class='section__heading'>{heading}</h2>}
+          {body && <p class='section__body'>{body}</p>}
         </div>
       )
     }
 
-    <dl class="faq__list">
+    <dl class='faq__list'>
       {
         items.map((item, index) => (
-          <div class="faq__item" data-reveal style={`--item-index: ${index}`}>
-            <details class="faq__details" open={open === index ? true : undefined}>
-              <summary class="faq__question">
-                <span class="faq__question-text">{item.question}</span>
+          <div
+            class='faq__item'
+            data-reveal
+            style={`--item-index: ${index}`}
+          >
+            <details
+              class='faq__details'
+              open={open === index ? true : undefined}
+            >
+              <summary class='faq__question'>
+                <span class='faq__question-text'>{item.question}</span>
                 {/* Icon — CSS rotates this on open */}
-                <span class="faq__icon" aria-hidden="true">
+                <span
+                  class='faq__icon'
+                  aria-hidden='true'
+                >
                   <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.75"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                    focusable="false"
+                    width='20'
+                    height='20'
+                    viewBox='0 0 20 20'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='1.75'
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    aria-hidden='true'
+                    focusable='false'
                   >
-                    <path d="M5 7.5L10 12.5L15 7.5" />
+                    <path d='M5 7.5L10 12.5L15 7.5' />
                   </svg>
                 </span>
               </summary>
@@ -127,9 +140,9 @@ const instanceId = `faq-${Math.random().toString(36).slice(2, 7)}`;
               Transitioning grid-template-rows: 0fr → 1fr animates
               the height without JS measurement.
             */}
-              <div class="faq__answer-outer">
-                <div class="faq__answer-inner">
-                  <p class="faq__answer-text">{item.answer}</p>
+              <div class='faq__answer-outer'>
+                <div class='faq__answer-inner'>
+                  <p class='faq__answer-text'>{item.answer}</p>
                 </div>
               </div>
             </details>
@@ -186,54 +199,6 @@ const instanceId = `faq-${Math.random().toString(36).slice(2, 7)}`;
   /* ============================================================
      SECTION
      ============================================================ */
-
-  .faq {
-    padding-block: var(--space-section-y);
-    padding-inline: var(--gutter);
-  }
-
-  .faq--surface-base {
-    background-color: var(--color-surface-base);
-  }
-  .faq--surface-subtle {
-    background-color: var(--color-surface-subtle);
-  }
-
-  .faq__inner {
-    max-width: var(--max-width-narrow); /* Prose width — questions are text */
-    margin-inline: auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-l-xl);
-  }
-
-  /* ============================================================
-     HEADER
-     ============================================================ */
-
-  .faq__header {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-s);
-  }
-
-  .faq__heading {
-    font-family: var(--font-heading);
-    font-size: var(--text-h2);
-    font-weight: var(--font-weight-heading, var(--font-weight-bold));
-    line-height: var(--leading-tight);
-    letter-spacing: var(--tracking-snug);
-    color: var(--color-text-heading);
-    margin: 0;
-  }
-
-  .faq__body {
-    font-size: var(--text-md);
-    line-height: var(--leading-relaxed);
-    color: var(--color-text-muted);
-    margin: 0;
-  }
 
   /* ============================================================
      LIST — <dl> wrapper

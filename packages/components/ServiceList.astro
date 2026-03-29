@@ -101,15 +101,18 @@ displayItems.forEach((item, i) => {
 ---
 
 <section
-  class={`service-list service-list--${variant} service-list--surface-${surface}`}
+  class={`service-list service-list--${variant} section surface-${surface}`}
   aria-label={heading ?? 'Services'}
 >
-  <div class="service-list__inner">
+  <div class='service-list__inner section__inner'>
     {
       (heading || body) && (
-        <div class="service-list__header" data-reveal>
-          {heading && <h2 class="service-list__heading">{heading}</h2>}
-          {body && <p class="service-list__subheading">{body}</p>}
+        <div
+          class='section__header'
+          data-reveal
+        >
+          {heading && <h2 class='section__heading'>{heading}</h2>}
+          {body && <p class='section__body'>{body}</p>}
         </div>
       )
     }
@@ -125,33 +128,41 @@ displayItems.forEach((item, i) => {
     >
       {
         displayItems.map((item, index) => (
-          <li class="service-list__item" data-reveal style={`--item-index: ${index}`}>
+          <li
+            class='service-list__item'
+            data-reveal
+            style={`--item-index: ${index}`}
+          >
             {/* Icon media */}
             {useIcon && item.icon && (
-              <div class="service-list__icon">
-                <Icon name={item.icon} size={24} stroke={1.75} />
+              <div class='service-list__icon'>
+                <Icon
+                  name={item.icon}
+                  size={24}
+                  stroke={1.75}
+                />
               </div>
             )}
 
             {/* Image media */}
             {useImage && item.image && (
-              <div class="service-list__image-wrap">
+              <div class='service-list__image-wrap'>
                 <img
                   src={item.image.src}
                   alt={item.image.alt}
                   width={600}
                   height={400}
-                  loading="lazy"
-                  decoding="async"
-                  class="service-list__image"
+                  loading='lazy'
+                  decoding='async'
+                  class='service-list__image'
                 />
               </div>
             )}
 
             {/* Text */}
-            <div class="service-list__text">
-              <h3 class="service-list__item-name">{item.name}</h3>
-              <p class="service-list__item-description">{item.description}</p>
+            <div class='service-list__text'>
+              <h3 class='service-list__item-name'>{item.name}</h3>
+              <p class='service-list__item-description'>{item.description}</p>
             </div>
           </li>
         ))
@@ -164,56 +175,6 @@ displayItems.forEach((item, i) => {
   /* ============================================================
      SECTION
      ============================================================ */
-
-  .service-list {
-    padding-block: var(--space-section-y);
-    padding-inline: var(--gutter);
-  }
-
-  .service-list--surface-base {
-    background-color: var(--color-surface-base);
-  }
-  .service-list--surface-subtle {
-    background-color: var(--color-surface-subtle);
-  }
-
-  .service-list__inner {
-    max-width: var(--max-width-content);
-    margin-inline: auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-l-xl);
-  }
-
-  /* ============================================================
-     HEADER
-     ============================================================ */
-
-  .service-list__header {
-    text-align: center;
-    max-width: var(--max-width-narrow);
-    margin-inline: auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-s);
-  }
-
-  .service-list__heading {
-    font-family: var(--font-heading);
-    font-size: var(--text-h2);
-    font-weight: var(--font-weight-heading, var(--font-weight-bold));
-    line-height: var(--leading-tight);
-    letter-spacing: var(--tracking-snug);
-    color: var(--color-text-heading);
-    margin: 0;
-  }
-
-  .service-list__subheading {
-    font-size: var(--text-md);
-    line-height: var(--leading-relaxed);
-    color: var(--color-text-muted);
-    margin: 0;
-  }
 
   /* ============================================================
      LIST LAYOUT — shared reset
