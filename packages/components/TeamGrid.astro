@@ -1,0 +1,398 @@
+---
+/**
+ * TeamGrid
+ * CMS-driven team member grid. Photo optional — initials avatar fallback.
+ *
+ * Props (max 6 — T1 rule):
+ *   items    TeamMember[]                required  From Decap team collection
+ *   heading  string?                               Section heading
+ *   columns  2 | 3 | 4                  default: 3
+ *   surface  'base' | 'subtle'          default: 'base'
+ *
+ * TeamMember (mirrors Decap team collection schema):
+ *   name     string    Full name
+ *   role     string    Job title or descriptor
+ *   bio      string?   Short bio — 1–2 sentences max. Not enforced, document it.
+ *   photo    object?   { src: string; alt: string }
+ *                      If omitted, initials avatar renders instead.
+ *                      Square crop preferred — component handles border-radius.
+ *
+ * Initials avatar:
+ *   Generated from name at render time — no JS, no image request.
+ *   Takes the first letter of each word, max 2 characters.
+ *   e.g. "Sarah Jones" → "SJ" / "Alice" → "A"
+ *   Background colour cycles through 5 distinct accent-derived hues
+ *   based on a hash of the name — same name always gets the same colour.
+ *   Colours are set via CSS custom properties so they respect the token system.
+ *
+ * Max items: 12. TeamGrid is the only component with a higher ceiling —
+ * larger teams are a legitimate use case. Grid handles layout gracefully.
+ * Beyond 12 = content modelling problem, not a component problem.
+ *
+ * Usage:
+ *   ---
+ *   import TeamGrid from '@mmm/components/TeamGrid.astro';
+ *   import { getCollection } from 'astro:content';
+ *   const team = await getCollection('team');
+ *   ---
+ *   <TeamGrid
+ *     heading="Meet the team"
+ *     columns={3}
+ *     items={team
+ *       .sort((a, b) => a.data.order - b.data.order)
+ *       .map(m => m.data)}
+ *   />
+ */
+
+interface TeamPhoto {
+  src: string;
+  alt: string;
+}
+
+interface TeamMember {
+  name: string;
+  role: string;
+  bio?: string;
+  photo?: TeamPhoto;
+}
+
+interface Props {
+  items: TeamMember[];
+  heading?: string;
+  columns?: 2 | 3 | 4;
+  surface?: 'base' | 'subtle';
+}
+
+const { items, heading, columns = 3, surface = 'base' } = Astro.props;
+
+if (items.length > 12) {
+  console.warn(`[TeamGrid] ${items.length} items passed — max is 12. Truncating.`);
+}
+const displayItems = items.slice(0, 12);
+
+// --- Initials avatar helpers ---
+
+// Extract up to 2 initials from a name
+function getInitials(name: string): string {
+  return name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0].toUpperCase())
+    .join('');
+}
+
+// Simple hash of a string → number, used to pick a stable avatar colour
+// Same name always maps to the same colour across renders
+function nameHash(name: string): number {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash << 5) - hash + name.charCodeAt(i);
+    hash |= 0; // Convert to 32-bit int
+  }
+  return Math.abs(hash);
+}
+
+// 5 avatar colour slots — defined as CSS custom properties below
+// Index is derived from hash, so it's stable per name
+const AVATAR_COLOUR_COUNT = 5;
+
+function avatarColourIndex(name: string): number {
+  return nameHash(name) % AVATAR_COLOUR_COUNT;
+}
+---
+
+<section
+  class={`team-grid team-grid--surface-${surface}`}
+  aria-label={heading ?? 'Team'}
+>
+  <div class='team-grid__inner'>
+    {
+      heading && (
+        <div
+          class='team-grid__header'
+          data-reveal
+        >
+          <h2 class='team-grid__heading'>{heading}</h2>
+        </div>
+      )
+    }
+
+    <ul
+      class={`team-grid__grid team-grid__grid--cols-${columns}`}
+      data-reveal-group
+    >
+      {
+        displayItems.map((member, index) => {
+          const initials = getInitials(member.name);
+          const colourIndex = avatarColourIndex(member.name);
+
+          return (
+            <li
+              class='team-grid__card'
+              data-reveal
+              style={`--item-index: ${index}`}
+            >
+              {/* Avatar — photo or initials fallback */}
+              <div class='team-grid__avatar-wrap'>
+                {member.photo ? (
+                  <img
+                    src={member.photo.src}
+                    alt={member.photo.alt}
+                    width={400}
+                    height={400}
+                    loading='lazy'
+                    decoding='async'
+                    class='team-grid__photo'
+                  />
+                ) : (
+                  <div
+                    class={`team-grid__initials team-grid__initials--colour-${colourIndex}`}
+                    aria-hidden='true'
+                  >
+                    {initials}
+                  </div>
+                )}
+              </div>
+
+              {/* Text */}
+              <div class='team-grid__text'>
+                <h3 class='team-grid__name'>{member.name}</h3>
+                <p class='team-grid__role'>{member.role}</p>
+                {member.bio && <p class='team-grid__bio'>{member.bio}</p>}
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  .team-grid {
+    padding-block: var(--space-section-y);
+    padding-inline: var(--gutter);
+  }
+
+  .team-grid--surface-base {
+    background-color: var(--color-surface-base);
+  }
+  .team-grid--surface-subtle {
+    background-color: var(--color-surface-subtle);
+  }
+
+  .team-grid__inner {
+    max-width: var(--max-width-content);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l-xl);
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+
+  .team-grid__header {
+    text-align: center;
+  }
+
+  .team-grid__heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-h2);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  /* ============================================================
+     GRID
+     ============================================================ */
+
+  .team-grid__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-card-gap);
+  }
+
+  @media (min-width: 480px) {
+    .team-grid__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .team-grid__grid--cols-3,
+    .team-grid__grid--cols-4 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .team-grid__grid--cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .team-grid__grid--cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .team-grid__grid--cols-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* ============================================================
+     CARD
+     ============================================================ */
+
+  .team-grid__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-m);
+    padding: var(--card-padding);
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    transition:
+      transform var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
+  }
+
+  .team-grid__card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* Subtle surface — card stays white so it lifts off the section */
+  .team-grid--surface-subtle .team-grid__card {
+    background-color: var(--color-surface-base);
+  }
+
+  /* ============================================================
+     AVATAR — shared wrapper
+     ============================================================ */
+
+  .team-grid__avatar-wrap {
+    width: 6rem;
+    height: 6rem;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     PHOTO
+     ============================================================ */
+
+  .team-grid__photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top; /* Favour face over torso */
+    display: block;
+  }
+
+  /* ============================================================
+     INITIALS AVATAR
+     5 colour slots, each a distinct hue derived from brand tokens.
+     Colours are intentionally not pure brand colours — they need to
+     be distinct from each other while remaining on-brand.
+     Adjust the hue rotations in theme.css if the defaults clash.
+     ============================================================ */
+
+  .team-grid__initials {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-bold);
+    color: #ffffff;
+    /* Colour set by modifier class below */
+  }
+
+  /*
+   * Avatar colours — 5 slots using color-mix() from the brand primary.
+   * Each slot rotates hue by a fixed amount to ensure visual distinction.
+   * These are declared on :root to allow theme.css overrides if needed.
+   */
+  :root {
+    --avatar-colour-0: var(--color-primary);
+    --avatar-colour-1: var(--color-accent);
+    --avatar-colour-2: color-mix(in oklch, var(--color-primary) 70%, var(--color-accent));
+    --avatar-colour-3: color-mix(in oklch, var(--color-primary) 40%, black);
+    --avatar-colour-4: color-mix(in oklch, var(--color-accent) 60%, var(--color-primary));
+  }
+
+  .team-grid__initials--colour-0 {
+    background-color: var(--avatar-colour-0);
+  }
+  .team-grid__initials--colour-1 {
+    background-color: var(--avatar-colour-1);
+  }
+  .team-grid__initials--colour-2 {
+    background-color: var(--avatar-colour-2);
+  }
+  .team-grid__initials--colour-3 {
+    background-color: var(--avatar-colour-3);
+  }
+  .team-grid__initials--colour-4 {
+    background-color: var(--avatar-colour-4);
+  }
+
+  /* ============================================================
+     TEXT
+     ============================================================ */
+
+  .team-grid__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    width: 100%;
+  }
+
+  .team-grid__name {
+    font-family: var(--font-heading);
+    font-size: var(--text-h5);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .team-grid__role {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin: 0;
+  }
+
+  .team-grid__bio {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: var(--space-xs) 0 0;
+    /* Constrain bio to 3 lines — clips gracefully, doesn't blow out card height */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
