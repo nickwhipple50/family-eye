@@ -160,10 +160,7 @@ If the contact form uses Netlify Forms as the submission handler:
 
 1. The form in the Astro component must have the `netlify` attribute and a `name` attribute:
    ```html
-   <form
-     name="contact"
-     netlify
-   ></form>
+   <form name="contact" netlify></form>
    ```
 2. Netlify detects this at build time and registers the form. It will not appear in the Netlify dashboard until after the first successful deploy.
 3. Set the notification email in **Forms → contact → Form notifications → Email notification**. Default goes to the Netlify account email — change this to the client's email before launch.

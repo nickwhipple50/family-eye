@@ -206,9 +206,7 @@ const LucideIcon = iconMap[name];
 
 if (!LucideIcon) {
   // Build-time warning — not a throw. Page still renders, icon is just missing.
-  console.warn(
-    `[Icon] "${name}" is not in the approved icon list. Add it to Icon.astro first.`,
-  );
+  console.warn(`[Icon] "${name}" is not in the approved icon list. Add it to Icon.astro first.`);
 }
 ---
 
@@ -218,8 +216,8 @@ if (!LucideIcon) {
       size={size}
       strokeWidth={stroke}
       class={className}
-      aria-hidden='true'
-      focusable='false'
+      aria-hidden="true"
+      focusable="false"
     />
   )
 }

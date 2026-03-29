@@ -60,20 +60,11 @@ interface Props {
   surface?: 'base' | 'subtle';
 }
 
-const {
-  items,
-  heading,
-  body,
-  columns = 3,
-  variant = 'plain',
-  surface = 'base',
-} = Astro.props;
+const { items, heading, body, columns = 3, variant = 'plain', surface = 'base' } = Astro.props;
 
 // Enforce repeater max — warn at build time, don't throw
 if (items.length > 8) {
-  console.warn(
-    `[FeatureGrid] ${items.length} items passed — max is 8. Truncating.`,
-  );
+  console.warn(`[FeatureGrid] ${items.length} items passed — max is 8. Truncating.`);
 }
 
 const displayItems = items.slice(0, 8);
@@ -83,52 +74,34 @@ const displayItems = items.slice(0, 8);
   class={`feature-grid feature-grid--${variant} feature-grid--surface-${surface}`}
   aria-labelledby={heading ? 'feature-grid-heading' : undefined}
 >
-  <div class='feature-grid__inner'>
+  <div class="feature-grid__inner">
     {/* Optional header block */}
     {
       (heading || body) && (
-        <div
-          class='feature-grid__header'
-          data-reveal
-        >
+        <div class="feature-grid__header" data-reveal>
           {heading && (
-            <h2
-              class='feature-grid__heading'
-              id='feature-grid-heading'
-            >
+            <h2 class="feature-grid__heading" id="feature-grid-heading">
               {heading}
             </h2>
           )}
-          {body && <p class='feature-grid__body'>{body}</p>}
+          {body && <p class="feature-grid__body">{body}</p>}
         </div>
       )
     }
 
     {/* Grid */}
-    <ul
-      class={`feature-grid__grid feature-grid__grid--cols-${columns}`}
-      role='list'
-      data-reveal-group
-    >
+    <ul class={`feature-grid__grid feature-grid__grid--cols-${columns}`} data-reveal-group>
       {
         displayItems.map((item, index) => (
-          <li
-            class='feature-grid__item'
-            data-reveal
-            style={`--item-index: ${index}`}
-          >
+          <li class="feature-grid__item" data-reveal style={`--item-index: ${index}`}>
             {/* Icon wrapper — aria-hidden applied on Icon component */}
-            <div class='feature-grid__icon'>
-              <Icon
-                name={item.icon}
-                size={24}
-                stroke={1.75}
-              />
+            <div class="feature-grid__icon">
+              <Icon name={item.icon} size={24} stroke={1.75} />
             </div>
 
-            <div class='feature-grid__text'>
-              <h3 class='feature-grid__item-heading'>{item.heading}</h3>
-              <p class='feature-grid__item-body'>{item.body}</p>
+            <div class="feature-grid__text">
+              <h3 class="feature-grid__item-heading">{item.heading}</h3>
+              <p class="feature-grid__item-body">{item.body}</p>
             </div>
           </li>
         ))

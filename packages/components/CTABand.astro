@@ -30,53 +30,30 @@ interface Props {
   variant?: 'default' | 'accent';
 }
 
-const {
-  heading,
-  body,
-  primaryCta,
-  secondaryCta,
-  eyebrow,
-  variant = 'default',
-} = Astro.props;
+const { heading, body, primaryCta, secondaryCta, eyebrow, variant = 'default' } = Astro.props;
 ---
 
-<section
-  class={`cta-band cta-band--${variant}`}
-  aria-labelledby='cta-band-heading'
->
+<section class={`cta-band cta-band--${variant}`} aria-labelledby="cta-band-heading">
   {/* Noise texture overlay — opacity controlled by --noise-opacity token */}
-  <div
-    class='cta-band__noise'
-    aria-hidden='true'
-  >
-  </div>
+  <div class="cta-band__noise" aria-hidden="true"></div>
 
-  <div class='cta-band__inner'>
-    {eyebrow && <p class='cta-band__eyebrow'>{eyebrow}</p>}
+  <div class="cta-band__inner">
+    {eyebrow && <p class="cta-band__eyebrow">{eyebrow}</p>}
 
-    <h2
-      class='cta-band__heading'
-      id='cta-band-heading'
-    >
+    <h2 class="cta-band__heading" id="cta-band-heading">
       {heading}
     </h2>
 
-    {body && <p class='cta-band__body'>{body}</p>}
+    {body && <p class="cta-band__body">{body}</p>}
 
-    <div class='cta-band__actions'>
-      <a
-        href={primaryCta.href}
-        class='btn btn--primary-inverse'
-      >
+    <div class="cta-band__actions">
+      <a href={primaryCta.href} class="btn btn--primary-inverse">
         {primaryCta.label}
       </a>
 
       {
         secondaryCta && (
-          <a
-            href={secondaryCta.href}
-            class='btn btn--ghost-inverse'
-          >
+          <a href={secondaryCta.href} class="btn btn--ghost-inverse">
             {secondaryCta.label}
           </a>
         )
@@ -102,16 +79,8 @@ const {
 
     /* Mesh gradient — two radial overlays from addons.md */
     background-image:
-      radial-gradient(
-        ellipse at 20% 50%,
-        var(--color-mesh-a) 0%,
-        transparent 60%
-      ),
-      radial-gradient(
-        ellipse at 80% 50%,
-        var(--color-mesh-b) 0%,
-        transparent 60%
-      );
+      radial-gradient(ellipse at 20% 50%, var(--color-mesh-a) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 50%, var(--color-mesh-b) 0%, transparent 60%);
   }
 
   .cta-band--accent {
@@ -250,20 +219,12 @@ const {
   .btn--ghost-inverse {
     background-color: transparent;
     color: var(--color-text-inverse);
-    border-color: color-mix(
-      in srgb,
-      var(--color-text-inverse) 40%,
-      transparent
-    );
+    border-color: color-mix(in srgb, var(--color-text-inverse) 40%, transparent);
   }
 
   .btn--ghost-inverse:hover {
     border-color: var(--color-text-inverse);
-    background-color: color-mix(
-      in srgb,
-      var(--color-text-inverse) 10%,
-      transparent
-    );
+    background-color: color-mix(in srgb, var(--color-text-inverse) 10%, transparent);
     transform: translateY(-2px);
   }
 

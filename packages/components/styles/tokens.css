@@ -85,15 +85,9 @@
 
   /* --- Nav --- */
   --color-nav-bg: transparent; /* Start state — frosted glass transition */
-  --color-nav-bg-scrolled: color-mix(
-    in srgb,
-    var(--color-surface-base) 85%,
-    transparent
-  );
+  --color-nav-bg-scrolled: color-mix(in srgb, var(--color-surface-base) 85%, transparent);
   --color-nav-text: var(--color-text-base);
-  --color-nav-text-inverse: var(
-    --color-text-inverse
-  ); /* When nav overlays hero */
+  --color-nav-text-inverse: var(--color-text-inverse); /* When nav overlays hero */
 
   /* ============================================================
    2. TYPOGRAPHY
@@ -119,41 +113,13 @@
 
   /* Fluid steps */
   --text-sm: clamp(0.8rem, 0.7837rem + 0.067vi, 0.844rem); /* 12.8px → 13.5px */
-  --text-base: clamp(
-    1rem,
-    0.9536rem + 0.1905vi,
-    1.125rem
-  ); /* 16px   → 18px   */
-  --text-md: clamp(
-    1.25rem,
-    1.1573rem + 0.3804vi,
-    1.4996rem
-  ); /* 20px   → 24px   */
-  --text-lg: clamp(
-    1.5625rem,
-    1.4004rem + 0.6651vi,
-    1.999rem
-  ); /* 25px   → 32px   */
-  --text-xl: clamp(
-    1.9531rem,
-    1.6888rem + 1.0843vi,
-    2.6647rem
-  ); /* 31px   → 42.6px */
-  --text-2xl: clamp(
-    2.4414rem,
-    2.0289rem + 1.6923vi,
-    3.552rem
-  ); /* 39px   → 56.8px */
-  --text-3xl: clamp(
-    3.0518rem,
-    2.4266rem + 2.5647vi,
-    4.7348rem
-  ); /* 48.8px → 75.8px */
-  --text-4xl: clamp(
-    3.8147rem,
-    2.8873rem + 3.8047vi,
-    6.3115rem
-  ); /* 61px   → 101px  */
+  --text-base: clamp(1rem, 0.9536rem + 0.1905vi, 1.125rem); /* 16px   → 18px   */
+  --text-md: clamp(1.25rem, 1.1573rem + 0.3804vi, 1.4996rem); /* 20px   → 24px   */
+  --text-lg: clamp(1.5625rem, 1.4004rem + 0.6651vi, 1.999rem); /* 25px   → 32px   */
+  --text-xl: clamp(1.9531rem, 1.6888rem + 1.0843vi, 2.6647rem); /* 31px   → 42.6px */
+  --text-2xl: clamp(2.4414rem, 2.0289rem + 1.6923vi, 3.552rem); /* 39px   → 56.8px */
+  --text-3xl: clamp(3.0518rem, 2.4266rem + 2.5647vi, 4.7348rem); /* 48.8px → 75.8px */
+  --text-4xl: clamp(3.8147rem, 2.8873rem + 3.8047vi, 6.3115rem); /* 61px   → 101px  */
 
   /* --- Semantic heading aliases (point to scale steps) --- */
   --text-display: var(--text-4xl); /* Hero headline */
@@ -208,21 +174,9 @@
    */
 
   /* --- Base scale --- */
-  --space-3xs: clamp(
-    0.25rem,
-    0.2384rem + 0.0476vi,
-    0.2812rem
-  ); /*  4px →  4.5px */
-  --space-2xs: clamp(
-    0.5rem,
-    0.4768rem + 0.0952vi,
-    0.5625rem
-  ); /*  8px →  9px   */
-  --space-xs: clamp(
-    0.75rem,
-    0.7152rem + 0.1429vi,
-    0.8438rem
-  ); /* 12px → 13.5px */
+  --space-3xs: clamp(0.25rem, 0.2384rem + 0.0476vi, 0.2812rem); /*  4px →  4.5px */
+  --space-2xs: clamp(0.5rem, 0.4768rem + 0.0952vi, 0.5625rem); /*  8px →  9px   */
+  --space-xs: clamp(0.75rem, 0.7152rem + 0.1429vi, 0.8438rem); /* 12px → 13.5px */
   --space-s: clamp(1rem, 0.9536rem + 0.1905vi, 1.125rem); /* 16px → 18px   */
   --space-m: clamp(1.5rem, 1.4304rem + 0.2857vi, 1.6875rem); /* 24px → 27px   */
   --space-l: clamp(2rem, 1.9071rem + 0.381vi, 2.25rem); /* 32px → 36px   */
@@ -232,20 +186,12 @@
   --space-4xl: clamp(8rem, 7.6286rem + 1.5238vi, 9rem); /* 128px → 144px */
 
   /* --- One-up pairs (span between two adjacent steps) --- */
-  --space-xs-s: clamp(
-    0.75rem,
-    0.6107rem + 0.5714vi,
-    1.125rem
-  ); /* 12px → 18px  */
+  --space-xs-s: clamp(0.75rem, 0.6107rem + 0.5714vi, 1.125rem); /* 12px → 18px  */
   --space-s-m: clamp(1rem, 0.7446rem + 1.0476vi, 1.6875rem); /* 16px → 27px  */
   --space-m-l: clamp(1.5rem, 1.2214rem + 1.1429vi, 2.25rem); /* 24px → 36px  */
   --space-l-xl: clamp(2rem, 1.4893rem + 2.0952vi, 3.375rem); /* 32px → 54px  */
   --space-xl-2xl: clamp(3rem, 2.4429rem + 2.2857vi, 4.5rem); /* 48px → 72px  */
-  --space-2xl-3xl: clamp(
-    4rem,
-    2.9786rem + 4.1905vi,
-    6.75rem
-  ); /* 64px → 108px */
+  --space-2xl-3xl: clamp(4rem, 2.9786rem + 4.1905vi, 6.75rem); /* 64px → 108px */
 
   /* --- Semantic aliases (map intent → scale step) --- */
   --space-section-y: var(--space-2xl-3xl); /* Section top/bottom padding */
@@ -300,8 +246,7 @@
    6. SHADOW
    ============================================================ */
 
-  --shadow-xs: 0 1px 2px 0
-    color-mix(in srgb, var(--color-shadow) 8%, transparent);
+  --shadow-xs: 0 1px 2px 0 color-mix(in srgb, var(--color-shadow) 8%, transparent);
   --shadow-sm:
     0 1px 3px 0 color-mix(in srgb, var(--color-shadow) 10%, transparent),
     0 1px 2px -1px color-mix(in srgb, var(--color-shadow) 10%, transparent);
@@ -401,9 +346,7 @@
   --btn-font-size: var(--text-base);
   --btn-font-weight: var(--font-weight-semibold);
   --btn-radius: var(--radius-btn);
-  --btn-transition:
-    var(--transition-color), var(--transition-shadow),
-    var(--transition-transform);
+  --btn-transition: var(--transition-color), var(--transition-shadow), var(--transition-transform);
 
   /* --- Input / Form --- */
   --input-padding-y: var(--space-xs);
