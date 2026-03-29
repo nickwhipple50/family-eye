@@ -1,0 +1,385 @@
+---
+/**
+ * FAQAccordion
+ * CMS-driven FAQ list. Accessible expand/collapse accordion.
+ *
+ * Props (max 6 — T1 rule):
+ *   items    FaqItem[]                   required  From Decap faq collection
+ *   heading  string?                               Section heading
+ *   body     string?                               Supporting paragraph below heading
+ *   surface  'base' | 'subtle'           default: 'base'
+ *   open     number?                               Index of item open by default.
+ *                                                  Omit to start all closed.
+ *
+ * FaqItem (mirrors Decap faq collection schema):
+ *   question  string   The question — displayed as the accordion trigger
+ *   answer    string   The answer — plain text, no markdown.
+ *                      Markdown support would require a renderer dependency.
+ *                      If rich text answers are needed → T2.
+ *
+ * Accessibility:
+ *   — Uses native <details> / <summary> elements — no ARIA required,
+ *     browser handles expand/collapse semantics natively.
+ *   — Keyboard: Enter/Space to toggle, native to <summary>.
+ *   — Screen readers announce "expanded" / "collapsed" state natively.
+ *   — No focus management needed — <summary> receives focus naturally.
+ *   — JS only adds animation. Without JS: accordion still works via
+ *     native <details> open/close — fully functional, no animation.
+ *
+ * Why <details>/<summary> over ARIA pattern:
+ *   The ARIA accordion pattern (role=button, aria-expanded, aria-controls)
+ *   requires JS to function at all. <details>/<summary> works without JS,
+ *   has native keyboard support, and screen reader support is now solid
+ *   across VoiceOver, NVDA, and JAWS. Less code, more resilient.
+ *
+ * Animation:
+ *   — CSS-only open/close transition via grid-template-rows trick.
+ *     No JS height calculation, no getBoundingClientRect().
+ *   — The content wrapper goes from grid-template-rows: 0fr → 1fr.
+ *     This allows transition on auto height — the long-standing CSS gap.
+ *   — Duration controlled by --accordion-transition token.
+ *   — prefers-reduced-motion: token collapses to 0ms, instant open/close.
+ *
+ * Max items: 12. FAQ sections commonly run long. No artificial ceiling.
+ *
+ * Usage:
+ *   ---
+ *   import FAQAccordion from '@mmm/components/FAQAccordion.astro';
+ *   import { getCollection } from 'astro:content';
+ *   const faq = await getCollection('faq');
+ *   ---
+ *   <FAQAccordion
+ *     heading="Frequently asked questions"
+ *     items={faq
+ *       .sort((a, b) => a.data.order - b.data.order)
+ *       .map(f => f.data)}
+ *   />
+ */
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  items: FaqItem[];
+  heading?: string;
+  body?: string;
+  surface?: 'base' | 'subtle';
+  open?: number;
+}
+
+const { items, heading, body, surface = 'base', open } = Astro.props;
+
+if (items.length === 0) {
+  console.warn('[FAQAccordion] No items passed — component will render empty.');
+}
+
+// Unique ID for this instance — scopes the JS observer
+const instanceId = `faq-${Math.random().toString(36).slice(2, 7)}`;
+---
+
+<section
+  class={`faq faq--surface-${surface}`}
+  aria-label={heading ?? 'Frequently asked questions'}
+  id={instanceId}
+>
+  <div class='faq__inner'>
+    {
+      (heading || body) && (
+        <div
+          class='faq__header'
+          data-reveal
+        >
+          {heading && <h2 class='faq__heading'>{heading}</h2>}
+          {body && <p class='faq__body'>{body}</p>}
+        </div>
+      )
+    }
+
+    <dl class='faq__list'>
+      {
+        items.map((item, index) => (
+          <div
+            class='faq__item'
+            data-reveal
+            style={`--item-index: ${index}`}
+          >
+            <details
+              class='faq__details'
+              open={open === index ? true : undefined}
+            >
+              <summary class='faq__question'>
+                <span class='faq__question-text'>{item.question}</span>
+                {/* Icon — CSS rotates this on open */}
+                <span
+                  class='faq__icon'
+                  aria-hidden='true'
+                >
+                  <svg
+                    width='20'
+                    height='20'
+                    viewBox='0 0 20 20'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='1.75'
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    aria-hidden='true'
+                    focusable='false'
+                  >
+                    <path d='M5 7.5L10 12.5L15 7.5' />
+                  </svg>
+                </span>
+              </summary>
+
+              {/*
+              Animation wrapper — grid-template-rows trick.
+              Outer div: overflow hidden + grid display.
+              Inner div: min-height 0 (required for 0fr to work).
+              Transitioning grid-template-rows: 0fr → 1fr animates
+              the height without JS measurement.
+            */}
+              <div class='faq__answer-outer'>
+                <div class='faq__answer-inner'>
+                  <p class='faq__answer-text'>{item.answer}</p>
+                </div>
+              </div>
+            </details>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+{
+  /*
+  JS — one-at-a-time accordion behaviour (optional enhancement).
+  Native <details> allows multiple open simultaneously.
+  This script closes siblings when one opens, giving accordion UX.
+  Without this script: all items can be open at once — still valid.
+  Script is IIFE, scoped to this instance via instanceId.
+*/
+}
+<script define:vars={{ instanceId }}>
+  (function () {
+    function initAccordion() {
+      const section = document.getElementById(instanceId);
+      if (!section) return;
+
+      const allDetails = section.querySelectorAll('.faq__details');
+
+      allDetails.forEach((detail) => {
+        detail.addEventListener('toggle', () => {
+          // Only act when opening — closing doesn't need sibling management
+          if (!detail.open) return;
+
+          allDetails.forEach((sibling) => {
+            if (sibling !== detail && sibling.open) {
+              sibling.open = false;
+            }
+          });
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAccordion);
+    } else {
+      initAccordion();
+    }
+
+    // Re-init after Astro View Transitions navigation
+    document.addEventListener('astro:page-load', initAccordion);
+  })();
+</script>
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  .faq {
+    padding-block: var(--space-section-y);
+    padding-inline: var(--gutter);
+  }
+
+  .faq--surface-base {
+    background-color: var(--color-surface-base);
+  }
+  .faq--surface-subtle {
+    background-color: var(--color-surface-subtle);
+  }
+
+  .faq__inner {
+    max-width: var(--max-width-narrow); /* Prose width — questions are text */
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l-xl);
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+
+  .faq__header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  .faq__heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-h2);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .faq__body {
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* ============================================================
+     LIST — <dl> wrapper
+     <dl> (description list) is semantically appropriate here:
+     question = <dt> role, answer = <dd> role, fulfilled by
+     <details>/<summary> children. The <div> wrapper per item
+     is valid inside <dl> per HTML spec.
+     ============================================================ */
+
+  .faq__list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* Items share borders — gap would break the border collapse */
+  }
+
+  /* ============================================================
+     ITEM
+     ============================================================ */
+
+  .faq__item {
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .faq__item:last-child {
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  /* ============================================================
+     DETAILS / SUMMARY
+     ============================================================ */
+
+  /* Remove default browser disclosure triangle */
+  .faq__details {
+    display: block;
+  }
+
+  .faq__details summary {
+    list-style: none;
+  }
+
+  .faq__details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+    padding-block: var(--space-m);
+    cursor: pointer;
+    /* Remove default focus outline — replaced with focus-visible */
+    outline: none;
+    user-select: none;
+  }
+
+  .faq__question:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: var(--radius-sm);
+  }
+
+  .faq__question-text {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--leading-snug);
+    color: var(--color-text-heading);
+    flex: 1;
+  }
+
+  /* ============================================================
+     ICON — chevron, rotates on open
+     ============================================================ */
+
+  .faq__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+    transition: transform var(--accordion-transition);
+  }
+
+  .faq__details[open] .faq__icon {
+    transform: rotate(180deg);
+  }
+
+  /* ============================================================
+     ANSWER — grid-template-rows animation
+     Outer: overflow hidden + display grid.
+     Inner: min-height 0 so 0fr collapses fully.
+     grid-template-rows transitions from 0fr → 1fr on open.
+     ============================================================ */
+
+  .faq__answer-outer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--accordion-transition);
+    overflow: hidden;
+  }
+
+  .faq__details[open] .faq__answer-outer {
+    grid-template-rows: 1fr;
+  }
+
+  .faq__answer-inner {
+    min-height: 0; /* Required — without this 0fr doesn't fully collapse */
+    overflow: hidden;
+  }
+
+  .faq__answer-text {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+    padding-block-end: var(--space-m);
+    max-width: var(--measure-default);
+  }
+
+  /* ============================================================
+     HOVER STATE — subtle question highlight
+     ============================================================ */
+
+  .faq__details:not([open]) .faq__question:hover .faq__question-text {
+    color: var(--color-accent);
+  }
+
+  .faq__details:not([open]) .faq__question:hover .faq__icon {
+    color: var(--color-accent);
+  }
+</style>
