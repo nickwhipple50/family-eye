@@ -1,0 +1,310 @@
+---
+/**
+ * CTABand
+ * Full-width call-to-action strip. Dark surface, centred content, one or two buttons.
+ *
+ * Props (max 6 — T1 rule):
+ *   heading    string   required  Main CTA headline
+ *   body       string?           Supporting sentence — keep to one line
+ *   primaryCta  { label, href }  required  Primary button
+ *   secondaryCta { label, href }?          Secondary ghost button
+ *   eyebrow    string?           Small label above heading
+ *   variant    'default' | 'accent'        default = primary surface / accent = accent surface
+ *
+ * Usage:
+ *   <CTABand
+ *     heading="Ready to get started?"
+ *     body="No contracts. No setup fees. Cancel any time."
+ *     primaryCta={{ label: "Book a free call", href: "/contact" }}
+ *     secondaryCta={{ label: "See our work", href: "/work" }}
+ *     eyebrow="Let's talk"
+ *   />
+ */
+
+interface Props {
+  heading: string;
+  body?: string;
+  primaryCta: { label: string; href: string };
+  secondaryCta?: { label: string; href: string };
+  eyebrow?: string;
+  variant?: 'default' | 'accent';
+}
+
+const {
+  heading,
+  body,
+  primaryCta,
+  secondaryCta,
+  eyebrow,
+  variant = 'default',
+} = Astro.props;
+---
+
+<section
+  class={`cta-band cta-band--${variant}`}
+  aria-labelledby='cta-band-heading'
+>
+  {/* Noise texture overlay — opacity controlled by --noise-opacity token */}
+  <div
+    class='cta-band__noise'
+    aria-hidden='true'
+  >
+  </div>
+
+  <div class='cta-band__inner'>
+    {eyebrow && <p class='cta-band__eyebrow'>{eyebrow}</p>}
+
+    <h2
+      class='cta-band__heading'
+      id='cta-band-heading'
+    >
+      {heading}
+    </h2>
+
+    {body && <p class='cta-band__body'>{body}</p>}
+
+    <div class='cta-band__actions'>
+      <a
+        href={primaryCta.href}
+        class='btn btn--primary-inverse'
+      >
+        {primaryCta.label}
+      </a>
+
+      {
+        secondaryCta && (
+          <a
+            href={secondaryCta.href}
+            class='btn btn--ghost-inverse'
+          >
+            {secondaryCta.label}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+
+  .cta-band {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--cta-band-pad-y);
+    padding-inline: var(--gutter);
+    text-align: center;
+
+    /* Default variant — primary surface */
+    background-color: var(--color-surface-inverse);
+
+    /* Mesh gradient — two radial overlays from addons.md */
+    background-image:
+      radial-gradient(
+        ellipse at 20% 50%,
+        var(--color-mesh-a) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse at 80% 50%,
+        var(--color-mesh-b) 0%,
+        transparent 60%
+      );
+  }
+
+  .cta-band--accent {
+    background-color: var(--color-accent);
+    background-image:
+      radial-gradient(
+        ellipse at 20% 50%,
+        color-mix(in srgb, var(--color-accent-light) 40%, transparent) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse at 80% 50%,
+        color-mix(in srgb, var(--color-accent-dark) 40%, transparent) 0%,
+        transparent 60%
+      );
+  }
+
+  /* ============================================================
+     NOISE OVERLAY (addons.md — system default)
+     SVG noise as inline data URI — zero HTTP requests.
+     ============================================================ */
+
+  .cta-band__noise {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: var(--noise-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+  }
+
+  /* ============================================================
+     INNER — constrained content width
+     ============================================================ */
+
+  .cta-band__inner {
+    position: relative; /* Above noise overlay */
+    z-index: 1;
+    max-width: var(--max-width-narrow);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-m);
+  }
+
+  /* ============================================================
+     TYPOGRAPHY
+     ============================================================ */
+
+  .cta-band__eyebrow {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-accent-light);
+    margin: 0;
+  }
+
+  .cta-band--accent .cta-band__eyebrow {
+    color: color-mix(in srgb, var(--color-text-inverse) 70%, transparent);
+  }
+
+  .cta-band__heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-h2);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-text-inverse);
+    margin: 0;
+    max-width: 20ch; /* Force line breaks on long headings */
+  }
+
+  .cta-band__body {
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: color-mix(in srgb, var(--color-text-inverse) 75%, transparent);
+    margin: 0;
+    max-width: var(--measure-narrow);
+  }
+
+  /* ============================================================
+     ACTIONS
+     ============================================================ */
+
+  .cta-band__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    justify-content: center;
+    margin-block-start: var(--space-xs);
+  }
+
+  /* ============================================================
+     BUTTONS
+     Defined here because inverse button styles are context-specific
+     to dark surfaces. Base .btn styles live in globals.css (to come).
+     ============================================================ */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: var(--btn-padding-y);
+    padding-inline: var(--btn-padding-x);
+    font-family: var(--font-body);
+    font-size: var(--btn-font-size);
+    font-weight: var(--btn-font-weight);
+    line-height: 1;
+    border-radius: var(--btn-radius);
+    text-decoration: none;
+    transition: var(--btn-transition);
+    cursor: pointer;
+    white-space: nowrap;
+    border: 2px solid transparent;
+  }
+
+  /* Primary inverse — solid white, primary-coloured text */
+  .btn--primary-inverse {
+    background-color: var(--color-text-inverse);
+    color: var(--color-surface-inverse);
+    border-color: var(--color-text-inverse);
+  }
+
+  .btn--primary-inverse:hover {
+    background-color: transparent;
+    color: var(--color-text-inverse);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Ghost inverse — transparent, white border */
+  .btn--ghost-inverse {
+    background-color: transparent;
+    color: var(--color-text-inverse);
+    border-color: color-mix(
+      in srgb,
+      var(--color-text-inverse) 40%,
+      transparent
+    );
+  }
+
+  .btn--ghost-inverse:hover {
+    border-color: var(--color-text-inverse);
+    background-color: color-mix(
+      in srgb,
+      var(--color-text-inverse) 10%,
+      transparent
+    );
+    transform: translateY(-2px);
+  }
+
+  /* Accent variant button overrides */
+  .cta-band--accent .btn--primary-inverse {
+    color: var(--color-accent-dark);
+  }
+
+  /* ============================================================
+     REVEAL ANIMATION
+     Parent section gets data-reveal — handled by system JS.
+     Inner content staggers via data-reveal-group.
+     ============================================================ */
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cta-band__inner > * {
+      opacity: 0;
+      transform: translateY(var(--reveal-distance));
+      transition:
+        opacity var(--reveal-duration) var(--reveal-ease),
+        transform var(--reveal-duration) var(--reveal-ease);
+      transition-delay: calc(var(--item-index, 0) * var(--reveal-stagger));
+    }
+
+    .cta-band.is-visible .cta-band__inner > * {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Assign stagger indices to children */
+    .cta-band__inner > *:nth-child(1) {
+      --item-index: 0;
+    }
+    .cta-band__inner > *:nth-child(2) {
+      --item-index: 1;
+    }
+    .cta-band__inner > *:nth-child(3) {
+      --item-index: 2;
+    }
+    .cta-band__inner > *:nth-child(4) {
+      --item-index: 3;
+    }
+  }
+</style>
