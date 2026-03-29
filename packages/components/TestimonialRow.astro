@@ -1,0 +1,447 @@
+---
+/**
+ * TestimonialRow
+ * CMS-driven testimonial display. Two layout variants.
+ *
+ * Props (max 6 — T1 rule):
+ *   items        TestimonialItem[]   required   From Decap testimonials collection
+ *   heading      string?                        Section heading
+ *   variant      'cards' | 'featured'           default: 'cards'
+ *                  cards    — 2–3 col grid of quote cards, all visible
+ *                  featured — single large centred pullquote, prominent display
+ *   surface      'base' | 'subtle' | 'inverse'  default: 'subtle'
+ *                  inverse uses --color-surface-inverse (dark background)
+ *   columns      2 | 3                          Cards variant only. default: 3
+ *   featuredIndex  number                       Featured variant only. default: 0
+ *                  Index of the item to display. Allows kit to pin a specific
+ *                  testimonial without reordering the CMS collection.
+ *
+ * TestimonialItem (mirrors Decap testimonials collection schema):
+ *   quote        string   The testimonial text. No quotation marks needed —
+ *                         component adds them via CSS.
+ *   name         string   Reviewer's full name
+ *   role         string?  Job title or descriptor — e.g. "Managing Director"
+ *   company      string?  Company or context — e.g. "Acme Corp"
+ *   rating       number?  1–5 star rating. Optional — omit to hide stars.
+ *
+ * Max items: 6. Enforced at CMS level (maxLength) and here (warn + truncate).
+ *
+ * Usage:
+ *   ---
+ *   import TestimonialRow from '@mmm/components/TestimonialRow.astro';
+ *   import { getCollection } from 'astro:content';
+ *   const testimonials = await getCollection('testimonials');
+ *   ---
+ *   <TestimonialRow
+ *     heading="What our clients say"
+ *     variant="cards"
+ *     columns={3}
+ *     items={testimonials.map(t => t.data)}
+ *   />
+ */
+
+interface TestimonialItem {
+  quote: string;
+  name: string;
+  role?: string;
+  company?: string;
+  rating?: number;
+}
+
+interface Props {
+  items: TestimonialItem[];
+  heading?: string;
+  variant?: 'cards' | 'featured';
+  surface?: 'base' | 'subtle' | 'inverse';
+  columns?: 2 | 3;
+  featuredIndex?: number;
+}
+
+const {
+  items,
+  heading,
+  variant = 'cards',
+  surface = 'subtle',
+  columns = 3,
+  featuredIndex = 0,
+} = Astro.props;
+
+if (items.length > 6) {
+  console.warn(`[TestimonialRow] ${items.length} items passed — max is 6. Truncating.`);
+}
+const displayItems = items.slice(0, 6);
+
+// Featured variant — resolve which item to display
+const featuredItem = displayItems[featuredIndex] ?? displayItems[0];
+
+// Build star array for a rating value — e.g. rating 4 → [1,1,1,1,0]
+function buildStars(rating: number): number[] {
+  const clamped = Math.min(5, Math.max(1, Math.round(rating)));
+  return Array.from({ length: 5 }, (_, i) => (i < clamped ? 1 : 0));
+}
+---
+
+<section
+  class={`testimonial-row testimonial-row--${variant} testimonial-row--surface-${surface}`}
+  aria-label={heading ?? 'Testimonials'}
+>
+  <div class='testimonial-row__inner'>
+    {
+      heading && (
+        <div
+          class='testimonial-row__header'
+          data-reveal
+        >
+          <h2 class='testimonial-row__heading'>{heading}</h2>
+        </div>
+      )
+    }
+
+    {/* ── CARDS VARIANT ─────────────────────────────────────── */}
+    {
+      variant === 'cards' && (
+        <ul
+          class={`testimonial-row__grid testimonial-row__grid--cols-${columns}`}
+          data-reveal-group
+        >
+          {displayItems.map((item, index) => (
+            <li
+              class='testimonial-row__card'
+              data-reveal
+              style={`--item-index: ${index}`}
+            >
+              {/* Rating stars */}
+              {item.rating && (
+                <div
+                  class='testimonial-row__stars'
+                  aria-label={`${Math.round(item.rating)} out of 5 stars`}
+                >
+                  {buildStars(item.rating).map((filled) => (
+                    <span
+                      class={`testimonial-row__star${filled ? ' testimonial-row__star--filled' : ''}`}
+                      aria-hidden='true'
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Quote — CSS adds opening mark via ::before */}
+              <blockquote class='testimonial-row__quote'>
+                <p>{item.quote}</p>
+              </blockquote>
+
+              {/* Attribution */}
+              <footer class='testimonial-row__attribution'>
+                <cite class='testimonial-row__cite'>
+                  <span class='testimonial-row__name'>{item.name}</span>
+                  {(item.role || item.company) && (
+                    <span class='testimonial-row__meta'>
+                      {[item.role, item.company].filter(Boolean).join(', ')}
+                    </span>
+                  )}
+                </cite>
+              </footer>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    {/* ── FEATURED VARIANT ──────────────────────────────────── */}
+    {
+      variant === 'featured' && featuredItem && (
+        <figure
+          class='testimonial-row__featured'
+          data-reveal
+        >
+          {featuredItem.rating && (
+            <div
+              class='testimonial-row__stars testimonial-row__stars--lg'
+              aria-label={`${Math.round(featuredItem.rating)} out of 5 stars`}
+            >
+              {buildStars(featuredItem.rating).map((filled) => (
+                <span
+                  class={`testimonial-row__star${filled ? ' testimonial-row__star--filled' : ''}`}
+                  aria-hidden='true'
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+          )}
+
+          <blockquote class='testimonial-row__quote testimonial-row__quote--featured'>
+            <p>{featuredItem.quote}</p>
+          </blockquote>
+
+          <figcaption class='testimonial-row__attribution testimonial-row__attribution--featured'>
+            <cite class='testimonial-row__cite'>
+              <span class='testimonial-row__name'>{featuredItem.name}</span>
+              {(featuredItem.role || featuredItem.company) && (
+                <span class='testimonial-row__meta'>
+                  {[featuredItem.role, featuredItem.company].filter(Boolean).join(', ')}
+                </span>
+              )}
+            </cite>
+          </figcaption>
+        </figure>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  .testimonial-row {
+    padding-block: var(--space-section-y);
+    padding-inline: var(--gutter);
+  }
+
+  .testimonial-row--surface-base {
+    background-color: var(--color-surface-base);
+  }
+  .testimonial-row--surface-subtle {
+    background-color: var(--color-surface-subtle);
+  }
+  .testimonial-row--surface-inverse {
+    background-color: var(--color-surface-inverse);
+    /* Mesh gradient on inverse — same pattern as CTABand */
+    background-image:
+      radial-gradient(ellipse at 20% 50%, var(--color-mesh-a) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 50%, var(--color-mesh-b) 0%, transparent 60%);
+  }
+
+  .testimonial-row__inner {
+    max-width: var(--max-width-content);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l-xl);
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+
+  .testimonial-row__header {
+    text-align: center;
+  }
+
+  .testimonial-row__heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-h2);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .testimonial-row--surface-inverse .testimonial-row__heading {
+    color: var(--color-text-inverse);
+  }
+
+  /* ============================================================
+     CARDS GRID
+     ============================================================ */
+
+  .testimonial-row__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-card-gap);
+  }
+
+  @media (min-width: 600px) {
+    .testimonial-row__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 960px) {
+    .testimonial-row__grid--cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .testimonial-row__grid--cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ============================================================
+     CARD
+     ============================================================ */
+
+  .testimonial-row__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    padding: var(--card-padding);
+    box-shadow: var(--card-shadow);
+    transition:
+      transform var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
+  }
+
+  .testimonial-row__card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* Inverse surface — card uses slightly lighter bg so it reads as a lift */
+  .testimonial-row--surface-inverse .testimonial-row__card {
+    background-color: color-mix(
+      in srgb,
+      var(--color-surface-inverse) 80%,
+      var(--color-surface-base)
+    );
+    border-color: color-mix(in srgb, var(--color-text-inverse) 15%, transparent);
+  }
+
+  /* ============================================================
+     STARS
+     ============================================================ */
+
+  .testimonial-row__stars {
+    display: flex;
+    gap: 0.125rem;
+    /* Visually hidden label set via aria-label on the wrapper */
+  }
+
+  .testimonial-row__star {
+    font-size: var(--text-md);
+    color: var(--color-border-strong); /* Empty star */
+    line-height: 1;
+  }
+
+  .testimonial-row__star--filled {
+    color: #f59e0b; /* Amber — intentionally not a brand token.
+                         Star ratings have a universal colour convention.
+                         Overriding it with brand colour reduces recognition. */
+  }
+
+  .testimonial-row__stars--lg .testimonial-row__star {
+    font-size: var(--text-xl);
+  }
+
+  /* ============================================================
+     QUOTE
+     ============================================================ */
+
+  .testimonial-row__quote {
+    margin: 0;
+    padding: 0;
+    flex: 1; /* In cards: pushes attribution to bottom */
+  }
+
+  .testimonial-row__quote p {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-base);
+    margin: 0;
+    /* Opening quotation mark via pseudo-element — no hard-coded character in markup */
+    position: relative;
+    padding-inline-start: var(--space-m);
+  }
+
+  .testimonial-row__quote p::before {
+    content: '\201C'; /* " — Unicode left double quotation mark */
+    position: absolute;
+    inset-inline-start: 0;
+    top: -0.1em;
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    line-height: 1;
+    color: var(--color-accent);
+    font-weight: var(--font-weight-black);
+  }
+
+  /* Inverse surface — quote text */
+  .testimonial-row--surface-inverse .testimonial-row__quote p {
+    color: color-mix(in srgb, var(--color-text-inverse) 85%, transparent);
+  }
+
+  /* Featured quote — larger, centred, more prominent mark */
+  .testimonial-row__quote--featured p {
+    font-size: var(--text-lg);
+    text-align: center;
+    padding-inline: var(--space-xl);
+    padding-inline-start: var(--space-xl); /* Override card indent */
+    max-width: var(--measure-default);
+    margin-inline: auto;
+  }
+
+  .testimonial-row__quote--featured p::before {
+    position: static;
+    display: block;
+    font-size: var(--text-4xl);
+    line-height: 0.8;
+    margin-block-end: var(--space-s);
+    text-align: center;
+  }
+
+  /* ============================================================
+     ATTRIBUTION
+     ============================================================ */
+
+  .testimonial-row__attribution {
+    margin: 0;
+    padding: 0;
+  }
+
+  .testimonial-row__cite {
+    font-style: normal; /* <cite> is italic by default — override */
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+  }
+
+  .testimonial-row__name {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-heading);
+  }
+
+  .testimonial-row--surface-inverse .testimonial-row__name {
+    color: var(--color-text-inverse);
+  }
+
+  .testimonial-row__meta {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+
+  .testimonial-row--surface-inverse .testimonial-row__meta {
+    color: color-mix(in srgb, var(--color-text-inverse) 60%, transparent);
+  }
+
+  /* Featured attribution — centred */
+  .testimonial-row__attribution--featured .testimonial-row__cite {
+    align-items: center;
+  }
+
+  /* ============================================================
+     FEATURED FIGURE
+     ============================================================ */
+
+  .testimonial-row__featured {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-m);
+    max-width: var(--max-width-narrow);
+    margin-inline: auto;
+    text-align: center;
+  }
+</style>
