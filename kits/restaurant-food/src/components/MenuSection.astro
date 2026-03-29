@@ -1,0 +1,342 @@
+---
+/**
+ * MenuSection
+ * CMS-driven restaurant menu. Grouped by category.
+ * Kit-specific — lives in kits/restaurant-food/src/components/.
+ * Not part of the shared packages/components library.
+ *
+ * Props (max 6 — T1 rule):
+ *   categories   MenuCategory[]            required  From Decap menu collection
+ *   heading      string?                             Section heading
+ *   body         string?                             e.g. "Seasonal menu — updated weekly"
+ *   surface      'base' | 'subtle'         default: 'base'
+ *   showImages   boolean                   default: false
+ *                                          true: item images shown (if provided)
+ *                                          false: text-only layout regardless of image data
+ *                                          Images add HTTP requests — only enable if
+ *                                          client provides quality food photography.
+ *
+ * MenuCategory:
+ *   name         string       Category name — e.g. "Starters", "Mains", "Desserts"
+ *   description  string?      Optional category note — e.g. "All served with seasonal veg"
+ *   items        MenuItem[]   Items in this category
+ *
+ * MenuItem:
+ *   name         string    Dish name
+ *   description  string?   Ingredients or description — 1 sentence
+ *   price        string    Display price — string to handle "MP", ranges, etc.
+ *   tags         string[]? Dietary tags — e.g. ["V", "GF", "N"]
+ *                          Component renders these as small badges.
+ *                          Define tag meanings in a legend below the menu
+ *                          (handled via body prop or page template text).
+ *   image        { src: string; alt: string }?
+ *                          Optional — only shown if showImages prop is true
+ *
+ * Max categories: no hard limit — menus vary widely.
+ * Max items per category: no hard limit.
+ *
+ * Usage:
+ *   ---
+ *   import MenuSection from '../components/MenuSection.astro';
+ *   import { getCollection } from 'astro:content';
+ *   const menu = await getCollection('menu');
+ *   ---
+ *   <MenuSection
+ *     heading="Our menu"
+ *     body="V = Vegetarian · VE = Vegan · GF = Gluten Free · N = Contains nuts"
+ *     showImages={false}
+ *     categories={menu
+ *       .sort((a, b) => a.data.order - b.data.order)
+ *       .map(c => c.data)}
+ *   />
+ */
+
+interface MenuItemImage {
+  src: string;
+  alt: string;
+}
+
+interface MenuItem {
+  name: string;
+  description?: string;
+  price: string;
+  tags?: string[];
+  image?: MenuItemImage;
+}
+
+interface MenuCategory {
+  name: string;
+  description?: string;
+  items: MenuItem[];
+}
+
+interface Props {
+  categories: MenuCategory[];
+  heading?: string;
+  body?: string;
+  surface?: 'base' | 'subtle';
+  showImages?: boolean;
+}
+
+const { categories, heading, body, surface = 'base', showImages = false } = Astro.props;
+
+if (categories.length === 0) {
+  console.warn('[MenuSection] No categories passed — component will render empty.');
+}
+---
+
+<section
+  class={`menu-section section surface-${surface}`}
+  aria-label={heading ?? 'Menu'}
+>
+  <div class='menu-section__inner section__inner section__inner--narrow'>
+    {
+      (heading || body) && (
+        <div
+          class='section__header'
+          data-reveal
+        >
+          {heading && <h2 class='section__heading'>{heading}</h2>}
+          {body && <p class='section__body'>{body}</p>}
+        </div>
+      )
+    }
+
+    <div class='menu-section__categories'>
+      {
+        categories.map((category, catIndex) => (
+          <div
+            class='menu-section__category'
+            data-reveal
+            style={`--item-index: ${catIndex}`}
+          >
+            {/* Category header */}
+            <div class='menu-section__category-header'>
+              <h3 class='menu-section__category-name'>{category.name}</h3>
+              {category.description && (
+                <p class='menu-section__category-description'>{category.description}</p>
+              )}
+            </div>
+
+            {/* Items */}
+            <ul class='menu-section__items'>
+              {category.items.map((item) => (
+                <li
+                  class={`menu-section__item${showImages && item.image ? ' menu-section__item--with-image' : ''}`}
+                >
+                  {/* Item image — only rendered if showImages is true */}
+                  {showImages && item.image && (
+                    <div class='menu-section__item-image-wrap'>
+                      <img
+                        src={item.image.src}
+                        alt={item.image.alt}
+                        width={120}
+                        height={120}
+                        loading='lazy'
+                        decoding='async'
+                        class='menu-section__item-image'
+                      />
+                    </div>
+                  )}
+
+                  {/* Item text */}
+                  <div class='menu-section__item-text'>
+                    <div class='menu-section__item-header'>
+                      <h4 class='menu-section__item-name'>
+                        {item.name}
+                        {/* Dietary tags inline with name */}
+                        {item.tags && item.tags.length > 0 && (
+                          <span
+                            class='menu-section__tags'
+                            aria-label={`Dietary: ${item.tags.join(', ')}`}
+                          >
+                            {item.tags.map((tag) => (
+                              <span class='menu-section__tag'>{tag}</span>
+                            ))}
+                          </span>
+                        )}
+                      </h4>
+                      <span class='menu-section__price'>{item.price}</span>
+                    </div>
+
+                    {item.description && (
+                      <p class='menu-section__item-description'>{item.description}</p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+
+  /* Dietary key text is smaller and italic — overrides global .section__body */
+  .menu-section .section__body {
+    font-size: var(--text-sm);
+    font-style: italic;
+  }
+
+  /* ============================================================
+     CATEGORIES
+     ============================================================ */
+
+  .menu-section__categories {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+  }
+
+  .menu-section__category-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    margin-block-end: var(--space-m);
+    padding-block-end: var(--space-s);
+    border-block-end: 2px solid var(--color-accent);
+  }
+
+  .menu-section__category-name {
+    font-family: var(--font-heading);
+    font-size: var(--text-h3);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .menu-section__category-description {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    font-style: italic;
+    margin: 0;
+  }
+
+  /* ============================================================
+     ITEMS LIST
+     ============================================================ */
+
+  .menu-section__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ============================================================
+     ITEM
+     ============================================================ */
+
+  .menu-section__item {
+    display: flex;
+    gap: var(--space-m);
+    align-items: flex-start;
+    padding-block: var(--space-m);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  .menu-section__item:first-child {
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  /* ============================================================
+     ITEM IMAGE
+     ============================================================ */
+
+  .menu-section__item-image-wrap {
+    width: 5rem;
+    height: 5rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .menu-section__item-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ============================================================
+     ITEM TEXT
+     ============================================================ */
+
+  .menu-section__item-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .menu-section__item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-m);
+  }
+
+  .menu-section__item-name {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--leading-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+  }
+
+  .menu-section__price {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-heading);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .menu-section__item-description {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* ============================================================
+     DIETARY TAGS
+     ============================================================ */
+
+  .menu-section__tags {
+    display: inline-flex;
+    gap: var(--space-3xs);
+    align-items: center;
+  }
+
+  .menu-section__tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--text-2xs);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    padding-inline: var(--space-3xs);
+    padding-block: 1px;
+    line-height: 1.4;
+    vertical-align: middle;
+  }
+</style>
