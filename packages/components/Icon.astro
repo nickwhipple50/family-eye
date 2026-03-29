@@ -1,0 +1,225 @@
+---
+/**
+ * Icon
+ * Thin wrapper around lucide-astro. Renders a named Lucide icon as inline SVG.
+ * Zero JS shipped to the browser — Astro renders to static SVG at build time.
+ *
+ * Props:
+ *   name    IconName   required   Icon name from the approved list below
+ *   size    number?               default: 24 — px value, maps to width/height attrs
+ *   stroke  number?               default: 1.75 — stroke-width
+ *   class   string?               Additional classes on the svg element
+ *
+ * Tree-shaking:
+ *   Each icon is imported individually as a named export from lucide-astro.
+ *   Vite statically analyses the imports at build time — only icons referenced
+ *   in this file ship. Adding a new icon = adding one import + one case below.
+ *   Do not do: import * as Icons from 'lucide-astro'
+ *
+ * Adding icons:
+ *   1. Check lucide.dev for the icon name (PascalCase in the package)
+ *   2. Add the named import below
+ *   3. Add the kebab-case name to the IconName union
+ *   4. Add the case to the lookup map
+ *   5. Update the approved list in this file + kit documentation
+ *   New icon needed during a build = senior dev conversation, not a unilateral decision.
+ *
+ * APPROVED ICON LIST (starter set — covers all 7 kits)
+ * ─────────────────────────────────────────────────────
+ * General purpose
+ *   check / check-circle / x / x-circle / info / alert-triangle
+ *   chevron-right / chevron-down / arrow-right / external-link
+ *   menu / close (= x) / search
+ *
+ * Service / business
+ *   briefcase / users / user / star / shield / award / thumb-up
+ *   clock / calendar / map-pin / phone / mail / message-circle
+ *
+ * Features / product
+ *   zap / layers / settings / sliders / lock / unlock / eye
+ *   trending-up / bar-chart / pie-chart / activity
+ *
+ * Content / media
+ *   image / file / file-text / download / upload / link / rss
+ *
+ * Social
+ *   instagram / twitter (= x on lucide) / linkedin / youtube / facebook
+ *   — Note: social icons in Lucide are named BrandInstagram etc.
+ *     These are NOT in the approved list — use SVG files for social icons.
+ *     Lucide brand icons are less reliable and update frequently.
+ */
+
+import {
+  // General
+  Check,
+  CheckCircle,
+  X,
+  XCircle,
+  Info,
+  AlertTriangle,
+  ChevronRight,
+  ChevronDown,
+  ArrowRight,
+  ExternalLink,
+  Menu,
+  Search,
+  // Service / business
+  Briefcase,
+  Users,
+  User,
+  Star,
+  Shield,
+  Award,
+  ThumbsUp,
+  Clock,
+  Calendar,
+  MapPin,
+  Phone,
+  Mail,
+  MessageCircle,
+  // Features / product
+  Zap,
+  Layers,
+  Settings,
+  Sliders,
+  Lock,
+  Unlock,
+  Eye,
+  TrendingUp,
+  BarChart,
+  PieChart,
+  Activity,
+  // Content
+  Image,
+  File,
+  FileText,
+  Download,
+  Upload,
+  Link,
+  Rss,
+} from 'lucide-astro';
+
+// Union of all approved icon names (kebab-case — friendlier for props)
+export type IconName =
+  | 'check'
+  | 'check-circle'
+  | 'x'
+  | 'x-circle'
+  | 'info'
+  | 'alert-triangle'
+  | 'chevron-right'
+  | 'chevron-down'
+  | 'arrow-right'
+  | 'external-link'
+  | 'menu'
+  | 'search'
+  | 'briefcase'
+  | 'users'
+  | 'user'
+  | 'star'
+  | 'shield'
+  | 'award'
+  | 'thumbs-up'
+  | 'clock'
+  | 'calendar'
+  | 'map-pin'
+  | 'phone'
+  | 'mail'
+  | 'message-circle'
+  | 'zap'
+  | 'layers'
+  | 'settings'
+  | 'sliders'
+  | 'lock'
+  | 'unlock'
+  | 'eye'
+  | 'trending-up'
+  | 'bar-chart'
+  | 'pie-chart'
+  | 'activity'
+  | 'image'
+  | 'file'
+  | 'file-text'
+  | 'download'
+  | 'upload'
+  | 'link'
+  | 'rss';
+
+// Map from kebab-case name → Lucide component
+// Each entry is an individual named import — Vite tree-shakes unused ones
+const iconMap = {
+  check: Check,
+  'check-circle': CheckCircle,
+  x: X,
+  'x-circle': XCircle,
+  info: Info,
+  'alert-triangle': AlertTriangle,
+  'chevron-right': ChevronRight,
+  'chevron-down': ChevronDown,
+  'arrow-right': ArrowRight,
+  'external-link': ExternalLink,
+  menu: Menu,
+  search: Search,
+  briefcase: Briefcase,
+  users: Users,
+  user: User,
+  star: Star,
+  shield: Shield,
+  award: Award,
+  'thumbs-up': ThumbsUp,
+  clock: Clock,
+  calendar: Calendar,
+  'map-pin': MapPin,
+  phone: Phone,
+  mail: Mail,
+  'message-circle': MessageCircle,
+  zap: Zap,
+  layers: Layers,
+  settings: Settings,
+  sliders: Sliders,
+  lock: Lock,
+  unlock: Unlock,
+  eye: Eye,
+  'trending-up': TrendingUp,
+  'bar-chart': BarChart,
+  'pie-chart': PieChart,
+  activity: Activity,
+  image: Image,
+  file: File,
+  'file-text': FileText,
+  download: Download,
+  upload: Upload,
+  link: Link,
+  rss: Rss,
+} as const;
+
+interface Props {
+  name: IconName;
+  size?: number;
+  stroke?: number;
+  class?: string;
+}
+
+const { name, size = 24, stroke = 1.75, class: className } = Astro.props;
+
+const LucideIcon = iconMap[name];
+
+if (!LucideIcon) {
+  // Build-time warning — not a throw. Page still renders, icon is just missing.
+  console.warn(
+    `[Icon] "${name}" is not in the approved icon list. Add it to Icon.astro first.`,
+  );
+}
+---
+
+{
+  LucideIcon && (
+    <LucideIcon
+      size={size}
+      strokeWidth={stroke}
+      class={className}
+      aria-hidden='true'
+      focusable='false'
+    />
+  )
+}

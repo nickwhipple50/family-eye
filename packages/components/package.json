@@ -1,9 +1,20 @@
 {
   "name": "@mmm/components",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
-  "private": true,
+  "description": "MMM T1 (Launchpad) shared component library",
   "exports": {
-    ".": "./index.ts"
+    "./components/*": "./src/components/*",
+    "./styles/*": "./src/styles/*",
+    "./icons/*": "./src/icons/*"
+  },
+  "dependencies": {
+    "lucide-astro": "^0.453.0"
+  },
+  "peerDependencies": {
+    "astro": "^5.0.0"
+  },
+  "devDependencies": {
+    "astro": "^5.0.0"
   }
 }
