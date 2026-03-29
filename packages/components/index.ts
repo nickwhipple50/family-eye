@@ -1,0 +1,10 @@
+export { default as Hero } from './Hero.astro';
+export { default as FeatureGrid } from './FeatureGrid.astro';
+export { default as CTABand } from './CTABand.astro';
+export { default as ServiceList } from './ServiceList.astro';
+export { default as ContactForm } from './ContactForm.astro';
+export { default as FAQAccordion } from './FAQAccordion.astro';
+export { default as StatsRow } from './StatsRow.astro';
+export { default as TeamGrid } from './TeamGrid.astro';
+export { default as TestimonialRow } from './TestimonialRow.astro';
+export { default as LogoBar } from './LogoBar.astro';
