@@ -33,32 +33,42 @@ interface Props {
 const { heading, body, primaryCta, secondaryCta, eyebrow, variant = 'default' } = Astro.props;
 ---
 
-<section class={`cta-band cta-band--${variant}`} aria-labelledby="cta-band-heading">
+<section class={`cta-band cta-band--${variant}`} aria-label={heading}>
   {/* Noise texture overlay — opacity controlled by --noise-opacity token */}
   <div class="cta-band__noise" aria-hidden="true"></div>
 
   <div class="cta-band__inner">
     {eyebrow && <p class="cta-band__eyebrow">{eyebrow}</p>}
 
-    <h2 class="cta-band__heading" id="cta-band-heading">
-      {heading}
-    </h2>
+    {/* No id needed — section uses aria-label directly from heading prop */}
+    <h2 class="cta-band__heading">{heading}</h2>
 
     {body && <p class="cta-band__body">{body}</p>}
 
-    <div class="cta-band__actions">
-      <a href={primaryCta.href} class="btn btn--primary-inverse">
-        {primaryCta.label}
-      </a>
+    {/* Single CTA — plain div, no nav landmark needed */}
+    {
+      !secondaryCta && (
+        <div class="cta-band__actions">
+          <a href={primaryCta.href} class="btn btn--primary-inverse">
+            {primaryCta.label}
+          </a>
+        </div>
+      )
+    }
 
-      {
-        secondaryCta && (
+    {/* Two CTAs — nav landmark so screen readers can identify the group */}
+    {
+      secondaryCta && (
+        <nav class="cta-band__actions" aria-label="Call to action">
+          <a href={primaryCta.href} class="btn btn--primary-inverse">
+            {primaryCta.label}
+          </a>
           <a href={secondaryCta.href} class="btn btn--ghost-inverse">
             {secondaryCta.label}
           </a>
-        )
-      }
-    </div>
+        </nav>
+      )
+    }
   </div>
 </section>
 

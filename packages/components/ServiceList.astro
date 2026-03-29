@@ -102,24 +102,14 @@ displayItems.forEach((item, i) => {
 
 <section
   class={`service-list service-list--${variant} service-list--surface-${surface}`}
-  aria-labelledby={heading ? 'service-list-heading' : undefined}
+  aria-label={heading ?? 'Services'}
 >
-  <div class='service-list__inner'>
+  <div class="service-list__inner">
     {
       (heading || body) && (
-        <div
-          class='service-list__header'
-          data-reveal
-        >
-          {heading && (
-            <h2
-              class='service-list__heading'
-              id='service-list-heading'
-            >
-              {heading}
-            </h2>
-          )}
-          {body && <p class='service-list__subheading'>{body}</p>}
+        <div class="service-list__header" data-reveal>
+          {heading && <h2 class="service-list__heading">{heading}</h2>}
+          {body && <p class="service-list__subheading">{body}</p>}
         </div>
       )
     }
@@ -135,41 +125,33 @@ displayItems.forEach((item, i) => {
     >
       {
         displayItems.map((item, index) => (
-          <li
-            class='service-list__item'
-            data-reveal
-            style={`--item-index: ${index}`}
-          >
+          <li class="service-list__item" data-reveal style={`--item-index: ${index}`}>
             {/* Icon media */}
             {useIcon && item.icon && (
-              <div class='service-list__icon'>
-                <Icon
-                  name={item.icon}
-                  size={24}
-                  stroke={1.75}
-                />
+              <div class="service-list__icon">
+                <Icon name={item.icon} size={24} stroke={1.75} />
               </div>
             )}
 
             {/* Image media */}
             {useImage && item.image && (
-              <div class='service-list__image-wrap'>
+              <div class="service-list__image-wrap">
                 <img
                   src={item.image.src}
                   alt={item.image.alt}
                   width={600}
                   height={400}
-                  loading='lazy'
-                  decoding='async'
-                  class='service-list__image'
+                  loading="lazy"
+                  decoding="async"
+                  class="service-list__image"
                 />
               </div>
             )}
 
             {/* Text */}
-            <div class='service-list__text'>
-              <h3 class='service-list__item-name'>{item.name}</h3>
-              <p class='service-list__item-description'>{item.description}</p>
+            <div class="service-list__text">
+              <h3 class="service-list__item-name">{item.name}</h3>
+              <p class="service-list__item-description">{item.description}</p>
             </div>
           </li>
         ))

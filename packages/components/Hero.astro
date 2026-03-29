@@ -71,88 +71,80 @@ if (needsImage && !image) {
 const resolvedVariant = needsImage && !image ? 'centered' : variant;
 ---
 
-<section
-  class={`hero hero--${resolvedVariant}`}
-  aria-labelledby='hero-heading'
->
+<section class={`hero hero--${resolvedVariant}`} aria-label={heading}>
   {/* Fullbleed background image */}
   {
     resolvedVariant === 'fullbleed' && image && (
-      <div
-        class='hero__bg'
-        aria-hidden='true'
-      >
+      <div class="hero__bg">
         <img
           src={image.src}
-          alt=''
+          alt=""
+          aria-hidden="true"
           width={1920}
           height={1080}
-          loading='eager'
-          fetchpriority='high'
-          decoding='async'
-          class='hero__bg-img'
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          class="hero__bg-img"
         />
-        <div class='hero__overlay' />
+        <div class="hero__overlay" aria-hidden="true" />
       </div>
     )
   }
 
   {/* Mesh gradient — centered + split variants only */}
-  {
-    resolvedVariant !== 'fullbleed' && (
-      <div
-        class='hero__mesh'
-        aria-hidden='true'
-      />
-    )
-  }
+  {resolvedVariant !== 'fullbleed' && <div class="hero__mesh" aria-hidden="true" />}
 
-  <div class='hero__inner'>
+  <div class="hero__inner">
     {/* Content block — present in all variants */}
-    <div class='hero__content'>
-      <h1
-        class='hero__heading'
-        id='hero-heading'
-      >
-        {heading}
-      </h1>
+    <div class="hero__content">
+      {/* No id needed — section uses aria-label directly from heading prop */}
+      <h1 class="hero__heading">{heading}</h1>
 
-      {body && <p class='hero__body'>{body}</p>}
+      {body && <p class="hero__body">{body}</p>}
 
-      <div class='hero__actions'>
-        <a
-          href={cta.href}
-          class='btn btn--primary'
-        >
-          {cta.label}
-        </a>
+      {/* Single CTA — plain div, no nav landmark needed */}
+      {
+        !secondaryCta && (
+          <div class="hero__actions">
+            <a href={cta.href} class="btn btn--primary">
+              {cta.label}
+            </a>
+          </div>
+        )
+      }
 
-        {
-          secondaryCta && (
+      {/* Two CTAs — nav landmark so screen readers can identify the group */}
+      {
+        secondaryCta && (
+          <nav class="hero__actions" aria-label="Page actions">
+            <a href={cta.href} class="btn btn--primary">
+              {cta.label}
+            </a>
             <a
               href={secondaryCta.href}
               class={`btn ${resolvedVariant === 'fullbleed' ? 'btn--ghost-inverse' : 'btn--ghost'}`}
             >
               {secondaryCta.label}
             </a>
-          )
-        }
-      </div>
+          </nav>
+        )
+      }
     </div>
 
     {/* Split image — right column */}
     {
       resolvedVariant === 'split' && image && (
-        <div class='hero__media'>
+        <div class="hero__media">
           <img
             src={image.src}
             alt={image.alt}
             width={800}
             height={900}
-            loading='eager'
-            fetchpriority='high'
-            decoding='async'
-            class='hero__img'
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="hero__img"
           />
         </div>
       )

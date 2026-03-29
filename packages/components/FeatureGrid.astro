@@ -72,18 +72,14 @@ const displayItems = items.slice(0, 8);
 
 <section
   class={`feature-grid feature-grid--${variant} feature-grid--surface-${surface}`}
-  aria-labelledby={heading ? 'feature-grid-heading' : undefined}
+  aria-label={heading ?? 'Features'}
 >
   <div class="feature-grid__inner">
     {/* Optional header block */}
     {
       (heading || body) && (
         <div class="feature-grid__header" data-reveal>
-          {heading && (
-            <h2 class="feature-grid__heading" id="feature-grid-heading">
-              {heading}
-            </h2>
-          )}
+          {heading && <h2 class="feature-grid__heading">{heading}</h2>}
           {body && <p class="feature-grid__body">{body}</p>}
         </div>
       )
