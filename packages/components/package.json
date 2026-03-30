@@ -4,9 +4,9 @@
   "type": "module",
   "description": "MMM T1 (Launchpad) shared component library",
   "exports": {
+    ".": "./src/index.ts",
     "./components/*": "./src/components/*",
-    "./styles/*": "./src/styles/*",
-    "./icons/*": "./src/icons/*"
+    "./styles/*": "./src/styles/*"
   },
   "dependencies": {
     "lucide-astro": "^0.453.0"
