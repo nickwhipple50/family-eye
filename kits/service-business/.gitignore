@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Never ignore .gitkeep — needed to track empty content directories
+!src/content/**/.gitkeep

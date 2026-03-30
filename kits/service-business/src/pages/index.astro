@@ -1,17 +1,137 @@
 ---
+/**
+ * pages/index.astro
+ * Service Business kit — Home page
+ *
+ * Sections:
+ *   1. Hero — split or fullbleed
+ *   2. LogoBar — accreditations / trade memberships
+ *   3. StatsRow — years trading, jobs completed, service area, rating
+ *   4. ServiceList — grid-icon, 3 col
+ *   5. TestimonialRow — cards
+ *   6. CTABand
+ */
 
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, LogoBar, StatsRow, ServiceList, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection, getEntry } from 'astro:content';
+
+// CMS data
+const services = await getCollection('services');
+const testimonials = await getCollection('testimonials');
+const settings = (await getEntry('site_settings', 'general'))?.data;
+
+const sortedServices = services
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .slice(0, 6)
+  .map((s) => s.data);
+
+const sortedTestimonials = testimonials
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .slice(0, 3)
+  .map((t) => t.data);
+
+const siteName = settings?.site_name ?? 'Us';
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
-  </head>
-  <body>
-    <h1>Astro</h1>
-  </body>
-</html>
+<Layout
+  title='Home'
+  description={settings?.seo?.description}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='split'
+      heading='Reliable service you can count on'
+      body='Serving the local area for over a decade. Quality work, honest pricing, and a team that turns up when they say they will.'
+      cta={{ label: 'Get a free quote', href: '/contact' }}
+      secondaryCta={{ label: 'See our services', href: '/services' }}
+      image={{ src: '/images/hero-home.jpg', alt: 'Technician working on site' }}
+    />
+
+    <!-- ② LOGO BAR — accreditations / trade memberships -->
+    <LogoBar
+      heading='Accredited and trusted'
+      variant='marquee'
+      surface='subtle'
+      items={[
+        {
+          src: '/images/logos/accreditation-1.svg',
+          alt: 'Gas Safe Registered',
+          width: 80,
+          height: 40,
+        },
+        {
+          src: '/images/logos/accreditation-2.svg',
+          alt: 'NICEIC Approved',
+          width: 100,
+          height: 40,
+        },
+        {
+          src: '/images/logos/accreditation-3.svg',
+          alt: 'Which? Trusted Trader',
+          width: 120,
+          height: 40,
+        },
+        {
+          src: '/images/logos/accreditation-4.svg',
+          alt: 'Trustpilot Excellent',
+          width: 100,
+          height: 40,
+        },
+        {
+          src: '/images/logos/accreditation-5.svg',
+          alt: 'Federation of Master Builders',
+          width: 110,
+          height: 40,
+        },
+      ]}
+    />
+
+    <!-- ③ STATS ROW -->
+    <StatsRow
+      variant='band'
+      surface='inverse'
+      items={[
+        { value: 12, suffix: '+', label: 'Years trading' },
+        { value: 850, suffix: '+', label: 'Jobs completed' },
+        { value: 4.9, suffix: '★', label: 'Average rating', decimals: 1 },
+        { value: 25, suffix: 'mi', label: 'Service radius' },
+      ]}
+    />
+
+    <!-- ④ SERVICE LIST -->
+    <ServiceList
+      heading={`What ${siteName} can do for you`}
+      body='From routine maintenance to full installations — we handle it all.'
+      variant='grid-icon'
+      columns={3}
+      surface='base'
+      items={sortedServices}
+    />
+
+    <!-- ⑤ TESTIMONIALS -->
+    <TestimonialRow
+      heading='What our customers say'
+      variant='cards'
+      columns={3}
+      surface='subtle'
+      items={sortedTestimonials}
+    />
+
+    <!-- ⑥ CTA BAND -->
+    <CTABand
+      heading='Ready to get started?'
+      body="Free quotes, no obligation. We'll get back to you within one business day."
+      eyebrow='Get in touch'
+      primaryCta={{ label: 'Request a free quote', href: '/contact' }}
+      secondaryCta={{
+        label: 'Call us now',
+        href: `tel:${settings?.contact?.phone?.replace(/\s/g, '') ?? ''}`,
+      }}
+    />
+  </main>
+</Layout>

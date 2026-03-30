@@ -1,0 +1,334 @@
+---
+/**
+ * pages/contact.astro
+ * Service Business kit — Contact page
+ *
+ * Sections:
+ *   1. Hero — centered, short
+ *   2. Contact section — form + contact details + map embed
+ *
+ * Layout:
+ *   Two-column at desktop: form left, details + map right.
+ *   Stacked on mobile.
+ *   ContactForm component handles the form.
+ *   Map is a plain <iframe> embed — outside the form component.
+ *
+ * Phone prominence:
+ *   t1.md specifies "phone prominent" for service-business ContactForm.
+ *   Implemented via: phone number displayed large above the form,
+ *   tel: link as the primary desktop action.
+ *
+ * Map embed:
+ *   Replace the src with the client's Google Maps embed URL.
+ *   Generate at: maps.google.com → Share → Embed a map → Copy HTML.
+ *   Extract just the src value from the iframe tag.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, ContactForm } from '@mmm/components';
+import { getEntry } from 'astro:content';
+
+const settings = (await getEntry('site_settings', 'general'))?.data;
+const contact = settings?.contact;
+const siteName = settings?.site_name ?? 'Us';
+
+// Google Maps embed URL — replace with client's actual embed URL
+const mapEmbedSrc = 'https://www.google.com/maps/embed?pb=YOUR_EMBED_PARAMS';
+---
+
+<Layout
+  title='Contact us'
+  description={`Get in touch with ${siteName}. Free quotes, fast response. Call${contact?.phone ? ` ${contact.phone}` : ''} or fill in the form.`}
+  breadcrumbs={[{ label: 'Contact', href: '/contact' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — centered, kept short -->
+    <Hero
+      variant='centered'
+      heading='Get in touch'
+      body='Free quotes, no obligation. We aim to respond to all enquiries within one business day.'
+      cta={{ label: 'Jump to form', href: '#contact-form' }}
+    />
+
+    <!-- ② CONTACT SECTION -->
+    <section
+      class='contact-page section surface-base'
+      aria-label='Contact information and enquiry form'
+    >
+      <div class='contact-page__inner section__inner'>
+        <!-- LEFT — form -->
+        <div
+          class='contact-page__form'
+          id='contact-form'
+          style='scroll-margin-top: var(--nav-height)'
+        >
+          <ContactForm
+            heading='Send us a message'
+            body="We'll get back to you within one business day."
+            action='/contact'
+            submitLabel='Send message'
+            fields={[
+              {
+                name: 'name',
+                label: 'Your name',
+                type: 'text',
+                required: true,
+                width: 'half',
+                autocomplete: 'name',
+              },
+              {
+                name: 'phone',
+                label: 'Phone number',
+                type: 'tel',
+                required: true,
+                width: 'half',
+                autocomplete: 'tel',
+                placeholder: 'Best number to reach you',
+              },
+              {
+                name: 'email',
+                label: 'Email address',
+                type: 'email',
+                required: true,
+                width: 'full',
+                autocomplete: 'email',
+              },
+              {
+                name: 'service',
+                label: 'Service required',
+                type: 'select',
+                options: [
+                  'General enquiry',
+                  'Boiler service',
+                  'Heating repair',
+                  'New installation',
+                  'Emergency call-out',
+                  'Other',
+                ],
+              },
+              {
+                name: 'message',
+                label: 'Tell us about the job',
+                type: 'textarea',
+                required: true,
+                placeholder:
+                  'Describe the work needed — the more detail, the more accurate your quote.',
+              },
+              {
+                name: 'consent',
+                label:
+                  'I agree to be contacted about my enquiry. We will never share your details with third parties.',
+                type: 'checkbox',
+                required: true,
+              },
+            ]}
+          />
+        </div>
+
+        <!-- RIGHT — contact details + map -->
+        <aside
+          class='contact-page__details'
+          aria-label='Contact details'
+        >
+          <!-- Phone — prominent for service business -->
+          {
+            contact?.phone && (
+              <div class='contact-page__phone-block'>
+                <p class='contact-page__phone-label'>Call us directly</p>
+                <a
+                  href={`tel:${contact.phone.replace(/\s/g, '')}`}
+                  class='contact-page__phone'
+                >
+                  {contact.phone}
+                </a>
+                <p class='contact-page__phone-note'>Mon–Fri 8am–6pm · Sat 9am–1pm</p>
+              </div>
+            )
+          }
+
+          <!-- Other contact details -->
+          <dl class='contact-page__info'>
+            {
+              contact?.email && (
+                <>
+                  <dt class='contact-page__info-label'>Email</dt>
+                  <dd class='contact-page__info-value'>
+                    <a
+                      href={`mailto:${contact.email}`}
+                      class='contact-page__link'
+                    >
+                      {contact.email}
+                    </a>
+                  </dd>
+                </>
+              )
+            }
+            {
+              contact?.address && (
+                <>
+                  <dt class='contact-page__info-label'>Address</dt>
+                  <dd class='contact-page__info-value'>
+                    <address class='contact-page__address'>{contact.address}</address>
+                  </dd>
+                </>
+              )
+            }
+            {
+              contact?.service_area && (
+                <>
+                  <dt class='contact-page__info-label'>Service area</dt>
+                  <dd class='contact-page__info-value'>{contact.service_area}</dd>
+                </>
+              )
+            }
+          </dl>
+
+          <!-- Map embed -->
+          <div class='contact-page__map-wrap'>
+            <iframe
+              src={mapEmbedSrc}
+              class='contact-page__map'
+              width='600'
+              height='400'
+              style='border: 0'
+              allowfullscreen
+              loading='lazy'
+              referrerpolicy='no-referrer-when-downgrade'
+              title={`${siteName} location map`}
+            ></iframe>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  /* ============================================================
+     CONTACT PAGE LAYOUT
+     Two-column at desktop: form left (wider), details right.
+     ============================================================ */
+
+  .contact-page__inner {
+    /* Override section__inner default gap for this specific two-col layout */
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .contact-page__inner {
+      grid-template-columns: 1.25fr 1fr;
+    }
+  }
+
+  /* ============================================================
+     PHONE BLOCK — prominent for service business
+     ============================================================ */
+
+  .contact-page__details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+  }
+
+  .contact-page__phone-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding: var(--space-l);
+    background-color: var(--color-surface-subtle);
+    border-radius: var(--card-radius);
+    border-inline-start: 4px solid var(--color-accent);
+  }
+
+  .contact-page__phone-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .contact-page__phone {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+    text-decoration: none;
+    letter-spacing: var(--tracking-snug);
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .contact-page__phone:hover {
+    color: var(--color-accent-dark);
+  }
+
+  .contact-page__phone-note {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* ============================================================
+     CONTACT INFO
+     ============================================================ */
+
+  .contact-page__info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs) var(--space-m);
+    align-items: baseline;
+    margin: 0;
+    padding: 0;
+  }
+
+  .contact-page__info-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .contact-page__info-value {
+    font-size: var(--text-sm);
+    color: var(--color-text-base);
+    margin: 0;
+  }
+
+  .contact-page__address {
+    font-style: normal;
+  }
+
+  .contact-page__link {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .contact-page__link:hover {
+    color: var(--color-accent-dark);
+  }
+
+  /* ============================================================
+     MAP
+     ============================================================ */
+
+  .contact-page__map-wrap {
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border: 1px solid var(--color-border);
+  }
+
+  .contact-page__map {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+</style>

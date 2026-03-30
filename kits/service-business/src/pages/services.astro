@@ -1,0 +1,117 @@
+---
+/**
+ * pages/services.astro
+ * Service Business kit — Services page
+ *
+ * Sections:
+ *   1. Hero — centered
+ *   2. ServiceList — grid-icon, 2 col (more room for full descriptions)
+ *   3. ProcessSteps — how it works, 3–4 steps
+ *   4. TestimonialRow — featured
+ *   5. CTABand
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, ServiceList, ProcessSteps, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection, getEntry } from 'astro:content';
+
+const services = await getCollection('services');
+const testimonials = await getCollection('testimonials');
+const settings = (await getEntry('site_settings', 'general'))?.data;
+
+const sortedServices = services
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((s) => s.data);
+
+// Featured testimonial — first item marked featured, fallback to first overall
+const sortedTestimonials = testimonials
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((t) => t.data);
+
+const featuredIndex = sortedTestimonials.findIndex((t) => t.featured) ?? 0;
+---
+
+<Layout
+  title='Our services'
+  description='Professional services tailored to your needs. Explore what we offer and how we work.'
+  breadcrumbs={[{ label: 'Services', href: '/services' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='Services built around you'
+      body='Every job is different. We take the time to understand what you need and deliver it properly — first time.'
+      cta={{ label: 'Get a free quote', href: '/contact' }}
+      secondaryCta={{ label: 'How we work', href: '#process' }}
+    />
+
+    <!-- ② SERVICE LIST — 2 col grid gives more room for full descriptions -->
+    <ServiceList
+      heading='What we offer'
+      variant='grid-icon'
+      columns={2}
+      surface='subtle'
+      items={sortedServices}
+    />
+
+    <!-- ③ PROCESS STEPS -->
+    <!-- Wrap in a div so the #process anchor target clears the fixed nav -->
+    <div
+      id='process'
+      style='scroll-margin-top: var(--nav-height)'
+    >
+      <ProcessSteps
+        heading='How it works'
+        body='A straightforward process — no surprises, no hidden fees.'
+        variant='numbered'
+        layout='horizontal'
+        surface='base'
+        items={[
+          {
+            title: 'Get in touch',
+            body: "Call us or fill in the contact form. We'll respond within one business day.",
+          },
+          {
+            title: 'Free site visit',
+            body: 'We assess the job in person and give you a fixed, no-obligation quote.',
+          },
+          {
+            title: 'We get to work',
+            body: 'Scheduled at a time that suits you. Our team arrives on time and gets it done.',
+          },
+          {
+            title: 'Job signed off',
+            body: "We don't leave until you're happy. All work is guaranteed.",
+          },
+        ]}
+      />
+    </div>
+
+    <!-- ④ TESTIMONIALS — single featured quote -->
+    {
+      sortedTestimonials.length > 0 && (
+        <TestimonialRow
+          variant='featured'
+          surface='subtle'
+          featuredIndex={Math.max(0, featuredIndex)}
+          items={sortedTestimonials}
+        />
+      )
+    }
+
+    <!-- ⑤ CTA BAND -->
+    <CTABand
+      heading='Not sure which service you need?'
+      body="Just give us a call — we'll point you in the right direction with no pressure."
+      primaryCta={{ label: 'Request a quote', href: '/contact' }}
+      secondaryCta={{
+        label: `Call ${settings?.contact?.phone ?? 'us'}`,
+        href: `tel:${settings?.contact?.phone?.replace(/\s/g, '') ?? ''}`,
+      }}
+    />
+  </main>
+</Layout>

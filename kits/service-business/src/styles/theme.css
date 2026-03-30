@@ -1,0 +1,167 @@
+/*
+ * theme.css
+ * MMM T1 — Launchpad System
+ *
+ * THE ONLY FILE THAT CHANGES PER PROJECT.
+ *
+ * This file overrides brand-specific tokens from tokens.css.
+ * Everything else — scale, spacing, motion, layout — is inherited.
+ *
+ * Junior dev checklist (~30 min):
+ *   [ ] Set --color-primary and variants
+ *   [ ] Set --color-accent and variants
+ *   [ ] Adjust surface + text colours if brand demands it
+ *   [ ] Set --font-heading and --font-body (@font-face blocks below)
+ *   [ ] Set --font-weight-heading
+ *   [ ] Check --color-surface-inverse reads correctly (usually = primary)
+ *   [ ] Adjust --noise-opacity if kit uses noise texture (0 to disable)
+ *   [ ] Adjust --marquee-speed if LogoBar feels too fast/slow
+ *   [ ] Dark mode block — opt in or delete
+ *
+ * DO NOT:
+ *   — Add spacing, type scale, or motion overrides here
+ *   — Hard-code any value that isn't brand-specific
+ *   — Add new token names — if it doesn't exist in tokens.css, add it there first
+ *
+ * Placeholder values below are the "service-business" dummy brand.
+ * Replace all hex values before client handoff.
+ */
+
+/* ============================================================
+   FONTS
+   Self-hosted only. No Google Fonts. Files live in /public/fonts/.
+   Use font-display: swap on all faces.
+   Two faces minimum: heading (one weight) + body (regular + medium).
+   Add bold/italic only if the design actually uses them.
+   ============================================================ */
+
+@font-face {
+  font-family: 'BrandHeading';
+  src: url('/fonts/brand-heading-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BrandBody';
+  src: url('/fonts/brand-body-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BrandBody';
+  src: url('/fonts/brand-body-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BrandBody';
+  src: url('/fonts/brand-body-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   BRAND TOKENS
+   ============================================================ */
+
+:root {
+  /* --- Fonts --- */
+  --font-heading: 'BrandHeading', Georgia, serif;
+  --font-body: 'BrandBody', system-ui, sans-serif;
+  --font-weight-heading: var(
+    --font-weight-bold
+  ); /* Most headings. Override per-element if needed. */
+
+  /* --- Primary brand colour --- */
+  --color-primary: #1d3557;
+  --color-primary-light: #2a4a7f; /* ~15% lighter — generate with oklch or eyeball */
+  --color-primary-dark: #12213a; /* ~15% darker */
+
+  /* --- Accent / CTA colour --- */
+  --color-accent: #e63946;
+  --color-accent-light: #ff5c67;
+  --color-accent-dark: #c1121f;
+
+  /* --- Surfaces ---
+     Usually only needs touching if the brand has an off-white or tinted background.
+     Leave as-is for standard white sites. */
+  --color-surface-base: #ffffff;
+  --color-surface-subtle: #f4f6f9; /* Slight blue-tint to match primary */
+  --color-surface-muted: #e8ecf2;
+  --color-surface-inverse: var(--color-primary); /* Dark sections — usually = primary */
+
+  /* --- Text ---
+     Rarely needs changing. Only override if brand uses non-neutral text. */
+  --color-text-heading: var(--color-primary-dark);
+  --color-text-link: var(--color-accent);
+  --color-text-link-hover: var(--color-accent-dark);
+
+  /* --- Border --- */
+  --color-border: #dde3ed; /* Slightly blue-tinted to harmonise with primary */
+  --color-border-strong: #c4cedf;
+  --color-border-focus: var(--color-accent);
+
+  /* --- Derived / special ---
+     color-mix() means these update automatically when primary/accent change.
+     Only override if the automatic derivation doesn't look right for this brand. */
+  /* --color-mesh-a: color-mix(in srgb, var(--color-primary) 40%, transparent); */
+  /* --color-mesh-b: color-mix(in srgb, var(--color-accent) 30%, transparent); */
+  /* --color-heading-grad-a: var(--color-primary); */
+  /* --color-heading-grad-b: var(--color-accent); */
+  /* --color-shadow: var(--color-primary); */
+
+  /* --- Noise texture opacity ---
+     0 = off. 0.03–0.06 = subtle. Kit default: 0.04.
+     Restaurant + SaaS often suit slightly higher (0.06).
+     Clean/clinical brands (Health, Professional Services) often suit lower (0.02) or 0. */
+  --noise-opacity: 0.04;
+
+  /* --- Marquee speed ---
+     Adjust if the logo count makes the default 40s feel too fast or slow.
+     More logos = faster perceived speed = increase the value. */
+  /* --marquee-speed: 40s; */
+
+  /* --- Radius personality ---
+     Override the semantic radius tokens to shift the feel of the whole kit.
+     Sharp: --radius-card: var(--radius-sm)
+     Soft:  --radius-card: var(--radius-2xl)
+     Leave commented to use system defaults. */
+  /* --radius-card: var(--radius-xl); */
+  /* --radius-btn:  var(--radius-full); */
+}
+
+/* ============================================================
+   DARK MODE  (opt-in — delete this block if kit doesn't use it)
+   Best fit: Restaurant / Personal Brand / SaaS+Startup
+   Not recommended: Service Business / Professional Services
+   See addons.md — sold as ~$200–300 add-on
+   ============================================================ */
+
+/*
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface-base:    #0f1923;
+    --color-surface-subtle:  #1a2535;
+    --color-surface-muted:   #243044;
+    --color-surface-inverse: #070d14;
+
+    --color-text-base:       #e8edf5;
+    --color-text-muted:      #8a9ab5;
+    --color-text-subtle:     #5a6a85;
+    --color-text-inverse:    #0f1923;
+    --color-text-heading:    #f0f4fa;
+
+    --color-border:          #243044;
+    --color-border-strong:   #2e3d55;
+
+    --color-nav-bg-scrolled: color-mix(in srgb, var(--color-surface-base) 85%, transparent);
+  }
+}
+*/

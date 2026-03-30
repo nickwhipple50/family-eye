@@ -1,0 +1,408 @@
+# =============================================================================
+# Decap CMS — config.yml
+# MMM T1 Launchpad — Service Business kit
+#
+# Collections in this kit:
+#   site_settings  — global singleton (nav, contact, SEO, analytics)
+#   services       — ServiceList component
+#   testimonials   — TestimonialRow component
+#   team           — TeamGrid component
+#   faq            — FAQAccordion component
+#
+# Rules:
+#   — Collections are fixed per kit. Do not add, remove, or rename fields
+#     per project. Field not in schema → Tier 2 conversation.
+#   — All media goes to public/images/uploads/.
+#   — Required fields are enforced here — don't remove required: true.
+#   — maxLength / min / max constraints map directly to component limits.
+#     If you change them here, update content/config.ts too.
+#
+# Local dev:
+#   Add `local_backend: true` below the backend block to test locally.
+#   Run `npm run cms:local` in a separate terminal.
+#   Remove before deploying.
+# =============================================================================
+
+backend:
+  name: git-gateway
+  branch: main
+
+# Uncomment for local development only — remove before deploying
+# local_backend: true
+
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+slug:
+  encoding: unicode
+  clean_accents: true
+  sanitize_replacement: '-'
+
+collections:
+  # ---------------------------------------------------------------------------
+  # SITE SETTINGS
+  # Singleton — one entry, no list. Drives nav, footer, SEO, analytics,
+  # floating CTA, and social proof bar across all pages.
+  # ---------------------------------------------------------------------------
+
+  - name: site_settings
+    label: Site Settings
+    files:
+      - name: general
+        label: General
+        file: src/content/site_settings/general.json
+        fields:
+          - { label: Site Name, name: site_name, widget: string, required: true }
+
+          - {
+              label: Tagline,
+              name: tagline,
+              widget: string,
+              required: false,
+              hint: 'One sentence. Used in the footer.',
+            }
+
+          - {
+              label: Logo,
+              name: logo,
+              widget: image,
+              required: false,
+              hint: 'SVG or PNG. Falls back to site name text if blank.',
+            }
+
+          - label: Contact
+            name: contact
+            widget: object
+            fields:
+              - { label: Phone, name: phone, widget: string, required: false }
+              - { label: Email, name: email, widget: string, required: false }
+              - { label: Address, name: address, widget: string, required: false }
+              - {
+                  label: Service Area,
+                  name: service_area,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. 'Greater London and surrounding areas'",
+                }
+
+          - label: Business Hours
+            name: hours
+            widget: list
+            required: false
+            max: 7
+            fields:
+              - {
+                  label: Day,
+                  name: day,
+                  widget: select,
+                  options: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday],
+                }
+              - { label: Opens, name: open, widget: string, hint: 'e.g. 09:00' }
+              - { label: Closes, name: close, widget: string, hint: 'e.g. 17:30' }
+              - { label: Closed, name: closed, widget: boolean, default: false }
+
+          - label: Social Links
+            name: social
+            widget: object
+            fields:
+              - { label: Facebook, name: facebook, widget: string, required: false }
+              - { label: Instagram, name: instagram, widget: string, required: false }
+              - { label: LinkedIn, name: linkedin, widget: string, required: false }
+              - { label: X/Twitter, name: x, widget: string, required: false }
+              - { label: YouTube, name: youtube, widget: string, required: false }
+
+          - label: Navigation
+            name: nav
+            widget: list
+            max: 7
+            hint: 'Keep to 5–6 items.'
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: URL, name: href, widget: string }
+
+          - label: Social Proof Bar
+            name: social_proof
+            widget: object
+            hint: 'Displayed below the hero. Leave blank to hide.'
+            fields:
+              - {
+                  label: Star Rating,
+                  name: rating,
+                  widget: number,
+                  value_type: float,
+                  min: 1,
+                  max: 5,
+                  step: 0.1,
+                  required: false,
+                }
+              - { label: Review Count, name: review_count, widget: number, required: false }
+              - { label: Years Trading, name: years, widget: number, required: false }
+              - {
+                  label: Customer Label,
+                  name: customers,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. '850+ jobs completed'",
+                }
+
+          - label: Floating CTA Button
+            name: floating_cta
+            widget: object
+            hint: 'Persistent button bottom-right. Leave label blank to hide.'
+            fields:
+              - {
+                  label: Label,
+                  name: label,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. 'Get a quote' or 'Call us'",
+                }
+              - { label: URL, name: href, widget: string, required: false }
+
+          - label: Analytics
+            name: analytics
+            widget: object
+            fields:
+              - {
+                  label: Google Analytics ID,
+                  name: ga_id,
+                  widget: string,
+                  required: false,
+                  hint: 'e.g. G-XXXXXXXXXX',
+                }
+              - {
+                  label: Google Tag Manager ID,
+                  name: gtm_id,
+                  widget: string,
+                  required: false,
+                  hint: 'e.g. GTM-XXXXXXX. Use GTM or GA — not both.',
+                }
+
+          - label: SEO Defaults
+            name: seo
+            widget: object
+            hint: 'Fallbacks for pages without custom SEO fields.'
+            fields:
+              - {
+                  label: Default Title,
+                  name: title,
+                  widget: string,
+                  required: true,
+                  hint: "Include brand name. e.g. 'Smith & Sons | Heating Specialists'",
+                }
+              - {
+                  label: Default Description,
+                  name: description,
+                  widget: text,
+                  required: true,
+                  hint: '150–160 characters.',
+                }
+              - {
+                  label: Default OG Image,
+                  name: og_image,
+                  widget: image,
+                  required: false,
+                  hint: '1200×630px.',
+                }
+
+  # ---------------------------------------------------------------------------
+  # SERVICES
+  # Drives ServiceList on Home and Services pages. Max 6.
+  # ---------------------------------------------------------------------------
+
+  - name: services
+    label: Services
+    label_singular: Service
+    folder: src/content/services
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}}'
+    fields:
+      - {
+          label: Service Name,
+          name: name,
+          widget: string,
+          required: true,
+          hint: '2–5 words. This is the card heading.',
+        }
+
+      - {
+          label: Description,
+          name: description,
+          widget: text,
+          required: true,
+          hint: "1–3 sentences. What this service delivers and who it's for.",
+        }
+
+      - label: Icon
+        name: icon
+        widget: select
+        required: false
+        hint: 'Displayed on icon variants of ServiceList.'
+        options:
+          - { label: Briefcase, value: briefcase }
+          - { label: Check Circle, value: check-circle }
+          - { label: Shield, value: shield }
+          - { label: Award, value: award }
+          - { label: Star, value: star }
+          - { label: Thumbs Up, value: thumbs-up }
+          - { label: Clock, value: clock }
+          - { label: Calendar, value: calendar }
+          - { label: Phone, value: phone }
+          - { label: Mail, value: mail }
+          - { label: Message Circle, value: message-circle }
+          - { label: Map Pin, value: map-pin }
+          - { label: Zap, value: zap }
+          - { label: Layers, value: layers }
+          - { label: Settings, value: settings }
+          - { label: Lock, value: lock }
+          - { label: Users, value: users }
+          - { label: File Text, value: file-text }
+
+      - {
+          label: Display Order,
+          name: order,
+          widget: number,
+          default: 0,
+          required: false,
+          hint: 'Lower numbers appear first.',
+        }
+
+  # ---------------------------------------------------------------------------
+  # TESTIMONIALS
+  # Drives TestimonialRow on Home, Services, and Reviews pages. Max 6.
+  # ---------------------------------------------------------------------------
+
+  - name: testimonials
+    label: Testimonials
+    label_singular: Testimonial
+    folder: src/content/testimonials
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}}'
+    fields:
+      - {
+          label: Quote,
+          name: quote,
+          widget: text,
+          required: true,
+          hint: "In the customer's own words. No quotation marks — the component adds them.",
+        }
+
+      - { label: Name, name: name, widget: string, required: true }
+
+      - {
+          label: Role,
+          name: role,
+          widget: string,
+          required: false,
+          hint: "e.g. 'Homeowner' or 'Property Manager'",
+        }
+
+      - {
+          label: Company,
+          name: company,
+          widget: string,
+          required: false,
+          hint: "e.g. 'via Google Reviews'",
+        }
+
+      - {
+          label: Star Rating,
+          name: rating,
+          widget: number,
+          required: false,
+          value_type: int,
+          min: 1,
+          max: 5,
+          hint: '1–5. Leave blank to hide stars.',
+        }
+
+      - {
+          label: Featured,
+          name: featured,
+          widget: boolean,
+          default: false,
+          hint: 'Pins this testimonial in the featured variant.',
+        }
+
+      - { label: Display Order, name: order, widget: number, default: 0, required: false }
+
+  # ---------------------------------------------------------------------------
+  # TEAM
+  # Drives TeamGrid on the About page. Max 12.
+  # ---------------------------------------------------------------------------
+
+  - name: team
+    label: Team
+    label_singular: Team Member
+    folder: src/content/team
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}} — {{role}}'
+    fields:
+      - { label: Full Name, name: name, widget: string, required: true }
+
+      - {
+          label: Role,
+          name: role,
+          widget: string,
+          required: true,
+          hint: "e.g. 'Lead Engineer' or 'Office Manager'",
+        }
+
+      - {
+          label: Bio,
+          name: bio,
+          widget: text,
+          required: false,
+          hint: '1–2 sentences. What this person brings to clients.',
+        }
+
+      - label: Photo
+        name: photo
+        widget: object
+        required: false
+        hint: 'Optional. Square crop, 400×400px minimum. Initials avatar shown if blank.'
+        fields:
+          - { label: Photo, name: src, widget: image }
+          - {
+              label: Alt Text,
+              name: alt,
+              widget: string,
+              required: true,
+              hint: "e.g. 'Sarah Jones smiling at a job site'",
+            }
+
+      - { label: Display Order, name: order, widget: number, default: 0, required: false }
+
+  # ---------------------------------------------------------------------------
+  # FAQ
+  # Drives FAQAccordion — add to any page as needed.
+  # ---------------------------------------------------------------------------
+
+  - name: faq
+    label: FAQ
+    label_singular: FAQ Item
+    folder: src/content/faq
+    create: true
+    slug: '{{slug}}'
+    summary: '{{question}}'
+    fields:
+      - {
+          label: Question,
+          name: question,
+          widget: string,
+          required: true,
+          hint: 'Write as the customer would ask it — first person.',
+        }
+
+      - {
+          label: Answer,
+          name: answer,
+          widget: text,
+          required: true,
+          hint: 'Plain text only. 2–4 sentences. Direct answer first.',
+        }
+
+      - { label: Display Order, name: order, widget: number, default: 0, required: false }

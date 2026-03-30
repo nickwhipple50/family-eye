@@ -1,0 +1,130 @@
+---
+/**
+ * pages/about.astro
+ * Service Business kit — About page
+ *
+ * Sections:
+ *   1. Hero — split, team photo
+ *   2. StatsRow — social proof anchors
+ *   3. FeatureGrid — values or differentiators
+ *   4. TeamGrid
+ *   5. CTABand
+ *
+ * Note: About is described in t1.md as a high-value page — weight it.
+ * The split hero with a real team photo is important here.
+ * FeatureGrid carries the brand story — don't use generic values.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, StatsRow, FeatureGrid, TeamGrid, CTABand } from '@mmm/components';
+import { getCollection, getEntry } from 'astro:content';
+
+const team = await getCollection('team');
+const settings = (await getEntry('site_settings', 'general'))?.data;
+
+const sortedTeam = team
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((m) => m.data);
+
+const siteName = settings?.site_name ?? 'Us';
+---
+
+<Layout
+  title='About us'
+  description={`Learn about ${siteName} — who we are, how we work, and why our customers trust us.`}
+  breadcrumbs={[{ label: 'About', href: '/about' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — split with team photo -->
+    <Hero
+      variant='split'
+      heading={`The team behind ${siteName}`}
+      body='A local business built on doing good work and treating people fairly. No call centres, no subcontractors — just our own team, every time.'
+      cta={{ label: 'Meet the team', href: '#team' }}
+      secondaryCta={{ label: 'Get a quote', href: '/contact' }}
+      image={{ src: '/images/team-photo.jpg', alt: 'The team on site' }}
+    />
+
+    <!-- ② STATS ROW — social proof -->
+    <StatsRow
+      variant='band'
+      surface='inverse'
+      items={[
+        { value: 12, suffix: '+', label: 'Years in business' },
+        { value: 850, suffix: '+', label: 'Satisfied customers' },
+        { value: 4.9, suffix: '★', label: 'Average rating', decimals: 1 },
+        { value: 100, suffix: '%', label: 'Local team' },
+      ]}
+    />
+
+    <!-- ③ FEATURE GRID — values / differentiators -->
+    <!--
+      Kit author: replace these with real brand values.
+      Avoid generic claims ("great service", "passionate team").
+      Specific and provable beats vague and aspirational.
+    -->
+    <FeatureGrid
+      heading={`Why customers choose ${siteName}`}
+      body="We've built our reputation on a few simple principles."
+      variant='plain'
+      columns={3}
+      surface='subtle'
+      items={[
+        {
+          icon: 'clock',
+          heading: 'We turn up on time',
+          body: 'We respect your time. You\'ll get a specific arrival window, not a vague "morning or afternoon".',
+        },
+        {
+          icon: 'shield',
+          heading: 'Fixed prices, no surprises',
+          body: "Your quote is your price. We won't add costs once the job is underway without your approval.",
+        },
+        {
+          icon: 'award',
+          heading: 'Guaranteed work',
+          body: "All our work comes with a 12-month guarantee. If something isn't right, we'll fix it.",
+        },
+        {
+          icon: 'users',
+          heading: 'Our own team',
+          body: 'We never use subcontractors. Every job is handled by our own trained, vetted employees.',
+        },
+        {
+          icon: 'map-pin',
+          heading: 'Locally based',
+          body: 'We live and work in this area. Our reputation depends on the quality of our local word-of-mouth.',
+        },
+        {
+          icon: 'message-circle',
+          heading: 'Always reachable',
+          body: 'Phone, email, or contact form — we respond within one business day, every time.',
+        },
+      ]}
+    />
+
+    <!-- ④ TEAM GRID -->
+    <div
+      id='team'
+      style='scroll-margin-top: var(--nav-height)'
+    >
+      <TeamGrid
+        heading='The people doing the work'
+        columns={3}
+        surface='base'
+        items={sortedTeam}
+      />
+    </div>
+
+    <!-- ⑤ CTA BAND -->
+    <CTABand
+      heading='Want to work with us?'
+      body='Get in touch for a free, no-obligation quote.'
+      primaryCta={{ label: 'Request a quote', href: '/contact' }}
+      secondaryCta={{ label: 'See our services', href: '/services' }}
+    />
+  </main>
+</Layout>

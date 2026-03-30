@@ -1,21 +1,21 @@
 {
-  "name": "@mmm-kits/service-business",
+  "name": "service-business",
+  "version": "0.1.0",
   "type": "module",
-  "version": "0.0.1",
-  "engines": {
-    "node": ">=22.12.0"
-  },
+  "private": true,
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "sync": "astro sync",
+    "cms:local": "decap-server"
   },
   "dependencies": {
     "@mmm/components": "*",
-    "astro": "^6.1.1"
+    "astro": "^5.0.0",
+    "decap-cms-app": "^3.0.0"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0"
+    "typescript": "^5.0.0"
   }
 }

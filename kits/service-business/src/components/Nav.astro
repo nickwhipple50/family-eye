@@ -1,0 +1,529 @@
+---
+/**
+ * Nav.astro
+ * Site navigation. Kit-level component — lives in kits/[kit]/src/components/.
+ * Not part of packages/components — uses astro:content directly.
+ *
+ * Features:
+ *   — Logo left, nav links right at desktop (≥768px)
+ *   — Hamburger + slide-down mobile menu at <768px
+ *   — Starts transparent over hero, frosts on scroll (frosted glass)
+ *   — Active link detection via Astro.url.pathname
+ *   — Keyboard-trapped mobile menu (WCAG 2.1 AA)
+ *   — Focus returns to toggle button on close
+ *   — aria-hidden / aria-expanded managed correctly
+ *   — No props — reads all data from site_settings CMS singleton
+ *
+ * Frosted glass:
+ *   A 1px sentinel <div> is positioned at the bottom of the hero section.
+ *   IntersectionObserver watches it — when it leaves the viewport the nav
+ *   receives .nav--scrolled, applying backdrop-filter and border.
+ *   This is pure CSS transition triggered by a class — no scroll event listener.
+ *
+ * Logo:
+ *   If settings.logo is set — renders as <img>.
+ *   If not — renders settings.site_name as text.
+ *   Both link to /.
+ */
+
+import { getEntry } from 'astro:content';
+
+const settingsEntry = await getEntry('site_settings', 'general');
+const settings = settingsEntry?.data;
+
+const navLinks = settings?.nav ?? [];
+const siteName = settings?.site_name ?? 'Site';
+const logo = settings?.logo;
+
+// Active link detection
+const currentPath = Astro.url.pathname;
+
+function isActive(href: string): boolean {
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+}
+---
+
+{/* Sentinel — sits at the bottom of the hero, triggers frosted glass */}
+<div
+  class='nav-sentinel'
+  aria-hidden='true'
+>
+</div>
+
+<header
+  class='nav'
+  role='banner'
+  id='site-header'
+>
+  <div class='nav__inner'>
+    {/* Logo */}
+    <a
+      href='/'
+      class='nav__logo'
+      aria-label={`${siteName} — home`}
+    >
+      {
+        logo ? (
+          <img
+            src={logo}
+            alt={siteName}
+            class='nav__logo-img'
+            width={120}
+            height={40}
+            loading='eager'
+            decoding='async'
+          />
+        ) : (
+          <span class='nav__logo-text'>{siteName}</span>
+        )
+      }
+    </a>
+
+    {/* Desktop nav links */}
+    {
+      navLinks.length > 0 && (
+        <nav
+          class='nav__links'
+          aria-label='Main navigation'
+        >
+          {navLinks.map((link: { label: string; href: string }) => (
+            <a
+              href={link.href}
+              class={`nav__link${isActive(link.href) ? ' nav__link--active' : ''}`}
+              aria-current={isActive(link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      )
+    }
+
+    {/* Hamburger toggle — mobile only */}
+    <button
+      class='nav__toggle'
+      aria-expanded='false'
+      aria-controls='mobile-menu'
+      aria-label='Open navigation menu'
+      type='button'
+    >
+      {/* Animated hamburger icon — CSS transitions between ☰ and ✕ */}
+      <span
+        class='nav__toggle-bar'
+        aria-hidden='true'
+      ></span>
+      <span
+        class='nav__toggle-bar'
+        aria-hidden='true'
+      ></span>
+      <span
+        class='nav__toggle-bar'
+        aria-hidden='true'
+      ></span>
+    </button>
+  </div>
+
+  {/* Mobile menu */}
+  {
+    navLinks.length > 0 && (
+      <div
+        class='nav__mobile'
+        id='mobile-menu'
+        aria-hidden='true'
+      >
+        <nav aria-label='Mobile navigation'>
+          {navLinks.map((link: { label: string; href: string }) => (
+            <a
+              href={link.href}
+              class={`nav__mobile-link${isActive(link.href) ? ' nav__mobile-link--active' : ''}`}
+              aria-current={isActive(link.href) ? 'page' : undefined}
+              tabindex='-1'
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      </div>
+    )
+  }
+</header>
+
+<script>
+  function initNav(): void {
+    const headerEl = document.getElementById('site-header');
+    const toggleEl = headerEl?.querySelector<HTMLButtonElement>('.nav__toggle');
+    const menuEl = document.getElementById('mobile-menu');
+    const sentinel = document.querySelector('.nav-sentinel');
+
+    if (!headerEl || !toggleEl || !menuEl) return;
+
+    // TypeScript doesn't carry guard narrowing into nested function closures.
+    // Assert non-null here — the guard above proves these exist.
+    const header = headerEl as HTMLElement;
+    const toggle = toggleEl as HTMLButtonElement;
+    const menu = menuEl as HTMLElement;
+
+    // ── FROSTED GLASS ON SCROLL ────────────────────────────────
+    if (sentinel) {
+      const scrollObserver = new IntersectionObserver(
+        ([entry]) => {
+          header.classList.toggle('nav--scrolled', !entry.isIntersecting);
+        },
+        { threshold: 0 }
+      );
+      scrollObserver.observe(sentinel);
+    }
+
+    // ── MOBILE MENU ────────────────────────────────────────────
+    let isOpen = false;
+
+    // All focusable elements within the menu for focus trapping
+    function getFocusable(): HTMLElement[] {
+      return Array.from(
+        menu.querySelectorAll<HTMLElement>('a[href], button, [tabindex]:not([tabindex="-1"])')
+      );
+    }
+
+    function openMenu(): void {
+      isOpen = true;
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close navigation menu');
+      menu.setAttribute('aria-hidden', 'false');
+      header.classList.add('nav--open');
+
+      // Enable tab focus on mobile links
+      menu.querySelectorAll<HTMLElement>('[tabindex="-1"]').forEach((el) => {
+        el.removeAttribute('tabindex');
+      });
+
+      // Focus first link
+      getFocusable()[0]?.focus();
+    }
+
+    function closeMenu(): void {
+      isOpen = false;
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open navigation menu');
+      menu.setAttribute('aria-hidden', 'true');
+      header.classList.remove('nav--open');
+
+      // Disable tab focus on mobile links
+      menu.querySelectorAll<HTMLElement>('a').forEach((el) => {
+        el.setAttribute('tabindex', '-1');
+      });
+
+      // Return focus to toggle
+      toggle.focus();
+    }
+
+    toggle.addEventListener('click', () => {
+      if (isOpen) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen) closeMenu();
+    });
+
+    // Focus trap — keep Tab inside the open menu
+    menu.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab' || !isOpen) return;
+
+      const focusable = getFocusable();
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        // Wrap to toggle button (outside menu)
+        toggle.focus();
+      }
+    });
+
+    // Close menu on nav link click (SPA navigation)
+    menu.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Close menu if viewport resizes past mobile breakpoint
+    const mq = window.matchMedia('(min-width: 768px)');
+    mq.addEventListener('change', (e) => {
+      if (e.matches && isOpen) closeMenu();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNav);
+  } else {
+    initNav();
+  }
+
+  document.addEventListener('astro:page-load', initNav);
+</script>
+
+<style>
+  /* ============================================================
+     SENTINEL
+     Positioned at the bottom of the viewport height so the
+     observer fires when the hero (roughly 90svh) is scrolled past.
+     ============================================================ */
+
+  .nav-sentinel {
+    position: absolute;
+    top: 90svh;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+
+  .nav {
+    position: fixed;
+    top: 0;
+    inset-inline: 0;
+    z-index: var(--z-nav);
+    height: var(--nav-height);
+    padding-inline: var(--nav-padding-x);
+    display: flex;
+    flex-direction: column;
+
+    /* Start transparent — hero shows through */
+    background-color: var(--color-nav-bg);
+    transition:
+      background-color var(--duration-normal) var(--ease-default),
+      backdrop-filter var(--duration-normal) var(--ease-default),
+      border-color var(--duration-normal) var(--ease-default),
+      box-shadow var(--duration-normal) var(--ease-default);
+  }
+
+  /* Frosted glass state — JS adds .nav--scrolled */
+  .nav--scrolled {
+    background-color: var(--color-nav-bg-scrolled);
+    backdrop-filter: blur(var(--nav-backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--nav-backdrop-blur));
+    border-block-end: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* ============================================================
+     INNER — logo + desktop links
+     ============================================================ */
+
+  .nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--nav-height);
+    gap: var(--space-l);
+  }
+
+  /* ============================================================
+     LOGO
+     ============================================================ */
+
+  .nav__logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .nav__logo-img {
+    height: 2rem;
+    width: auto;
+    display: block;
+  }
+
+  .nav__logo-text {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-heading);
+    line-height: 1;
+    letter-spacing: var(--tracking-snug);
+  }
+
+  /* ============================================================
+     DESKTOP NAV LINKS — hidden on mobile
+     ============================================================ */
+
+  .nav__links {
+    display: none;
+    align-items: center;
+    gap: var(--space-s);
+  }
+
+  @media (min-width: 768px) {
+    .nav__links {
+      display: flex;
+    }
+  }
+
+  .nav__link {
+    font-size: var(--nav-link-size);
+    font-weight: var(--nav-link-weight);
+    letter-spacing: var(--nav-link-tracking);
+    color: var(--color-nav-text);
+    text-decoration: none;
+    padding-block: var(--space-xs);
+    padding-inline: var(--space-xs);
+    border-radius: var(--radius-sm);
+    position: relative;
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .nav__link::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 2px;
+    background-color: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-normal) var(--ease-spring);
+  }
+
+  .nav__link:hover {
+    color: var(--color-accent);
+  }
+
+  .nav__link:hover::after,
+  .nav__link--active::after {
+    transform: scaleX(1);
+  }
+
+  .nav__link--active {
+    color: var(--color-accent);
+  }
+
+  .nav__link:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* ============================================================
+     HAMBURGER TOGGLE — visible on mobile only
+     ============================================================ */
+
+  .nav__toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: var(--space-xs);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 768px) {
+    .nav__toggle {
+      display: none;
+    }
+  }
+
+  .nav__toggle:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  .nav__toggle-bar {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-text-base);
+    border-radius: 1px;
+    transform-origin: center;
+    transition:
+      transform var(--duration-normal) var(--ease-spring),
+      opacity var(--duration-fast) var(--ease-default),
+      translateY var(--duration-normal) var(--ease-spring);
+  }
+
+  /* Animate bars to ✕ when menu is open */
+  .nav--open .nav__toggle-bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .nav--open .nav__toggle-bar:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .nav--open .nav__toggle-bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* ============================================================
+     MOBILE MENU
+     Slides down from the nav bar.
+     Height animates via grid-template-rows (same trick as FAQAccordion).
+     ============================================================ */
+
+  .nav__mobile {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--duration-normal) var(--ease-out);
+    overflow: hidden;
+    background-color: var(--color-surface-base);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  .nav--open .nav__mobile {
+    grid-template-rows: 1fr;
+  }
+
+  .nav__mobile nav {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding-block: var(--space-s);
+    padding-inline: var(--gutter);
+    gap: var(--space-3xs);
+  }
+
+  .nav__mobile-link {
+    font-size: var(--text-md);
+    font-weight: var(--nav-link-weight);
+    color: var(--color-text-base);
+    text-decoration: none;
+    padding-block: var(--space-s);
+    padding-inline: var(--space-s);
+    border-radius: var(--radius-md);
+    transition:
+      background-color var(--duration-fast) var(--ease-default),
+      color var(--duration-fast) var(--ease-default);
+  }
+
+  .nav__mobile-link:hover {
+    background-color: var(--color-surface-subtle);
+    color: var(--color-accent);
+  }
+
+  .nav__mobile-link--active {
+    color: var(--color-accent);
+    background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  }
+
+  .nav__mobile-link:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+</style>
