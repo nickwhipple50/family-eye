@@ -38,17 +38,45 @@ const { heading, body, primaryCta, secondaryCta, eyebrow, variant = 'default' } 
   aria-label={heading}
 >
   <div class='cta-band__inner'>
-    {eyebrow && <p class='cta-band__eyebrow'>{eyebrow}</p>}
+    {
+      eyebrow && (
+        <p
+          class='cta-band__eyebrow'
+          data-reveal
+          style='--item-index: 0'
+        >
+          {eyebrow}
+        </p>
+      )
+    }
 
-    {/* No id needed — section uses aria-label directly from heading prop */}
-    <h2 class='cta-band__heading'>{heading}</h2>
+    <h2
+      class='cta-band__heading'
+      data-reveal
+      style={`--item-index: ${eyebrow ? 1 : 0}`}
+    >
+      {heading}
+    </h2>
 
-    {body && <p class='cta-band__body'>{body}</p>}
+    {
+      body && (
+        <p
+          class='cta-band__body'
+          data-reveal
+          style={`--item-index: ${eyebrow ? 2 : 1}`}
+        >
+          {body}
+        </p>
+      )
+    }
 
-    {/* Single CTA — plain div, no nav landmark needed */}
     {
       !secondaryCta && (
-        <div class='cta-band__actions'>
+        <div
+          class='cta-band__actions'
+          data-reveal
+          style={`--item-index: ${eyebrow ? 3 : 2}`}
+        >
           <a
             href={primaryCta.href}
             class='btn btn--primary-inverse'
@@ -59,12 +87,13 @@ const { heading, body, primaryCta, secondaryCta, eyebrow, variant = 'default' } 
       )
     }
 
-    {/* Two CTAs — nav landmark so screen readers can identify the group */}
     {
       secondaryCta && (
         <nav
           class='cta-band__actions'
           aria-label='Call to action'
+          data-reveal
+          style={`--item-index: ${eyebrow ? 3 : 2}`}
         >
           <a
             href={primaryCta.href}
@@ -184,38 +213,5 @@ const { heading, body, primaryCta, secondaryCta, eyebrow, variant = 'default' } 
   /* Accent variant button override */
   .cta-band--accent .btn--primary-inverse {
     color: var(--color-accent-dark);
-  }
-
-  /* ============================================================
-     REVEAL ANIMATION
-     ============================================================ */
-
-  @media (prefers-reduced-motion: no-preference) {
-    .cta-band__inner > * {
-      opacity: 0;
-      transform: translateY(var(--reveal-distance));
-      transition:
-        opacity var(--reveal-duration) var(--reveal-ease),
-        transform var(--reveal-duration) var(--reveal-ease);
-      transition-delay: calc(var(--item-index, 0) * var(--reveal-stagger));
-    }
-
-    .cta-band.is-visible .cta-band__inner > * {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .cta-band__inner > *:nth-child(1) {
-      --item-index: 0;
-    }
-    .cta-band__inner > *:nth-child(2) {
-      --item-index: 1;
-    }
-    .cta-band__inner > *:nth-child(3) {
-      --item-index: 2;
-    }
-    .cta-band__inner > *:nth-child(4) {
-      --item-index: 3;
-    }
   }
 </style>
