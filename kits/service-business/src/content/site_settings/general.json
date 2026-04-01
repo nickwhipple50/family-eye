@@ -1,31 +1,31 @@
 {
-  "site_name": "Smith & Sons Heating",
-  "tagline": "Your local heating specialists — serving the area since 2012.",
+  "site_name": "MMM Building",
+  "tagline": "Your local construction specialists — serving the area since 2012.",
   "logo": "",
 
   "contact": {
-    "phone": "01234 567 890",
-    "email": "hello@smithandsons.co.uk",
-    "address": "123 High Street, Anytown, AN1 1AA",
-    "service_area": "Greater Anytown and surrounding areas — within 25 miles"
+    "phone": "401-773-7711",
+    "email": "info@mcguinnessmedia.com",
+    "address": "3287 Post Rd, Warwick, RI 02886",
+    "service_area": "Rhode Island, New England, and beyond!"
   },
 
   "hours": [
-    { "day": "Monday", "open": "08:00", "close": "18:00", "closed": false },
-    { "day": "Tuesday", "open": "08:00", "close": "18:00", "closed": false },
-    { "day": "Wednesday", "open": "08:00", "close": "18:00", "closed": false },
-    { "day": "Thursday", "open": "08:00", "close": "18:00", "closed": false },
-    { "day": "Friday", "open": "08:00", "close": "18:00", "closed": false },
-    { "day": "Saturday", "open": "09:00", "close": "13:00", "closed": false },
+    { "day": "Monday", "open": "09:00", "close": "17:00", "closed": false },
+    { "day": "Tuesday", "open": "09:00", "close": "17:00", "closed": false },
+    { "day": "Wednesday", "open": "09:00", "close": "17:00", "closed": false },
+    { "day": "Thursday", "open": "09:00", "close": "17:00", "closed": false },
+    { "day": "Friday", "open": "09:00", "close": "15:00", "closed": false },
+    { "day": "Saturday", "open": "09:00", "close": "13:00", "closed": true },
     { "day": "Sunday", "open": "00:00", "close": "00:00", "closed": true }
   ],
 
   "social": {
-    "facebook": "",
-    "instagram": "",
-    "linkedin": "",
+    "facebook": "https://www.facebook.com/mcguinnessmedia/",
+    "instagram": "https://www.instagram.com/mcguinnessmedia/",
+    "linkedin": "https://www.linkedin.com/company/mcguinness-media-&-marketing/",
     "x": "",
-    "youtube": ""
+    "youtube": "https://www.youtube.com/channel/UCuBRS0_HZ5zO2kZPRjrGxVA"
   },
 
   "nav": [
