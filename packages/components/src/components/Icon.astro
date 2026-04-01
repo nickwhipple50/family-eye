@@ -99,51 +99,7 @@ import {
   Rss,
 } from 'lucide-astro';
 
-// Union of all approved icon names (kebab-case — friendlier for props)
-export type IconName =
-  | 'check'
-  | 'check-circle'
-  | 'x'
-  | 'x-circle'
-  | 'info'
-  | 'alert-triangle'
-  | 'chevron-right'
-  | 'chevron-down'
-  | 'arrow-right'
-  | 'external-link'
-  | 'menu'
-  | 'search'
-  | 'briefcase'
-  | 'users'
-  | 'user'
-  | 'star'
-  | 'shield'
-  | 'award'
-  | 'thumbs-up'
-  | 'clock'
-  | 'calendar'
-  | 'map-pin'
-  | 'phone'
-  | 'mail'
-  | 'message-circle'
-  | 'zap'
-  | 'layers'
-  | 'settings'
-  | 'sliders'
-  | 'lock'
-  | 'unlock'
-  | 'eye'
-  | 'trending-up'
-  | 'bar-chart'
-  | 'pie-chart'
-  | 'activity'
-  | 'image'
-  | 'file'
-  | 'file-text'
-  | 'download'
-  | 'upload'
-  | 'link'
-  | 'rss';
+import type { IconName } from './icons';
 
 // Map from kebab-case name → Lucide component
 // Each entry is an individual named import — Vite tree-shakes unused ones
@@ -216,8 +172,8 @@ if (!LucideIcon) {
       size={size}
       strokeWidth={stroke}
       class={className}
-      aria-hidden="true"
-      focusable="false"
+      aria-hidden='true'
+      focusable='false'
     />
   )
 }

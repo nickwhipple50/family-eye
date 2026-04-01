@@ -11,3 +11,8 @@ export { default as LogoBar } from './components/LogoBar.astro';
 export { default as ProcessSteps } from './components/ProcessSteps.astro';
 export { default as ImageGallery } from './components/ImageGallery.astro';
 export { default as PricingTable } from './components/PricingTable.astro';
+export { default as Icon } from './components/Icon.astro';
+
+// Type exported from its own .ts file — avoids esbuild union syntax errors
+// when the type is consumed across a monorepo workspace boundary.
+export type { IconName } from './components/icons';
