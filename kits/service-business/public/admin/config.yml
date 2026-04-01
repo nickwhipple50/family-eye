@@ -406,3 +406,49 @@ collections:
         }
 
       - { label: Display Order, name: order, widget: number, default: 0, required: false }
+
+  # ---------------------------------------------------------------------------
+  # PAGES — prose content for privacy policy and terms of use
+  # Singleton files — one entry per page, not a list.
+  # ---------------------------------------------------------------------------
+
+  - name: pages
+    label: Pages
+    files:
+      - name: privacy
+        label: Privacy Policy
+        file: src/content/pages/privacy.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Privacy Policy' }
+          - {
+              label: Body,
+              name: body,
+              widget: markdown,
+              hint: "Paste your solicitor's privacy policy text here.",
+            }
+          - {
+              label: Last Updated,
+              name: updated_at,
+              widget: datetime,
+              required: false,
+              hint: 'Update this whenever the policy changes.',
+            }
+
+      - name: terms
+        label: Terms of Use
+        file: src/content/pages/terms.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Terms of Use' }
+          - {
+              label: Body,
+              name: body,
+              widget: markdown,
+              hint: "Paste your solicitor's terms of use text here.",
+            }
+          - {
+              label: Last Updated,
+              name: updated_at,
+              widget: datetime,
+              required: false,
+              hint: 'Update this whenever the terms change.',
+            }

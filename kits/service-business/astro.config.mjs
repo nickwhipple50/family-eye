@@ -1,13 +1,24 @@
 import { defineConfig } from 'astro/config';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import fs from 'node:fs';
+import sitemap from '@astrojs/sitemap';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  // Vite alias — mirrors the paths entry in tsconfig.json.
-  // Both must be kept in sync. If you add an alias to one, add it to the other.
+  // Set to the production domain before deploying.
+  // Used by Astro.site in Base.astro to build absolute OG image URLs,
+  // and required by @astrojs/sitemap to generate correct sitemap URLs.
+  // Update this per client — do not leave as placeholder.
+  site: 'https://yourclientdomain.com',
+
+  integrations: [
+    sitemap({
+      filter: (page) =>
+        !page.includes('/admin') && !page.includes('/changelog') && !page.includes('/og/'),
+    }),
+  ],
+
   vite: {
     resolve: {
       alias: {

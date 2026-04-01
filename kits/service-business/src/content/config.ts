@@ -168,6 +168,17 @@ const faq = defineCollection({
   }),
 });
 
+// ─── PAGES (prose) ───────────────────────────────────────────────────────────
+
+const pages = defineCollection({
+  type: 'data',
+  schema: z.object({
+    title: z.string(),
+    body: z.string(),
+    updated_at: z.string().optional(),
+  }),
+});
+
 // ─── EXPORT ───────────────────────────────────────────────────────────────────
 
 export const collections = {
@@ -176,4 +187,5 @@ export const collections = {
   testimonials,
   team,
   faq,
+  pages,
 };
