@@ -45,7 +45,7 @@
  */
 
 import Icon from './Icon.astro';
-import type { IconName } from './Icon.astro';
+import type { IconName } from './icons';
 
 interface StepItem {
   title: string;
@@ -176,7 +176,7 @@ if (variant === 'icon') {
   }
 
   /* Horizontal layout — row at desktop */
-  @media (min-width: 640px) {
+  @media (min-width: 600px) {
     .process-steps--horizontal .process-steps__list {
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     }
@@ -255,7 +255,7 @@ if (variant === 'icon') {
     display: none; /* Hidden on mobile */
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 600px) {
     .process-steps--horizontal .process-steps__step:not(:last-child) .process-steps__connector {
       display: block;
       position: absolute;
