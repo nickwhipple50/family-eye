@@ -35,5 +35,18 @@
   </head>
   <body>
     <script src='https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js'></script>
+    <script>
+      // Explicitly set config path so Decap doesn't infer it from the page URL.
+      // Without this, /admin (no trailing slash) causes Decap to resolve
+      // config.yml relative to the root instead of /admin/config.yml.
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      CMS.init({
+        config: {
+          load_config_file: true,
+          config_url: '/admin/config.yml',
+        },
+      });
+    </script>
   </body>
 </html>

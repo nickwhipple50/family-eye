@@ -135,13 +135,6 @@ if (variant === 'icon') {
                   />
                 </div>
               )}
-              {/* Connector line — CSS handles visibility */}
-              {variant === 'numbered' && layout === 'horizontal' && (
-                <span
-                  class='process-steps__connector'
-                  aria-hidden='true'
-                />
-              )}
             </div>
 
             {/* Step text */}
@@ -239,38 +232,30 @@ if (variant === 'icon') {
     font-weight: var(--font-weight-bold);
     letter-spacing: var(--tracking-wide);
     flex-shrink: 0;
-    position: relative;
-    z-index: 1;
   }
 
-  /* ============================================================
-     CONNECTOR LINE
-     Horizontal connector between numbered steps.
-     Runs from the right edge of the number circle to the
-     left edge of the next step's number circle.
-     Hidden on the last step.
-     ============================================================ */
-
-  .process-steps__connector {
-    display: none; /* Hidden on mobile */
-  }
-
+  /* Horizontal: subtle top border on each step provides visual rhythm
+     without depending on a connector line spanning grid columns. */
   @media (min-width: 600px) {
-    .process-steps--horizontal .process-steps__step:not(:last-child) .process-steps__connector {
-      display: block;
-      position: absolute;
-      /* Start just after the number circle */
-      left: 3rem;
-      top: 50%;
-      transform: translateY(-50%);
-      /* Width fills from here to the start of the next step's marker.
-         We can't know the exact width statically, so we use a large value
-         and let overflow handle it. The step grid's gap creates the actual gap. */
-      width: calc(100% + var(--space-l));
-      height: 1px;
-      background: linear-gradient(to right, var(--color-border-strong), var(--color-border));
-      z-index: 0;
+    .process-steps--horizontal .process-steps__step {
+      border-block-start: 2px solid var(--color-border);
+      padding-block-start: var(--space-m);
     }
+
+    .process-steps--horizontal .process-steps__step:first-child {
+      border-block-start-color: var(--color-accent);
+    }
+  }
+
+  /* Vertical: left border rail on the marker column */
+  .process-steps--vertical .process-steps__step:not(:last-child) .process-steps__marker::after {
+    content: '';
+    position: absolute;
+    top: 3rem;
+    left: 1.4375rem; /* Circle centre: (3rem / 2) - (1px / 2) */
+    width: 1px;
+    bottom: calc(-1 * var(--space-m-l));
+    background-color: var(--color-border);
   }
 
   /* ============================================================
