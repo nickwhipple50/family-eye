@@ -1,0 +1,410 @@
+# =============================================================================
+# Decap CMS — config.yml
+# MMM T1 Launchpad — Real Estate Kit
+#
+# Collections in this kit:
+#   site_settings  — global singleton (nav, contact, SEO, analytics)
+#   listings       — ListingsGrid component (kit-local)
+#   services       — ServiceList component
+#   testimonials   — TestimonialRow component
+#   team           — TeamGrid component
+#   pages          — Privacy policy, Terms of use
+#
+# Note: No FAQ collection in this kit — not used on any page.
+# =============================================================================
+
+backend:
+  name: git-gateway
+  branch: main
+
+# local_backend: true   # Uncomment for local dev — remove before deploying
+
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+slug:
+  encoding: unicode
+  clean_accents: true
+  sanitize_replacement: '-'
+
+collections:
+  # ---------------------------------------------------------------------------
+  # SITE SETTINGS
+  # ---------------------------------------------------------------------------
+
+  - name: site_settings
+    label: Site Settings
+    files:
+      - name: general
+        label: General
+        file: src/content/site_settings/general.json
+        fields:
+          - { label: Site Name, name: site_name, widget: string, required: true }
+          - { label: Tagline, name: tagline, widget: string, required: false }
+          - { label: Logo, name: logo, widget: image, required: false }
+
+          - label: Contact
+            name: contact
+            widget: object
+            fields:
+              - { label: Phone, name: phone, widget: string, required: false }
+              - { label: Email, name: email, widget: string, required: false }
+              - { label: Address, name: address, widget: string, required: false }
+              - { label: Service Area, name: service_area, widget: string, required: false }
+
+          - label: Business Hours
+            name: hours
+            widget: list
+            required: false
+            max: 7
+            fields:
+              - {
+                  label: Day,
+                  name: day,
+                  widget: select,
+                  options: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday],
+                }
+              - { label: Opens, name: open, widget: string, hint: 'e.g. 09:00' }
+              - { label: Closes, name: close, widget: string, hint: 'e.g. 17:30' }
+              - { label: Closed, name: closed, widget: boolean, default: false }
+
+          - label: Social Links
+            name: social
+            widget: object
+            fields:
+              - { label: Facebook, name: facebook, widget: string, required: false }
+              - { label: Instagram, name: instagram, widget: string, required: false }
+              - { label: LinkedIn, name: linkedin, widget: string, required: false }
+              - { label: X/Twitter, name: x, widget: string, required: false }
+              - { label: YouTube, name: youtube, widget: string, required: false }
+
+          - label: Navigation
+            name: nav
+            widget: list
+            max: 7
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: URL, name: href, widget: string }
+
+          - label: Social Proof Bar
+            name: social_proof
+            widget: object
+            fields:
+              - {
+                  label: Star Rating,
+                  name: rating,
+                  widget: number,
+                  value_type: float,
+                  min: 1,
+                  max: 5,
+                  step: 0.1,
+                  required: false,
+                }
+              - { label: Review Count, name: review_count, widget: number, required: false }
+              - { label: Years in Business, name: years, widget: number, required: false }
+              - {
+                  label: Stats Label,
+                  name: customers,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. '320+ homes sold'",
+                }
+
+          - label: Floating CTA Button
+            name: floating_cta
+            widget: object
+            fields:
+              - {
+                  label: Label,
+                  name: label,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. 'Get an appraisal'",
+                }
+              - { label: URL, name: href, widget: string, required: false }
+
+          - label: Analytics
+            name: analytics
+            widget: object
+            fields:
+              - { label: Google Analytics ID, name: ga_id, widget: string, required: false }
+              - { label: Google Tag Manager ID, name: gtm_id, widget: string, required: false }
+
+          - label: SEO Defaults
+            name: seo
+            widget: object
+            fields:
+              - { label: Default Title, name: title, widget: string, required: true }
+              - { label: Default Description, name: description, widget: text, required: true }
+              - {
+                  label: Default OG Image,
+                  name: og_image,
+                  widget: image,
+                  required: false,
+                  hint: '1200×630px.',
+                }
+
+  # ---------------------------------------------------------------------------
+  # LISTINGS
+  # Drives ListingsGrid. No hard item limit — list all active inventory.
+  # ---------------------------------------------------------------------------
+
+  - name: listings
+    label: Listings
+    label_singular: Listing
+    folder: src/content/listings
+    create: true
+    slug: '{{slug}}'
+    summary: '{{title}} — {{price}} ({{status}})'
+    sortable_fields: [title, status, order]
+    fields:
+      - {
+          label: Property Address,
+          name: title,
+          widget: string,
+          required: true,
+          hint: 'Street address or property name — this is the card heading.',
+        }
+
+      - {
+          label: Price,
+          name: price,
+          widget: string,
+          required: true,
+          hint: "Display string — e.g. '$425,000', '$2,500/mo', 'Call for price'",
+        }
+
+      - label: Status
+        name: status
+        widget: select
+        required: true
+        options:
+          - { label: Active, value: active }
+          - { label: Pending, value: pending }
+          - { label: Sold, value: sold }
+          - { label: For Rent, value: for-rent }
+
+      - {
+          label: Bedrooms,
+          name: bedrooms,
+          widget: number,
+          required: false,
+          value_type: int,
+          min: 0,
+        }
+      - {
+          label: Bathrooms,
+          name: bathrooms,
+          widget: number,
+          required: false,
+          value_type: int,
+          min: 0,
+        }
+      - {
+          label: Floor Area,
+          name: area,
+          widget: string,
+          required: false,
+          hint: "e.g. '1,850 sq ft'",
+        }
+      - { label: Neighborhood, name: location, widget: string, required: false }
+
+      - {
+          label: Description,
+          name: description,
+          widget: text,
+          required: false,
+          hint: '1–2 sentences highlighting the key selling points.',
+        }
+
+      - label: Main Photo
+        name: image
+        widget: object
+        required: true
+        fields:
+          - { label: Photo, name: src, widget: image }
+          - {
+              label: Alt Text,
+              name: alt,
+              widget: string,
+              required: true,
+              hint: "Describe the property — e.g. 'Front exterior of craftsman bungalow'",
+            }
+          - { label: Width, name: width, widget: number, default: 1200, required: true }
+          - { label: Height, name: height, widget: number, default: 800, required: true }
+
+      - {
+          label: Featured,
+          name: featured,
+          widget: boolean,
+          default: false,
+          hint: 'Featured listings get an accent border.',
+        }
+
+      - {
+          label: Display Order,
+          name: order,
+          widget: number,
+          default: 0,
+          required: false,
+          hint: 'Lower numbers appear first within the same status group.',
+        }
+
+  # ---------------------------------------------------------------------------
+  # SERVICES
+  # Drives ServiceList on Home page. Max 6.
+  # For real estate: buyer services / seller services / property management.
+  # ---------------------------------------------------------------------------
+
+  - name: services
+    label: Services
+    label_singular: Service
+    folder: src/content/services
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}}'
+    fields:
+      - { label: Service Name, name: name, widget: string, required: true }
+      - {
+          label: Description,
+          name: description,
+          widget: text,
+          required: true,
+          hint: '1–3 sentences. Who this service is for and what it delivers.',
+        }
+
+      - label: Icon
+        name: icon
+        widget: select
+        required: false
+        options:
+          - { label: Home / Briefcase, value: briefcase }
+          - { label: Key / Lock, value: lock }
+          - { label: Trending Up, value: trending-up }
+          - { label: Users, value: users }
+          - { label: Map Pin, value: map-pin }
+          - { label: Shield, value: shield }
+          - { label: Award, value: award }
+          - { label: Star, value: star }
+          - { label: Check Circle, value: check-circle }
+          - { label: Calendar, value: calendar }
+          - { label: Bar Chart, value: bar-chart }
+          - { label: Eye, value: eye }
+
+      - { label: Display Order, name: order, widget: number, default: 0, required: false }
+
+  # ---------------------------------------------------------------------------
+  # TESTIMONIALS
+  # Drives TestimonialRow. Mix of buyer and seller quotes. Max 6.
+  # ---------------------------------------------------------------------------
+
+  - name: testimonials
+    label: Testimonials
+    label_singular: Testimonial
+    folder: src/content/testimonials
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}}'
+    fields:
+      - {
+          label: Quote,
+          name: quote,
+          widget: text,
+          required: true,
+          hint: "Client's own words. No quotation marks — the component adds them.",
+        }
+      - { label: Name, name: name, widget: string, required: true }
+      - {
+          label: Role,
+          name: role,
+          widget: string,
+          required: false,
+          hint: "e.g. 'Home Buyer' or 'Home Seller'",
+        }
+      - {
+          label: Location,
+          name: company,
+          widget: string,
+          required: false,
+          hint: "e.g. 'Anytown, CA' or 'via Zillow'",
+        }
+      - {
+          label: Star Rating,
+          name: rating,
+          widget: number,
+          required: false,
+          value_type: int,
+          min: 1,
+          max: 5,
+        }
+      - {
+          label: Featured,
+          name: featured,
+          widget: boolean,
+          default: false,
+          hint: 'Pins this testimonial in the featured variant on Buyers & Sellers page.',
+        }
+      - { label: Display Order, name: order, widget: number, default: 0, required: false }
+
+  # ---------------------------------------------------------------------------
+  # TEAM
+  # Drives TeamGrid on About page. Agents and support staff.
+  # ---------------------------------------------------------------------------
+
+  - name: team
+    label: Team
+    label_singular: Team Member
+    folder: src/content/team
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}} — {{role}}'
+    fields:
+      - { label: Full Name, name: name, widget: string, required: true }
+      - {
+          label: Title,
+          name: role,
+          widget: string,
+          required: true,
+          hint: "e.g. 'Listing Agent', 'Buyer's Agent', 'Office Manager'",
+        }
+      - {
+          label: Bio,
+          name: bio,
+          widget: text,
+          required: false,
+          hint: '1–2 sentences. Local knowledge and specialization work well here.',
+        }
+
+      - label: Headshot
+        name: photo
+        widget: object
+        required: false
+        hint: 'Square crop strongly preferred — 400×400px minimum.'
+        fields:
+          - { label: Photo, name: src, widget: image }
+          - { label: Alt Text, name: alt, widget: string, required: true }
+
+      - { label: Display Order, name: order, widget: number, default: 0, required: false }
+
+  # ---------------------------------------------------------------------------
+  # PAGES — Privacy Policy and Terms of Use
+  # ---------------------------------------------------------------------------
+
+  - name: pages
+    label: Pages
+    files:
+      - name: privacy
+        label: Privacy Policy
+        file: src/content/pages/privacy.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Privacy Policy' }
+          - { label: Body, name: body, widget: markdown }
+          - { label: Last Updated, name: updated_at, widget: datetime, required: false }
+
+      - name: terms
+        label: Terms of Use
+        file: src/content/pages/terms.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Terms of Use' }
+          - { label: Body, name: body, widget: markdown }
+          - { label: Last Updated, name: updated_at, widget: datetime, required: false }

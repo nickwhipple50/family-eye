@@ -1,0 +1,143 @@
+/*
+ * theme.css
+ * MMM T1 — Real Estate Kit
+ *
+ * Brand direction: Luxury — dark navy / gold, refined and premium
+ * Font pairing:    Slab serif heading + sans body
+ *
+ * THE ONLY FILE THAT CHANGES PER PROJECT.
+ * Replace placeholder font names and hex values with real client brand.
+ * Generate favicon, OG image, and manifest.json colors from --color-primary.
+ *
+ * Junior dev checklist (~30 min):
+ *   [ ] Replace @font-face src paths with real font files in /public/fonts/
+ *   [ ] Update --color-primary and variants to match client brand
+ *   [ ] Update --color-accent and variants
+ *   [ ] Confirm --color-surface-inverse reads correctly on dark sections
+ *   [ ] Update og.config.json brandColor and accentColor to match
+ *   [ ] Update manifest.json theme_color to match --color-primary
+ *   [ ] Update <meta name="theme-color"> in Base.astro to match
+ */
+
+/* ============================================================
+   FONTS
+   Placeholder: Playfair Display (heading) + Inter (body)
+   Replace with client's actual licensed font files.
+   Files go in /public/fonts/ — woff2 format only.
+   ============================================================ */
+
+@font-face {
+  font-family: 'Heading';
+  src: url('/fonts/heading-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Heading';
+  src: url('/fonts/heading-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Body';
+  src: url('/fonts/body-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Body';
+  src: url('/fonts/body-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Body';
+  src: url('/fonts/body-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   BRAND TOKENS
+   ============================================================ */
+
+:root {
+  /* --- Fonts --- */
+  --font-heading: 'Heading', 'Georgia', serif;
+  --font-body: 'Body', system-ui, sans-serif;
+  --font-weight-heading: var(--font-weight-bold);
+
+  /* --- Primary — deep navy --- */
+  --color-primary: #1b2b4b;
+  --color-primary-light: #243661;
+  --color-primary-dark: #111b30;
+
+  /* --- Accent — warm gold --- */
+  --color-accent: #c9a84c;
+  --color-accent-light: #d4b86a;
+  --color-accent-dark: #a8853a;
+
+  /* --- Surfaces --- */
+  --color-surface-base: #ffffff;
+  --color-surface-subtle: #f7f6f3; /* Warm off-white — avoids clinical feel */
+  --color-surface-muted: #edebe6;
+  --color-surface-inverse: var(--color-primary);
+
+  /* --- Text --- */
+  --color-text-heading: var(--color-primary-dark);
+  --color-text-link: var(--color-accent-dark);
+  --color-text-link-hover: var(--color-accent);
+
+  /* --- Border --- */
+  --color-border: #e2ddd6; /* Warm-tinted to match surface-subtle */
+  --color-border-strong: #c8c1b8;
+  --color-border-focus: var(--color-accent);
+
+  /* --- Gradient text — heading accent --- */
+  --color-heading-grad-a: var(--color-primary);
+  --color-heading-grad-b: var(--color-accent);
+
+  /* --- Shadow uses primary for depth --- */
+  --color-shadow: var(--color-primary);
+
+  /* --- Noise texture --- */
+  --noise-opacity: 0.03; /* Subtle on luxury — less grain than service business */
+
+  /* --- Radius — slightly sharper for luxury feel --- */
+  --radius-card: var(--radius-md);
+  --radius-btn: var(--radius-sm);
+}
+
+/* ============================================================
+   DARK MODE  — opt-in for real estate kit
+   Well-suited: property photography looks striking on dark bg
+   ============================================================ */
+
+/*
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface-base:    #111B30;
+    --color-surface-subtle:  #1B2B4B;
+    --color-surface-muted:   #243661;
+    --color-surface-inverse: #0A1020;
+
+    --color-text-base:       #EDE8E0;
+    --color-text-muted:      #9A9186;
+    --color-text-subtle:     #6B6059;
+    --color-text-inverse:    #111B30;
+    --color-text-heading:    #F5F0E8;
+
+    --color-border:          #243661;
+    --color-border-strong:   #2E3F6B;
+  }
+}
+*/

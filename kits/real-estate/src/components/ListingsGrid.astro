@@ -17,25 +17,25 @@
  *
  * Listing (mirrors Decap listings collection schema):
  *   title        string    Property address or name
- *   price        string    Display price — string to handle "POA", ranges, etc.
- *   status       'for-sale' | 'for-rent' | 'sold' | 'let'
+ *   price        string    Display price — string to handle "Call for price", ranges, etc.
+ *   status       'active' | 'pending' | 'sold' | 'for-rent'
  *   bedrooms     number?
  *   bathrooms    number?
- *   area         string?   Floor area — e.g. "1,200 sq ft" or "110 m²"
+ *   area         string?   Floor area — e.g. "1,850 sq ft"
  *   description  string?   Short description — 1–2 sentences
  *   image        { src: string; alt: string; width: number; height: number }
- *   location     string?   Neighbourhood or suburb
+ *   location     string?   Neighborhood or area
  *   featured     boolean?  Highlights this listing
  *
  * Status badges:
- *   for-sale → "For Sale"  (accent colour)
- *   for-rent → "To Let"    (primary colour)
- *   sold     → "Sold"      (muted, greyed out card)
- *   let      → "Let"       (muted, greyed out card)
+ *   active   → "Active"   (accent color)
+ *   pending  → "Pending"  (warning amber)
+ *   sold     → "Sold"     (muted, grayed out card)
+ *   for-rent → "For Rent" (primary color)
  *
  * Note on IDX / MLS:
  *   Real-time IDX or MLS feeds = T2 trigger. This component uses
- *   Decap CMS only — manually managed listings. If client needs
+ *   Decap CMS only — manually managed listings. If the client needs
  *   live MLS data, re-scope before building.
  *
  * Usage:
@@ -61,7 +61,7 @@ interface ListingImage {
   height: number;
 }
 
-type ListingStatus = 'for-sale' | 'for-rent' | 'sold' | 'let';
+type ListingStatus = 'active' | 'pending' | 'sold' | 'for-rent';
 
 interface Listing {
   title: string;
@@ -90,13 +90,13 @@ const { items, heading, body, columns = 3, surface = 'base', maxItems = 6 } = As
 const displayItems = items.slice(0, maxItems);
 
 const statusLabel: Record<ListingStatus, string> = {
-  'for-sale': 'For Sale',
-  'for-rent': 'To Let',
+  active: 'Active',
+  pending: 'Pending',
   sold: 'Sold',
-  let: 'Let',
+  'for-rent': 'For Rent',
 };
 
-const isInactive = (status: ListingStatus) => status === 'sold' || status === 'let';
+const isInactive = (status: ListingStatus) => status === 'sold';
 ---
 
 <section
@@ -351,14 +351,16 @@ const isInactive = (status: ListingStatus) => status === 'sold' || status === 'l
     color: white;
   }
 
-  .listings-grid__status--for-sale {
+  .listings-grid__status--active {
     background-color: var(--color-accent);
   }
   .listings-grid__status--for-rent {
     background-color: var(--color-primary);
   }
-  .listings-grid__status--sold,
-  .listings-grid__status--let {
+  .listings-grid__status--pending {
+    background-color: #f59e0b;
+  } /* Amber — universal "pending" convention */
+  .listings-grid__status--sold {
     background-color: var(--color-text-muted);
   }
 

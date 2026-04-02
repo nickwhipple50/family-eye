@@ -1,0 +1,152 @@
+---
+/**
+ * pages/about.astro
+ * Real Estate kit — About page
+ *
+ * Sections:
+ *   1. Hero          — split, agent or team photo
+ *   2. StatsRow      — track record metrics
+ *   3. FeatureGrid   — local knowledge, approach, values
+ *   4. TeamGrid      — agents and support staff
+ *   5. TestimonialRow — client testimonials reinforce agent credibility
+ *   6. CTABand
+ *
+ * Note: Real estate About pages carry significant conversion weight —
+ * buyers and sellers are choosing a person, not just a service.
+ * The team photo in the Hero and real agent bios in TeamGrid matter.
+ * Push back on launching with placeholder headshots.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, StatsRow, FeatureGrid, TeamGrid, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection, getEntry } from 'astro:content';
+
+const team = await getCollection('team');
+const testimonials = await getCollection('testimonials');
+const settings = (await getEntry('site_settings', 'general'))?.data;
+
+const sortedTeam = team
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((m) => m.data);
+
+const sortedTestimonials = testimonials
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .slice(0, 3)
+  .map((t) => t.data);
+
+const siteName = settings?.site_name ?? 'us';
+---
+
+<Layout
+  title='About us'
+  description={`Meet the ${siteName} team — local real estate experts who know this market inside and out.`}
+  breadcrumbs={[{ label: 'About', href: '/about' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — split with team or lead agent photo -->
+    <Hero
+      variant='split'
+      heading={`The local experts at ${siteName}`}
+      body="We've been helping families buy and sell homes in this community for over 16 years. We know the neighborhoods, the market cycles, and what it takes to get you the best outcome."
+      cta={{ label: 'Meet the team', href: '#team' }}
+      secondaryCta={{ label: 'Get a free appraisal', href: '/contact' }}
+      image={{ src: '/images/team-photo.jpg', alt: 'The Premier Properties team' }}
+    />
+
+    <!-- ② STATS ROW -->
+    <StatsRow
+      variant='band'
+      surface='inverse'
+      items={[
+        { value: 320, suffix: '+', label: 'Homes sold' },
+        { value: 98, suffix: '%', label: 'List-to-sale ratio' },
+        { value: 18, label: 'Avg. days on market' },
+        { value: 16, suffix: '+', label: 'Years in the market' },
+      ]}
+    />
+
+    <!-- ③ FEATURE GRID — what sets this agency apart -->
+    <!--
+      Kit author: replace with real differentiators.
+      Real estate clients often cite local knowledge, network, and
+      negotiation skills — these are the things that close deals.
+      Generic claims like "we work hard" don't convert.
+    -->
+    <FeatureGrid
+      heading='Why clients choose us'
+      body="We've built our reputation on results, not promises."
+      variant='plain'
+      columns={3}
+      surface='subtle'
+      items={[
+        {
+          icon: 'map-pin',
+          heading: 'Deep local knowledge',
+          body: 'We live and work in these neighborhoods. We know which blocks are appreciating, which schools are improving, and where the value is heading.',
+        },
+        {
+          icon: 'trending-up',
+          heading: 'Proven track record',
+          body: 'Over 320 homes sold with an average of just 18 days on market. Our list-to-sale ratio speaks for itself.',
+        },
+        {
+          icon: 'users',
+          heading: 'Honest counsel',
+          body: 'We tell you what you need to hear, not what you want to hear. That means realistic pricing, clear timelines, and no surprises.',
+        },
+        {
+          icon: 'award',
+          heading: 'Top-rated agents',
+          body: 'Consistently rated 4.9 stars by our clients. We treat every transaction — regardless of price point — with the same level of care.',
+        },
+        {
+          icon: 'briefcase',
+          heading: 'Full-service approach',
+          body: 'From your first consultation through closing day and beyond, we handle the process so you can focus on what matters.',
+        },
+        {
+          icon: 'message-circle',
+          heading: 'Always reachable',
+          body: "Real estate doesn't follow business hours. We're available when you need us — including weekends and evenings.",
+        },
+      ]}
+    />
+
+    <!-- ④ TEAM GRID -->
+    <div
+      id='team'
+      style='scroll-margin-top: var(--nav-height)'
+    >
+      <TeamGrid
+        heading='Meet your agents'
+        columns={3}
+        surface='base'
+        items={sortedTeam}
+      />
+    </div>
+
+    <!-- ⑤ TESTIMONIALS — reinforce agent credibility -->
+    {
+      sortedTestimonials.length > 0 && (
+        <TestimonialRow
+          heading='What our clients say'
+          variant='cards'
+          columns={3}
+          surface='subtle'
+          items={sortedTestimonials}
+        />
+      )
+    }
+
+    <!-- ⑥ CTA BAND -->
+    <CTABand
+      heading='Ready to make a move?'
+      body="Whether you're buying or selling, let's start with a conversation — no pressure, no obligation."
+      primaryCta={{ label: 'Schedule a consultation', href: '/contact' }}
+      secondaryCta={{ label: 'Browse listings', href: '/listings' }}
+    />
+  </main>
+</Layout>

@@ -1,0 +1,34 @@
+---
+import ProseLayout from '../layouts/ProseLayout.astro';
+import { getEntry } from 'astro:content';
+
+const entry = await getEntry('pages', 'terms');
+
+const title = entry?.data?.title ?? 'Terms of Use';
+const body = entry?.data?.body ?? '<p>Terms of use coming soon.</p>';
+const updated = entry?.data?.updated_at ?? null;
+---
+
+<ProseLayout
+  title={title}
+  description={`${title} — the terms that govern your use of this website.`}
+>
+  <h1>{title}</h1>
+
+  {
+    updated && (
+      <p style='color: var(--color-text-subtle); font-size: var(--text-sm); margin-block-end: var(--space-xl);'>
+        Last updated:{' '}
+        <time datetime={updated}>
+          {new Date(updated).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })}
+        </time>
+      </p>
+    )
+  }
+
+  <div set:html={body} />
+</ProseLayout>

@@ -1,0 +1,61 @@
+{
+  "site_name": "Premier Properties",
+  "tagline": "Your trusted local real estate experts since 2008.",
+  "logo": "",
+
+  "contact": {
+    "phone": "(555) 867-5309",
+    "email": "hello@premierproperties.com",
+    "address": "123 Main Street, Suite 100, Anytown, CA 90210",
+    "service_area": "Greater Anytown and surrounding neighborhoods"
+  },
+
+  "hours": [
+    { "day": "Monday", "open": "09:00", "close": "17:30", "closed": false },
+    { "day": "Tuesday", "open": "09:00", "close": "17:30", "closed": false },
+    { "day": "Wednesday", "open": "09:00", "close": "17:30", "closed": false },
+    { "day": "Thursday", "open": "09:00", "close": "17:30", "closed": false },
+    { "day": "Friday", "open": "09:00", "close": "17:30", "closed": false },
+    { "day": "Saturday", "open": "10:00", "close": "15:00", "closed": false },
+    { "day": "Sunday", "open": "00:00", "close": "00:00", "closed": true }
+  ],
+
+  "social": {
+    "facebook": "",
+    "instagram": "",
+    "linkedin": "",
+    "x": "",
+    "youtube": ""
+  },
+
+  "nav": [
+    { "label": "Home", "href": "/" },
+    { "label": "Listings", "href": "/listings" },
+    { "label": "About", "href": "/about" },
+    { "label": "Buyers & Sellers", "href": "/buyers-sellers" },
+    { "label": "Contact", "href": "/contact" }
+  ],
+
+  "social_proof": {
+    "rating": 4.9,
+    "review_count": 94,
+    "years": 16,
+    "customers": "320+ homes sold"
+  },
+
+  "floating_cta": {
+    "label": "Get an appraisal",
+    "href": "/contact"
+  },
+
+  "analytics": {
+    "ga_id": "",
+    "gtm_id": ""
+  },
+
+  "seo": {
+    "title": "Premier Properties | Real Estate Experts in Anytown",
+    "description": "Trusted real estate agents helping buyers and sellers in Anytown and surrounding areas. Browse active listings or schedule a free home appraisal today.",
+    "og_image": ""
+  }
+}

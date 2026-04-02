@@ -1,0 +1,161 @@
+---
+/**
+ * pages/buyers-sellers.astro
+ * Real Estate kit — Buyers & Sellers page
+ *
+ * Sections:
+ *   1. Hero           — centered, speaks to both audiences
+ *   2. ProcessSteps   — buyer process (surface: base)
+ *   3. ProcessSteps   — seller process (surface: subtle, visually separates the two)
+ *   4. TestimonialRow — buyer and seller quotes mixed (featured variant)
+ *   5. CTABand
+ *
+ * Two ProcessSteps back to back:
+ *   Each section has an eyebrow label above it via a wrapper div so
+ *   skimmers immediately know which process is relevant to them.
+ *   The surface swap (base → subtle) provides the visual break without
+ *   needing a full divider or extra component.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, ProcessSteps, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const testimonials = await getCollection('testimonials');
+
+const sortedTestimonials = testimonials
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((t) => t.data);
+
+const featuredIndex = Math.max(
+  0,
+  sortedTestimonials.findIndex((t) => t.featured)
+);
+---
+
+<Layout
+  title='Buyers & Sellers'
+  description='Buying or selling a home? Learn how we guide you through every step of the process — from first consultation to closing day.'
+  breadcrumbs={[{ label: 'Buyers & Sellers', href: '/buyers-sellers' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading="Buying or selling — we've got you covered"
+      body="Every transaction is different. Whether you're searching for your first home or listing a property you've owned for decades, our process is built around your goals."
+      cta={{ label: 'Start a conversation', href: '/contact' }}
+      secondaryCta={{ label: 'View active listings', href: '/listings' }}
+    />
+
+    <!-- ② BUYER PROCESS -->
+    <!-- Wrapper provides the eyebrow label and anchor target -->
+    <div
+      id='buyers'
+      style='scroll-margin-top: var(--nav-height)'
+    >
+      <div class='process-label section surface-base'>
+        <div class='section__inner'>
+          <p class='section__eyebrow'>For buyers</p>
+          <h2 class='section__heading'>The buying process</h2>
+        </div>
+      </div>
+
+      <ProcessSteps
+        variant='numbered'
+        layout='horizontal'
+        surface='base'
+        items={[
+          {
+            title: 'Initial consultation',
+            body: "We learn about your goals, timeline, and budget. No pressure — just an honest conversation about what's possible in today's market.",
+          },
+          {
+            title: 'Get pre-approved',
+            body: 'We connect you with trusted lenders to get pre-approval in place. This strengthens your offer and clarifies your true budget.',
+          },
+          {
+            title: 'Find your home',
+            body: 'We search active and off-market listings that match your criteria and schedule showings at your convenience.',
+          },
+          {
+            title: 'Make an offer',
+            body: 'We analyze comparable sales and craft a competitive offer strategy. Our negotiation experience protects your interests through due diligence and closing.',
+          },
+        ]}
+      />
+    </div>
+
+    <!-- ③ SELLER PROCESS — subtle surface creates visual separation -->
+    <div
+      id='sellers'
+      style='scroll-margin-top: var(--nav-height)'
+    >
+      <div class='process-label section surface-subtle'>
+        <div class='section__inner'>
+          <p class='section__eyebrow'>For sellers</p>
+          <h2 class='section__heading'>The selling process</h2>
+        </div>
+      </div>
+
+      <ProcessSteps
+        variant='numbered'
+        layout='horizontal'
+        surface='subtle'
+        items={[
+          {
+            title: 'Free market appraisal',
+            body: 'We visit your property and provide a comprehensive market analysis — comparable sales, current demand, and a recommended list price range.',
+          },
+          {
+            title: 'Prepare to list',
+            body: 'Professional photography, staging guidance, and a marketing plan tailored to your property and target buyer. We handle the details.',
+          },
+          {
+            title: 'Go to market',
+            body: 'Your listing goes live on MLS, major real estate portals, and our social channels. We follow up on every inquiry within the hour.',
+          },
+          {
+            title: 'Negotiate and close',
+            body: 'We present and evaluate all offers, negotiate on your behalf, and guide you through inspection, appraisal, and closing with no surprises.',
+          },
+        ]}
+      />
+    </div>
+
+    <!-- ④ TESTIMONIALS — mixed buyer and seller quotes -->
+    {
+      sortedTestimonials.length > 0 && (
+        <TestimonialRow
+          heading='What our clients say'
+          variant='featured'
+          surface='inverse'
+          featuredIndex={featuredIndex}
+          items={sortedTestimonials}
+        />
+      )
+    }
+
+    <!-- ⑤ CTA BAND -->
+    <CTABand
+      heading="Let's talk about your goals"
+      body="First consultation is always free and comes with zero obligation. We'll give you a straight answer on what to expect."
+      eyebrow='Get started'
+      primaryCta={{ label: 'Schedule a free consultation', href: '/contact' }}
+      secondaryCta={{ label: 'Browse listings', href: '/listings' }}
+    />
+  </main>
+</Layout>
+
+<style>
+  /* Eyebrow + heading wrapper above each ProcessSteps section.
+     Compact padding — the ProcessSteps section below provides its own
+     top padding so this just needs enough to read clearly. */
+  .process-label {
+    padding-block-start: var(--space-2xl);
+    padding-block-end: 0;
+  }
+</style>

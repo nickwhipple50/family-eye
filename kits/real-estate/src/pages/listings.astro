@@ -1,0 +1,109 @@
+---
+/**
+ * pages/listings.astro
+ * Real Estate kit — Listings page
+ *
+ * Sections:
+ *   1. Hero         — centered, brief
+ *   2. ListingsGrid — all listings, sorted by order then status
+ *   3. CTABand      — "Don't see what you're looking for?"
+ *
+ * Sorting logic:
+ *   Active listings appear before pending, pending before sold/for-rent.
+ *   Within each status group, sorted by the CMS order field.
+ *   This keeps active inventory prominent without manual reordering.
+ *
+ * T1 scope note:
+ *   No filtering, no search, no map view. Clients requesting these
+ *   features should be re-scoped to T3 before build begins.
+ *   IDX / MLS integration = T2 minimum.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, CTABand } from '@mmm/components';
+import ListingsGrid from '../components/ListingsGrid.astro';
+import { getCollection } from 'astro:content';
+
+const listingsRaw = await getCollection('listings');
+
+// Sort: active first, then pending, then for-rent, then sold
+const statusOrder: Record<string, number> = {
+  active: 0,
+  pending: 1,
+  'for-rent': 2,
+  sold: 3,
+};
+
+const listings = listingsRaw
+  .sort((a, b) => {
+    const statusDiff = (statusOrder[a.data.status] ?? 99) - (statusOrder[b.data.status] ?? 99);
+    if (statusDiff !== 0) return statusDiff;
+    return (a.data.order ?? 0) - (b.data.order ?? 0);
+  })
+  .map((l) => l.data);
+
+const activeCount = listings.filter((l) => l.status === 'active').length;
+const pendingCount = listings.filter((l) => l.status === 'pending').length;
+---
+
+<Layout
+  title='Listings'
+  description={`Browse ${activeCount} active listing${activeCount !== 1 ? 's' : ''} in Anytown and surrounding areas. Updated regularly.`}
+  breadcrumbs={[{ label: 'Listings', href: '/listings' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='Current listings'
+      body={activeCount > 0
+        ? `${activeCount} active ${activeCount === 1 ? 'property' : 'properties'}${pendingCount > 0 ? `, ${pendingCount} pending` : ''} — updated regularly.`
+        : 'New listings coming soon. Contact us to hear about properties before they hit the market.'}
+      cta={{ label: 'Get notified of new listings', href: '/contact' }}
+    />
+
+    <!-- ② LISTINGS GRID — all listings, no maxItems cap on this page -->
+    {
+      listings.length > 0 ? (
+        <ListingsGrid
+          columns={3}
+          surface='subtle'
+          maxItems={999}
+          items={listings}
+        />
+      ) : (
+        <section
+          class='section surface-subtle'
+          aria-label='Listings'
+        >
+          <div
+            class='section__inner'
+            style='text-align: center; padding-block: var(--space-2xl);'
+          >
+            <p style='color: var(--color-text-muted); font-size: var(--text-md);'>
+              No listings available right now. Check back soon or{' '}
+              <a
+                href='/contact'
+                style='color: var(--color-accent);'
+              >
+                contact us
+              </a>{' '}
+              to be notified when new properties come to market.
+            </p>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- ③ CTA BAND -->
+    <CTABand
+      heading="Don't see what you're looking for?"
+      body="New properties come to market every week. Tell us what you need and we'll reach out the moment something matches."
+      primaryCta={{ label: 'Contact an agent', href: '/contact' }}
+      secondaryCta={{ label: 'Learn about buying', href: '/buyers-sellers' }}
+    />
+  </main>
+</Layout>

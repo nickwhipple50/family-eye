@@ -1,0 +1,566 @@
+---
+/**
+ * Base.astro
+ * MMM T1 — Launchpad System
+ * Root layout. Used by every page in every kit.
+ *
+ * Responsibilities:
+ *   — <head>: charset, viewport, fonts, CSS imports, meta, OG, canonical
+ *   — Structured data: WebSite + BreadcrumbList (all pages)
+ *                      LocalBusiness or Organization (controlled by schemaType prop)
+ *   — Slot: <slot name="nav" /> before main, <slot /> for page content, <slot name="footer" />
+ *   — Floating CTA button: from site_settings, hidden until hero scrolled past
+ *   — Reveal system: IntersectionObserver initialised once for [data-reveal] elements
+ *   — Analytics: GA4 or GTM via Partytown (deferred, no render-block)
+ *   — theme-color meta + PWA manifest link (addons.md)
+ *
+ * Props:
+ *   title          string?   Page title. Combined with site name: "Page | Site".
+ *                            Falls back to settings.seo.title if omitted.
+ *   description    string?   Meta description. Falls back to settings.seo.description.
+ *   ogImage        string?   OG image URL. Falls back to settings.seo.og_image.
+ *   canonical      string?   Canonical URL. Defaults to Astro.url.href.
+ *   noindex        boolean?  Sets <meta name="robots" content="noindex">. default: false
+ *   schemaType     'LocalBusiness' | 'Organization'
+ *                            Controls which entity schema is output.
+ *                            Set in kit-level layout, not per page.
+ *                            default: 'Organization' (safe fallback for any kit)
+ *   breadcrumbs    BreadcrumbItem[]?
+ *                            If provided, outputs BreadcrumbList JSON-LD.
+ *                            Home is always prepended automatically.
+ *
+ * Usage:
+ *   ---
+ *   import Base from '../layouts/Base.astro';
+ *   ---
+ *   <Base title="About us" description="We do X for Y.">
+ *     <Nav slot="nav" />
+ *     <main>
+ *       <Hero ... />
+ *     </main>
+ *     <Footer slot="footer" />
+ *   </Base>
+ *
+ * CSS load order (critical):
+ *   1. tokens.css   — token schema + system defaults
+ *   2. theme.css    — brand overrides (only file that changes per project)
+ *   3. globals.css  — shared component classes (btn, card, section, etc.)
+ *   All three must be imported here in this order. Never import them in components.
+ */
+
+import { ClientRouter } from 'astro:transitions';
+
+// CSS — order is load order. Do not reorder.
+import '@mmm/components/styles/tokens.css';
+import '../styles/theme.css';
+import '@mmm/components/styles/globals.css';
+
+// Site settings from Decap CMS singleton
+// The kit's astro.config.ts must define the content collection.
+import { getEntry } from 'astro:content';
+const settingsEntry = await getEntry('site_settings', 'general');
+const settings = settingsEntry?.data;
+
+interface BreadcrumbItem {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+  noindex?: boolean;
+  schemaType?: 'LocalBusiness' | 'Organization';
+  breadcrumbs?: BreadcrumbItem[];
+}
+
+const {
+  title,
+  description,
+  ogImage,
+  canonical,
+  noindex = false,
+  schemaType = 'Organization',
+  breadcrumbs,
+} = Astro.props;
+
+// Resolve meta values — page-level wins over global defaults
+const siteName    = settings?.site_name ?? 'Site';
+const metaTitle   = title
+  ? `${title} | ${siteName}`
+  : (settings?.seo?.title ?? siteName);
+const metaDesc    = description ?? settings?.seo?.description ?? '';
+const metaOg      = ogImage ?? settings?.seo?.og_image ?? '';
+const canonicalUrl = canonical ?? Astro.url.href;
+const siteUrl     = Astro.site?.href ?? Astro.url.origin;
+
+// Analytics — GTM takes precedence over GA if both are set
+const gtmId = settings?.analytics?.gtm_id;
+const gaId  = settings?.analytics?.ga_id;
+
+// Floating CTA
+const floatingCta = settings?.floating_cta;
+const showFloatingCta = !!(floatingCta?.label && floatingCta?.href);
+
+// Structured data — WebSite (always)
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteName,
+  url: siteUrl,
+  ...(settings?.seo?.description && {
+    description: settings.seo.description,
+  }),
+};
+
+// Structured data — LocalBusiness or Organization
+const contact = settings?.contact;
+const social   = settings?.social;
+
+const sameAs = [
+  social?.facebook,
+  social?.instagram,
+  social?.linkedin,
+  social?.x,
+  social?.youtube,
+].filter(Boolean);
+
+// Build openingHours array from CMS hours data (LocalBusiness only)
+// Schema.org format: "Mo-Fr 09:00-17:30"
+const dayAbbr: Record<string, string> = {
+  Monday: 'Mo', Tuesday: 'Tu', Wednesday: 'We',
+  Thursday: 'Th', Friday: 'Fr', Saturday: 'Sa', Sunday: 'Su',
+};
+
+const openingHours = (settings?.hours ?? [])
+  .filter((h: { closed?: boolean }) => !h.closed)
+  .map((h: { day: string; open: string; close: string }) =>
+    `${dayAbbr[h.day] ?? h.day} ${h.open}-${h.close}`
+  );
+
+const entitySchema = schemaType === 'LocalBusiness'
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: siteName,
+      url: siteUrl,
+      ...(contact?.phone    && { telephone: contact.phone }),
+      ...(contact?.email    && { email: contact.email }),
+      ...(contact?.address  && { address: { '@type': 'PostalAddress', streetAddress: contact.address } }),
+      ...(openingHours.length && { openingHours }),
+      ...(sameAs.length     && { sameAs }),
+      ...(metaOg            && { image: metaOg }),
+    }
+  : {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: siteName,
+      url: siteUrl,
+      ...(contact?.email    && { email: contact.email }),
+      ...(contact?.phone    && { telephone: contact.phone }),
+      ...(sameAs.length     && { sameAs }),
+      ...(metaOg            && { logo: metaOg }),
+    };
+
+// Structured data — BreadcrumbList (when breadcrumbs prop is provided)
+const allCrumbs: BreadcrumbItem[] = [
+  { label: 'Home', href: siteUrl },
+  ...(breadcrumbs ?? []),
+];
+
+const breadcrumbSchema = breadcrumbs?.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: allCrumbs.map((crumb, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: crumb.label,
+        item: crumb.href.startsWith('http')
+          ? crumb.href
+          : `${siteUrl}${crumb.href}`,
+      })),
+    }
+  : null;
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  {/* ── TITLE + META ─────────────────────────────────────── */}
+  <title>{metaTitle}</title>
+  {metaDesc && <meta name="description" content={metaDesc} />}
+  {noindex && <meta name="robots" content="noindex, nofollow" />}
+  <link rel="canonical" href={canonicalUrl} />
+
+  {/* ── OPEN GRAPH ───────────────────────────────────────── */}
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content={metaTitle} />
+  <meta property="og:url"         content={canonicalUrl} />
+  <meta property="og:site_name"   content={siteName} />
+  {metaDesc && <meta property="og:description" content={metaDesc} />}
+  {metaOg   && <meta property="og:image"       content={metaOg} />}
+  {metaOg   && <meta property="og:image:width"  content="1200" />}
+  {metaOg   && <meta property="og:image:height" content="630" />}
+
+  {/* ── TWITTER CARD ─────────────────────────────────────── */}
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content={metaTitle} />
+  {metaDesc && <meta name="twitter:description" content={metaDesc} />}
+  {metaOg   && <meta name="twitter:image"       content={metaOg} />}
+
+  {/* ── FAVICON ──────────────────────────────────────────── */}
+  {/*
+    Favicon files live in /public/. Kit author provides:
+      /public/favicon.ico         — legacy browsers
+      /public/favicon.svg         — modern browsers (preferred)
+      /public/apple-touch-icon.png — iOS home screen (180×180)
+    Generate all three from a single SVG using realfavicongenerator.net.
+  */}
+  <link rel="icon"             href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon"             href="/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  {/* ── PWA MANIFEST (addons.md) ─────────────────────────── */}
+  <link rel="manifest" href="/manifest.json" />
+
+  {/* ── THEME COLOR (addons.md) ──────────────────────────── */}
+  {/*
+    Set --color-primary as a hex value in /public/manifest.json and here.
+    CSS custom properties can't be used in meta content — must be hardcoded.
+    Update this when theme.css primary colour changes.
+    Kit author: set this to match --color-primary from theme.css.
+  */}
+  <meta name="theme-color" content="#1d3557" />
+
+  {/* ── STRUCTURED DATA ──────────────────────────────────── */}
+  <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(entitySchema)} />
+  {breadcrumbSchema && (
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  )}
+
+  {/* ── ANALYTICS ────────────────────────────────────────── */}
+  {/*
+    Partytown defers analytics scripts off the main thread.
+    GTM takes precedence — if both gtm_id and ga_id are set, only GTM loads.
+    GA4 loads directly if no GTM.
+    Both are deferred via Partytown — no render blocking.
+  */}
+  {gtmId && (
+    <script
+      type="text/partytown"
+      set:html={`
+        (function(w,d,s,l,i){
+          w[l]=w[l]||[];
+          w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+          var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s), dl=l!='dataLayer'?'&l='+l:'';
+          j.async=true;
+          j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+          f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','${gtmId}');
+      `}
+    />
+  )}
+  {!gtmId && gaId && (
+    <>
+      <script
+        type="text/partytown"
+        src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+      />
+      <script
+        type="text/partytown"
+        set:html={`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${gaId}');
+        `}
+      />
+    </>
+  )}
+
+  {/* ── CLIENT ROUTER (View Transitions) ────────────────────── */}
+  {/*
+    Enables Astro's View Transitions API for page navigation animations.
+    Required by the motion add-on package (addons.md).
+    Safe to include even without the motion add-on — has no effect unless
+    view-transition CSS is also present.
+    All component JS re-inits on 'astro:page-load' which fires after each
+    transition — StatsRow, FAQAccordion, ContactForm all handle this already.
+  */}
+  <ClientRouter />
+</head>
+
+<body>
+
+  {/* ── GTM NOSCRIPT ─────────────────────────────────────── */}
+  {gtmId && (
+    <noscript>
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+        title="Google Tag Manager"
+      />
+    </noscript>
+  )}
+
+  {/* ── SKIP LINK — must be first focusable element in body ─ */}
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  {/* ── NAV SLOT ─────────────────────────────────────────── */}
+  <slot name="nav" />
+
+  {/* ── PAGE CONTENT ─────────────────────────────────────── */}
+  {/*
+    Page templates must wrap content in:
+    <main id="main-content" tabindex="-1">
+    The skip link targets #main-content. tabindex="-1" allows
+    programmatic focus after the skip link is activated.
+  */}
+  <slot />
+
+  {/* ── FOOTER SLOT ──────────────────────────────────────── */}
+  <slot name="footer" />
+
+  {/* ── FLOATING CTA BUTTON (addons.md system default) ───── */}
+  {showFloatingCta && (
+    <a
+      href={floatingCta!.href}
+      class="floating-cta"
+      aria-label={floatingCta!.label}
+      id="floating-cta"
+    >
+      <span class="floating-cta__label">{floatingCta!.label}</span>
+    </a>
+  )}
+
+  {/* ── REVEAL SYSTEM ────────────────────────────────────── */}
+  {/*
+    One IntersectionObserver for all [data-reveal] elements.
+    Initialised once here, not in individual components.
+    Sets --item-index on [data-reveal] children of [data-reveal-group]
+    for CSS stagger animation (see tokens.css reveal vars).
+    Re-initialises on astro:page-load for View Transitions compatibility.
+  */}
+  <script>
+    function initReveal(): void {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          });
+        },
+        {
+          threshold: 0.1,
+          rootMargin: '0px 0px -40px 0px',
+        }
+      );
+
+      // Observe all reveal elements
+      document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
+        // If inside a reveal-group, set stagger index as CSS custom property
+        const group = el.closest('[data-reveal-group]');
+        if (group) {
+          // Index relative to siblings within the group
+          const siblings = group.querySelectorAll('[data-reveal]');
+          const indexInGroup = Array.from(siblings).indexOf(el);
+          el.style.setProperty('--item-index', String(indexInGroup));
+        }
+        observer.observe(el);
+      });
+    }
+
+    // Run on initial load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initReveal);
+    } else {
+      initReveal();
+    }
+
+    // Re-run after View Transitions navigation
+    document.addEventListener('astro:page-load', initReveal);
+  </script>
+
+  {/* ── FLOATING CTA SCROLL BEHAVIOUR ────────────────────── */}
+  {showFloatingCta && (
+    <script>
+      (function () {
+        const btn = document.getElementById('floating-cta');
+        if (!btn) return;
+
+        // Sentinel: the element that triggers the button to appear.
+        // We observe the end of the hero section (first <section> on the page).
+        // When it leaves the viewport, the floating CTA fades in.
+        const hero = document.querySelector('section');
+        if (!hero) {
+          // No hero — show button immediately
+          btn.classList.add('floating-cta--visible');
+          return;
+        }
+
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            btn.classList.toggle('floating-cta--visible', !entry.isIntersecting);
+          },
+          { threshold: 0 }
+        );
+
+        observer.observe(hero);
+
+        // Re-init on View Transitions
+        document.addEventListener('astro:page-load', () => {
+          const newHero = document.querySelector('section');
+          if (newHero) observer.observe(newHero);
+        });
+      })();
+    </script>
+  )}
+
+</body>
+</html>
+
+<style is:global>
+  /*
+   * Global styles that must apply to html/body and cannot live in globals.css
+   * (which is a regular CSS file, not a style block, so :root and body
+   * declarations there work fine — but layout-level resets belong here
+   * where they're clearly associated with the base document structure).
+   *
+   * Note: tokens.css already sets box-sizing, html font-size, body font,
+   * and the focus-visible rule. This block adds only what tokens.css doesn't.
+   */
+
+  /* Smooth anchor scrolling — already in tokens.css on html,
+     but repeated here as documentation that it's intentional */
+  html {
+    scroll-padding-top: calc(var(--nav-height) + var(--space-s));
+  }
+
+  /* Prevent horizontal overflow from rogue elements */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Images and media — prevent overflow */
+  img,
+  video,
+  svg {
+    max-width: 100%;
+  }
+
+  /* ============================================================
+     FLOATING CTA BUTTON (addons.md)
+     Fixed bottom-right. Hidden until hero scrolled past.
+     Pulse animation via box-shadow using color-mix().
+     ============================================================ */
+
+  .floating-cta {
+    position: fixed;
+    bottom: var(--floating-cta-offset);
+    right: var(--floating-cta-offset);
+    z-index: var(--z-floating);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding-block: var(--space-xs);
+    padding-inline: var(--space-m);
+    background-color: var(--color-accent);
+    color: var(--color-text-inverse);
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    white-space: nowrap;
+    box-shadow: var(--shadow-lg);
+
+    /* Hidden by default — JS adds .floating-cta--visible */
+    opacity: 0;
+    transform: translateY(var(--space-m));
+    pointer-events: none;
+    transition:
+      opacity   var(--duration-normal) var(--ease-out),
+      transform var(--duration-normal) var(--ease-out);
+  }
+
+  .floating-cta--visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    /* Pulse — box-shadow animation, brand colour derived */
+    animation: floating-cta-pulse 3s ease-in-out infinite;
+    animation-delay: 2s;   /* Pause before pulsing starts */
+  }
+
+  .floating-cta:hover {
+    background-color: var(--color-accent-dark);
+    animation-play-state: paused;
+    transform: translateY(-2px);
+  }
+
+  .floating-cta:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color-inverse);
+    outline-offset: var(--focus-ring-offset);
+    animation-play-state: paused;
+  }
+
+  @keyframes floating-cta-pulse {
+    0%, 100% {
+      box-shadow:
+        var(--shadow-lg),
+        0 0 0 0 color-mix(in srgb, var(--color-accent) 40%, transparent);
+    }
+    50% {
+      box-shadow:
+        var(--shadow-lg),
+        0 0 0 8px color-mix(in srgb, var(--color-accent) 0%, transparent);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .floating-cta--visible {
+      animation: none;
+    }
+  }
+
+  /* ============================================================
+     SKIP LINK
+     Visually hidden until focused — keyboard accessibility.
+     ============================================================ */
+
+  .skip-link {
+    position: absolute;
+    top: var(--space-s);
+    left: var(--space-s);
+    z-index: var(--z-toast);
+    padding-block: var(--space-xs);
+    padding-inline: var(--space-m);
+    background-color: var(--color-surface-base);
+    color: var(--color-text-base);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+    /* Hidden until focused */
+    transform: translateY(calc(-100% - var(--space-s)));
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .skip-link:focus-visible {
+    transform: translateY(0);
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+</style>

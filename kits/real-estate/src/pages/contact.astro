@@ -1,0 +1,307 @@
+---
+/**
+ * pages/contact.astro
+ * Real Estate kit — Contact page
+ *
+ * Sections:
+ *   1. Hero         — centered, brief
+ *   2. Contact section — form + contact details + map
+ *
+ * Form design:
+ *   Buyer/seller qualifier is the key field here — it routes the lead
+ *   correctly before it hits the inbox. "I am a..." select field placed
+ *   early in the form, before the message field.
+ *   Phone field is prominent — real estate clients prefer a call.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, ContactForm } from '@mmm/components';
+import { getEntry } from 'astro:content';
+
+const settings = (await getEntry('site_settings', 'general'))?.data;
+const contact = settings?.contact;
+const siteName = settings?.site_name ?? 'us';
+
+const mapEmbedSrc = 'https://www.google.com/maps/embed?pb=YOUR_EMBED_PARAMS';
+---
+
+<Layout
+  title='Contact'
+  description={`Get in touch with ${siteName}. Schedule a free consultation, request a home appraisal, or ask about a listing.`}
+  breadcrumbs={[{ label: 'Contact', href: '/contact' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading="Let's start a conversation"
+      body="No pressure, no obligation. Whether you're ready to move or just exploring your options — we're happy to talk."
+      cta={{ label: 'Jump to form', href: '#contact-form' }}
+    />
+
+    <!-- ② CONTACT SECTION -->
+    <section
+      class='contact-page section surface-base'
+      aria-label='Contact information and inquiry form'
+    >
+      <div class='contact-page__inner section__inner'>
+        <!-- LEFT — form -->
+        <div
+          class='contact-page__form'
+          id='contact-form'
+          style='scroll-margin-top: var(--nav-height)'
+        >
+          <ContactForm
+            heading='Send us a message'
+            body='We respond to all inquiries within one business day.'
+            action='/contact'
+            submitLabel='Send message'
+            fields={[
+              {
+                name: 'name',
+                label: 'Your name',
+                type: 'text',
+                required: true,
+                width: 'half',
+                autocomplete: 'name',
+              },
+              {
+                name: 'phone',
+                label: 'Phone number',
+                type: 'tel',
+                required: true,
+                width: 'half',
+                autocomplete: 'tel',
+                placeholder: 'Best number to reach you',
+              },
+              {
+                name: 'email',
+                label: 'Email address',
+                type: 'email',
+                required: true,
+                width: 'full',
+                autocomplete: 'email',
+              },
+              {
+                name: 'role',
+                label: 'I am a...',
+                type: 'select',
+                required: true,
+                options: [
+                  'Buyer — looking to purchase',
+                  'Seller — ready to list',
+                  'Buyer and Seller',
+                  'Investor',
+                  'Renter — looking to rent',
+                  'Landlord — property to rent',
+                  'Just exploring',
+                ],
+              },
+              {
+                name: 'message',
+                label: 'How can we help?',
+                type: 'textarea',
+                required: false,
+                placeholder:
+                  'Tell us about your situation — what are you looking for, and when are you looking to move?',
+              },
+              {
+                name: 'consent',
+                label:
+                  'I agree to be contacted about my inquiry. We will never share your information with third parties.',
+                type: 'checkbox',
+                required: true,
+              },
+            ]}
+          />
+        </div>
+
+        <!-- RIGHT — contact details + map -->
+        <aside
+          class='contact-page__details'
+          aria-label='Contact details'
+        >
+          <!-- Phone — prominent -->
+          {
+            contact?.phone && (
+              <div class='contact-page__phone-block'>
+                <p class='contact-page__phone-label'>Call us directly</p>
+                <a
+                  href={`tel:${contact.phone.replace(/\D/g, '')}`}
+                  class='contact-page__phone'
+                >
+                  {contact.phone}
+                </a>
+                <p class='contact-page__phone-note'>Mon–Fri 9am–5:30pm · Sat 10am–3pm</p>
+              </div>
+            )
+          }
+
+          <!-- Contact details -->
+          <dl class='contact-page__info'>
+            {
+              contact?.email && (
+                <>
+                  <dt class='contact-page__info-label'>Email</dt>
+                  <dd class='contact-page__info-value'>
+                    <a
+                      href={`mailto:${contact.email}`}
+                      class='contact-page__link'
+                    >
+                      {contact.email}
+                    </a>
+                  </dd>
+                </>
+              )
+            }
+            {
+              contact?.address && (
+                <>
+                  <dt class='contact-page__info-label'>Office</dt>
+                  <dd class='contact-page__info-value'>
+                    <address class='contact-page__address'>{contact.address}</address>
+                  </dd>
+                </>
+              )
+            }
+            {
+              contact?.service_area && (
+                <>
+                  <dt class='contact-page__info-label'>Service area</dt>
+                  <dd class='contact-page__info-value'>{contact.service_area}</dd>
+                </>
+              )
+            }
+          </dl>
+
+          <!-- Map -->
+          <div class='contact-page__map-wrap'>
+            <iframe
+              src={mapEmbedSrc}
+              class='contact-page__map'
+              width='600'
+              height='400'
+              style='border: 0'
+              allowfullscreen
+              loading='lazy'
+              referrerpolicy='no-referrer-when-downgrade'
+              title={`${siteName} office location`}
+            ></iframe>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .contact-page__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .contact-page__inner {
+      grid-template-columns: 1.25fr 1fr;
+    }
+  }
+
+  .contact-page__details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+  }
+
+  .contact-page__phone-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding: var(--space-l);
+    background-color: var(--color-surface-subtle);
+    border-radius: var(--card-radius);
+    border-inline-start: 4px solid var(--color-accent);
+  }
+
+  .contact-page__phone-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .contact-page__phone {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+    text-decoration: none;
+    letter-spacing: var(--tracking-snug);
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .contact-page__phone:hover {
+    color: var(--color-accent-dark);
+  }
+
+  .contact-page__phone-note {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .contact-page__info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs) var(--space-m);
+    align-items: baseline;
+    margin: 0;
+    padding: 0;
+  }
+
+  .contact-page__info-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .contact-page__info-value {
+    font-size: var(--text-sm);
+    color: var(--color-text-base);
+    margin: 0;
+  }
+
+  .contact-page__address {
+    font-style: normal;
+  }
+
+  .contact-page__link {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .contact-page__link:hover {
+    color: var(--color-accent-dark);
+  }
+
+  .contact-page__map-wrap {
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border: 1px solid var(--color-border);
+  }
+
+  .contact-page__map {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+</style>
