@@ -1,29 +1,18 @@
 /**
- * src/content/config.ts
- * Astro content collection schemas — Real Estate kit.
- *
- * Collections:
- *   site_settings  — singleton
- *   listings       — ListingsGrid (kit-local component)
- *   services       — ServiceList
- *   testimonials   — TestimonialRow
- *   team           — TeamGrid
- *   pages          — Privacy policy, Terms of use
- *
- * No FAQ collection in this kit.
+ * src/content.config.ts
+ * Astro v6 content collection schemas — Real Estate kit.
  */
 
-import { defineCollection, z } from 'astro:content';
-
-// ─── SITE SETTINGS ────────────────────────────────────────────────────────────
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'zod';
 
 const site_settings = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/*.json', base: './src/content/site_settings' }),
   schema: z.object({
     site_name: z.string(),
     tagline: z.string().optional(),
     logo: z.string().optional(),
-
     contact: z
       .object({
         phone: z.string().optional(),
@@ -32,7 +21,6 @@ const site_settings = defineCollection({
         service_area: z.string().optional(),
       })
       .optional(),
-
     hours: z
       .array(
         z.object({
@@ -51,7 +39,6 @@ const site_settings = defineCollection({
         })
       )
       .optional(),
-
     social: z
       .object({
         facebook: z.string().optional(),
@@ -61,7 +48,6 @@ const site_settings = defineCollection({
         youtube: z.string().optional(),
       })
       .optional(),
-
     nav: z
       .array(
         z.object({
@@ -71,7 +57,6 @@ const site_settings = defineCollection({
       )
       .max(7)
       .optional(),
-
     social_proof: z
       .object({
         rating: z.number().min(1).max(5).optional(),
@@ -80,21 +65,18 @@ const site_settings = defineCollection({
         customers: z.string().optional(),
       })
       .optional(),
-
     floating_cta: z
       .object({
         label: z.string().optional(),
         href: z.string().optional(),
       })
       .optional(),
-
     analytics: z
       .object({
         ga_id: z.string().optional(),
         gtm_id: z.string().optional(),
       })
       .optional(),
-
     seo: z.object({
       title: z.string(),
       description: z.string(),
@@ -103,10 +85,8 @@ const site_settings = defineCollection({
   }),
 });
 
-// ─── LISTINGS ─────────────────────────────────────────────────────────────────
-
 const listings = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/*.json', base: './src/content/listings' }),
   schema: z.object({
     title: z.string(),
     price: z.string(),
@@ -127,28 +107,19 @@ const listings = defineCollection({
   }),
 });
 
-// ─── SERVICES ─────────────────────────────────────────────────────────────────
-
 const services = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/*.json', base: './src/content/services' }),
   schema: z.object({
     name: z.string(),
     description: z.string(),
     icon: z.string().optional(),
-    image: z
-      .object({
-        src: z.string(),
-        alt: z.string(),
-      })
-      .optional(),
+    image: z.object({ src: z.string(), alt: z.string() }).optional(),
     order: z.number().int().default(0),
   }),
 });
 
-// ─── TESTIMONIALS ─────────────────────────────────────────────────────────────
-
 const testimonials = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/*.json', base: './src/content/testimonials' }),
   schema: z.object({
     quote: z.string(),
     name: z.string(),
@@ -160,28 +131,19 @@ const testimonials = defineCollection({
   }),
 });
 
-// ─── TEAM ─────────────────────────────────────────────────────────────────────
-
 const team = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/*.json', base: './src/content/team' }),
   schema: z.object({
     name: z.string(),
     role: z.string(),
     bio: z.string().optional(),
-    photo: z
-      .object({
-        src: z.string(),
-        alt: z.string(),
-      })
-      .optional(),
+    photo: z.object({ src: z.string(), alt: z.string() }).optional(),
     order: z.number().int().default(0),
   }),
 });
 
-// ─── PAGES ────────────────────────────────────────────────────────────────────
-
 const pages = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/*.json', base: './src/content/pages' }),
   schema: z.object({
     title: z.string(),
     body: z.string(),
@@ -189,13 +151,4 @@ const pages = defineCollection({
   }),
 });
 
-// ─── EXPORT ───────────────────────────────────────────────────────────────────
-
-export const collections = {
-  site_settings,
-  listings,
-  services,
-  testimonials,
-  team,
-  pages,
-};
+export const collections = { site_settings, listings, services, testimonials, team, pages };
