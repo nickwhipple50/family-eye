@@ -1,0 +1,345 @@
+---
+/**
+ * pages/contact.astro
+ * Professional Services kit — Contact page
+ *
+ * Sections:
+ *   1. Hero         — centered, short
+ *   2. Contact section — form left, contact details right (no map)
+ *
+ * No map:
+ *   Professional services clients aren't looking for directions — they're
+ *   looking for confidence. The right-column content here is contact
+ *   details and a brief reassurance statement, not a map embed.
+ *   If the client explicitly wants a map, add it as a kit-specific
+ *   modification and note it in changelog.astro.
+ *
+ * Consultation framing:
+ *   Every field and label reinforces that this is a professional consultation
+ *   request — not a generic "contact us" form. The language should reduce
+ *   anxiety, not add to it.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, ContactForm } from '@mmm/components';
+import { getEntry } from 'astro:content';
+
+const settings = (await getEntry('site_settings', 'general'))?.data;
+const contact = settings?.contact;
+const siteName = settings?.site_name ?? 'us';
+---
+
+<Layout
+  title='Contact'
+  description={`Schedule a free consultation with ${siteName}. No obligation — just an honest conversation about your situation.`}
+  breadcrumbs={[{ label: 'Contact', href: '/contact' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='Schedule a free consultation'
+      body="Tell us what you're working on. We'll respond within one business day to arrange a time to talk."
+      cta={{ label: 'Jump to form', href: '#contact-form' }}
+    />
+
+    <!-- ② CONTACT SECTION -->
+    <section
+      class='contact-page section surface-base'
+      aria-label='Contact form and details'
+    >
+      <div class='contact-page__inner section__inner'>
+        <!-- LEFT — form -->
+        <div
+          id='contact-form'
+          style='scroll-margin-top: var(--nav-height)'
+        >
+          <ContactForm
+            heading='Get in touch'
+            body='All fields marked required help us prepare for the conversation — so we make the most of your time.'
+            action='/contact'
+            submitLabel='Request a consultation'
+            fields={[
+              {
+                name: 'name',
+                label: 'Your full name',
+                type: 'text',
+                required: true,
+                width: 'half',
+                autocomplete: 'name',
+              },
+              {
+                name: 'company',
+                label: 'Company or organization',
+                type: 'text',
+                required: false,
+                width: 'half',
+                autocomplete: 'organization',
+              },
+              {
+                name: 'email',
+                label: 'Email address',
+                type: 'email',
+                required: true,
+                width: 'half',
+                autocomplete: 'email',
+              },
+              {
+                name: 'phone',
+                label: 'Phone number',
+                type: 'tel',
+                required: false,
+                width: 'half',
+                autocomplete: 'tel',
+                placeholder: 'Optional — for scheduling',
+              },
+              {
+                name: 'service',
+                label: 'What can we help with?',
+                type: 'select',
+                required: true,
+                options: [
+                  'Strategic advisory',
+                  'Compliance and risk',
+                  'Growth planning',
+                  'Contracts and agreements',
+                  'Organizational design',
+                  'Financial advisory',
+                  "I'm not sure yet",
+                  'Something else',
+                ],
+              },
+              {
+                name: 'message',
+                label: 'Tell us about your situation',
+                type: 'textarea',
+                required: true,
+                placeholder:
+                  "What are you working on? What's the challenge or decision you're facing? The more context you give us, the more useful the first conversation will be.",
+              },
+              {
+                name: 'consent',
+                label:
+                  'I agree to be contacted about my inquiry. We will never share your information with third parties.',
+                type: 'checkbox',
+                required: true,
+              },
+            ]}
+          />
+        </div>
+
+        <!-- RIGHT — contact details and reassurance -->
+        <aside
+          class='contact-page__details'
+          aria-label='Contact details'
+        >
+          <!-- Reassurance block -->
+          <div class='contact-page__reassurance'>
+            <h2 class='contact-page__reassurance-heading'>What happens next</h2>
+            <ol class='contact-page__steps'>
+              <li class='contact-page__step'>
+                <span class='contact-page__step-number'>01</span>
+                <span class='contact-page__step-text'>
+                  We review your inquiry and respond within one business day.
+                </span>
+              </li>
+              <li class='contact-page__step'>
+                <span class='contact-page__step-number'>02</span>
+                <span class='contact-page__step-text'>
+                  We schedule a call at a time that works for you — typically 30 to 45 minutes.
+                </span>
+              </li>
+              <li class='contact-page__step'>
+                <span class='contact-page__step-number'>03</span>
+                <span class='contact-page__step-text'>
+                  We listen, ask the right questions, and give you an honest assessment — no sales
+                  pressure.
+                </span>
+              </li>
+            </ol>
+          </div>
+
+          <!-- Contact details -->
+          <dl class='contact-page__info'>
+            {
+              contact?.phone && (
+                <>
+                  <dt class='contact-page__info-label'>Phone</dt>
+                  <dd class='contact-page__info-value'>
+                    <a
+                      href={`tel:${contact.phone.replace(/\D/g, '')}`}
+                      class='contact-page__link'
+                    >
+                      {contact.phone}
+                    </a>
+                  </dd>
+                </>
+              )
+            }
+            {
+              contact?.email && (
+                <>
+                  <dt class='contact-page__info-label'>Email</dt>
+                  <dd class='contact-page__info-value'>
+                    <a
+                      href={`mailto:${contact.email}`}
+                      class='contact-page__link'
+                    >
+                      {contact.email}
+                    </a>
+                  </dd>
+                </>
+              )
+            }
+            {
+              contact?.address && (
+                <>
+                  <dt class='contact-page__info-label'>Office</dt>
+                  <dd class='contact-page__info-value'>
+                    <address>{contact.address}</address>
+                  </dd>
+                </>
+              )
+            }
+          </dl>
+
+          <!-- Discretion note — important for professional services -->
+          <p class='contact-page__discretion'>
+            All inquiries are handled with complete discretion. We do not share client information
+            with third parties.
+          </p>
+        </aside>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .contact-page__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .contact-page__inner {
+      grid-template-columns: 1.4fr 1fr;
+    }
+  }
+
+  /* ============================================================
+     DETAILS COLUMN
+     ============================================================ */
+
+  .contact-page__details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  /* ============================================================
+     WHAT HAPPENS NEXT — numbered steps
+     ============================================================ */
+
+  .contact-page__reassurance {
+    padding: var(--space-l);
+    background-color: var(--color-surface-subtle);
+    border-radius: var(--card-radius);
+    border-inline-start: 3px solid var(--color-accent);
+  }
+
+  .contact-page__reassurance-heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    color: var(--color-text-heading);
+    margin: 0 0 var(--space-m);
+  }
+
+  .contact-page__steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+
+  .contact-page__step {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: var(--space-s);
+    align-items: baseline;
+  }
+
+  .contact-page__step-number {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .contact-page__step-text {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-base);
+  }
+
+  /* ============================================================
+     CONTACT INFO
+     ============================================================ */
+
+  .contact-page__info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs) var(--space-m);
+    align-items: baseline;
+    margin: 0;
+    padding: 0;
+  }
+
+  .contact-page__info-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .contact-page__info-value {
+    font-size: var(--text-sm);
+    color: var(--color-text-base);
+    margin: 0;
+  }
+
+  .contact-page__info-value address {
+    font-style: normal;
+  }
+
+  .contact-page__link {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .contact-page__link:hover {
+    color: var(--color-accent-dark);
+  }
+
+  /* ============================================================
+     DISCRETION NOTE
+     ============================================================ */
+
+  .contact-page__discretion {
+    font-size: var(--text-xs);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-subtle);
+    margin: 0;
+    padding-block-start: var(--space-m);
+    border-block-start: 1px solid var(--color-border);
+  }
+</style>

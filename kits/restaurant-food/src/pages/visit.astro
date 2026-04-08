@@ -1,0 +1,417 @@
+---
+/**
+ * pages/visit.astro
+ * Restaurant & Food kit — Visit page
+ * Merges: location, hours, directions, reservations, private events.
+ * No separate Contact page — this handles everything.
+ *
+ * Sections:
+ *   1. Hero         — centered, brief. Hours visible immediately below.
+ *   2. Info section — hours + address left, map right
+ *   3. LogoBar      — awards, press mentions, review platforms
+ *   4. ContactForm  — reservations and private event inquiries
+ *   5. CTABand      — private dining upsell
+ *
+ * Hours display:
+ *   Rendered from site_settings.hours — same data as the footer.
+ *   Closed days are shown as "Closed" rather than omitted.
+ *   This avoids the common UX failure of guests wondering if a missing
+ *   day means "closed" or "we forgot to list it."
+ *
+ * Reservation form:
+ *   T1 scope — this is a simple inquiry form, not a live booking system.
+ *   Live reservation integrations (OpenTable, Resy, SevenRooms) = T2+.
+ *   Kit author: if client uses OpenTable or similar, embed their widget
+ *   in a custom HTML block rather than using ContactForm, and note this
+ *   in the changelog as a project-specific modification.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, LogoBar, ContactForm, CTABand } from '@mmm/components';
+import { getEntry } from 'astro:content';
+
+const settings = (await getEntry('site_settings', 'general'))?.data;
+const contact = settings?.contact;
+const hours = settings?.hours ?? [];
+const siteName = settings?.site_name ?? 'us';
+
+const mapEmbedSrc = 'https://www.google.com/maps/embed?pb=YOUR_EMBED_PARAMS';
+
+// Format day range display — e.g. collapse Mon–Fri if all same hours
+// For T1 we display each day individually — simple and correct.
+const openDays = hours.filter((h) => !h.closed);
+const closedDays = hours.filter((h) => h.closed);
+---
+
+<Layout
+  title='Visit us'
+  description={`Find ${siteName} — hours, location, parking, and reservations. ${contact?.address ?? ''}`}
+  breadcrumbs={[{ label: 'Visit', href: '/visit' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — hours teaser above the fold -->
+    <Hero
+      variant='centered'
+      heading='Come find us'
+      body={openDays.length > 0
+        ? `Open ${openDays.map((d) => d.day.slice(0, 3)).join(', ')} — walk-ins welcome, reservations recommended on weekends.`
+        : 'Walk-ins welcome. Reservations recommended on weekends.'}
+      cta={{ label: 'Make a reservation', href: '#reservations' }}
+      secondaryCta={{ label: 'View the menu', href: '/menu' }}
+    />
+
+    <!-- ② INFO SECTION — hours + address left, map right -->
+    <section
+      class='visit-info section surface-subtle'
+      aria-label='Hours and location'
+    >
+      <div class='visit-info__inner section__inner'>
+        <!-- Hours + contact details -->
+        <div class='visit-info__details'>
+          {
+            hours.length > 0 && (
+              <div class='visit-info__block'>
+                <h2 class='visit-info__block-heading'>Hours</h2>
+                <dl class='visit-info__hours'>
+                  {hours.map((h) => (
+                    <>
+                      <dt class='visit-info__day'>{h.day}</dt>
+                      <dd class={`visit-info__time${h.closed ? ' visit-info__time--closed' : ''}`}>
+                        {h.closed ? 'Closed' : `${h.open} – ${h.close}`}
+                      </dd>
+                    </>
+                  ))}
+                </dl>
+              </div>
+            )
+          }
+
+          <div class='visit-info__block'>
+            <h2 class='visit-info__block-heading'>Find us</h2>
+            <dl class='visit-info__contact'>
+              {
+                contact?.address && (
+                  <>
+                    <dt class='visit-info__contact-label'>Address</dt>
+                    <dd class='visit-info__contact-value'>
+                      <address>{contact.address}</address>
+                    </dd>
+                  </>
+                )
+              }
+              {
+                contact?.service_area && (
+                  <>
+                    <dt class='visit-info__contact-label'>Parking</dt>
+                    <dd class='visit-info__contact-value'>{contact.service_area}</dd>
+                  </>
+                )
+              }
+              {
+                contact?.phone && (
+                  <>
+                    <dt class='visit-info__contact-label'>Phone</dt>
+                    <dd class='visit-info__contact-value'>
+                      <a
+                        href={`tel:${contact.phone.replace(/\D/g, '')}`}
+                        class='visit-info__link'
+                      >
+                        {contact.phone}
+                      </a>
+                    </dd>
+                  </>
+                )
+              }
+              {
+                contact?.email && (
+                  <>
+                    <dt class='visit-info__contact-label'>Email</dt>
+                    <dd class='visit-info__contact-value'>
+                      <a
+                        href={`mailto:${contact.email}`}
+                        class='visit-info__link'
+                      >
+                        {contact.email}
+                      </a>
+                    </dd>
+                  </>
+                )
+              }
+            </dl>
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div class='visit-info__map-wrap'>
+          <iframe
+            src={mapEmbedSrc}
+            class='visit-info__map'
+            width='600'
+            height='500'
+            style='border: 0'
+            allowfullscreen
+            loading='lazy'
+            referrerpolicy='no-referrer-when-downgrade'
+            title={`${siteName} location map`}
+          ></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- ③ LOGO BAR — awards, press, review platforms -->
+    <LogoBar
+      heading='As seen in'
+      variant='static'
+      surface='base'
+      items={[
+        { src: '/images/logos/yelp.svg', alt: 'Yelp — 4.8 stars', width: 60, height: 40 },
+        { src: '/images/logos/google.svg', alt: 'Google — 4.8 stars', width: 80, height: 40 },
+        {
+          src: '/images/logos/tripadvisor.svg',
+          alt: 'TripAdvisor — Certificate of Excellence',
+          width: 80,
+          height: 40,
+        },
+        {
+          src: '/images/logos/opentable.svg',
+          alt: "OpenTable — Diners' Choice",
+          width: 100,
+          height: 40,
+        },
+        {
+          src: '/images/logos/local-press.svg',
+          alt: 'Anytown Tribune — Best of 2024',
+          width: 90,
+          height: 40,
+        },
+      ]}
+    />
+
+    <!-- ④ RESERVATION / INQUIRY FORM -->
+    <!--
+      T1 scope: simple inquiry form.
+      If client uses OpenTable/Resy, replace this ContactForm with their
+      embed widget. Note the change in changelog.astro.
+    -->
+    <section
+      class='section surface-subtle'
+      aria-label='Reservations and inquiries'
+      id='reservations'
+      style='scroll-margin-top: var(--nav-height)'
+    >
+      <div class='section__inner'>
+        <div class='visit-form__wrap'>
+          <ContactForm
+            heading='Reserve a table or inquire about a private event'
+            body="We'll confirm your reservation by phone within a few hours. For same-day reservations, please call us directly."
+            action='/visit'
+            submitLabel='Send inquiry'
+            fields={[
+              {
+                name: 'name',
+                label: 'Your name',
+                type: 'text',
+                required: true,
+                width: 'half',
+                autocomplete: 'name',
+              },
+              {
+                name: 'phone',
+                label: 'Phone number',
+                type: 'tel',
+                required: true,
+                width: 'half',
+                autocomplete: 'tel',
+                placeholder: "We'll confirm by phone",
+              },
+              {
+                name: 'email',
+                label: 'Email address',
+                type: 'email',
+                required: false,
+                width: 'full',
+                autocomplete: 'email',
+              },
+              {
+                name: 'type',
+                label: 'Inquiry type',
+                type: 'select',
+                required: true,
+                options: [
+                  'Reservation — dinner',
+                  'Reservation — lunch',
+                  'Reservation — brunch (Sat/Sun)',
+                  'Private dining — birthday or celebration',
+                  'Private dining — corporate event',
+                  'Private dining — wedding rehearsal or reception',
+                  'General question',
+                ],
+              },
+              {
+                name: 'date',
+                label: 'Preferred date',
+                type: 'text',
+                required: false,
+                placeholder: 'e.g. Friday, March 14',
+              },
+              {
+                name: 'party_size',
+                label: 'Party size',
+                type: 'select',
+                required: false,
+                options: ['1–2', '3–4', '5–6', '7–10', '11–20', '21+'],
+              },
+              {
+                name: 'message',
+                label: 'Anything else we should know?',
+                type: 'textarea',
+                required: false,
+                placeholder: 'Dietary requirements, special occasions, accessibility needs...',
+              },
+            ]}
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑤ CTA BAND — private dining upsell -->
+    <CTABand
+      heading='Hosting a private event?'
+      body="Our private dining room seats up to 40 guests. Birthdays, rehearsal dinners, corporate lunches — we handle the details so you don't have to."
+      eyebrow='Private dining'
+      primaryCta={{ label: 'Inquire about private dining', href: '#reservations' }}
+      secondaryCta={{ label: 'View our menu', href: '/menu' }}
+    />
+  </main>
+</Layout>
+
+<style>
+  /* ============================================================
+     INFO SECTION — two-column: hours+details left, map right
+     ============================================================ */
+
+  .visit-info__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  @media (min-width: 768px) {
+    .visit-info__inner {
+      grid-template-columns: 1fr 1.5fr;
+    }
+  }
+
+  .visit-info__details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .visit-info__block-heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-h4);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    color: var(--color-text-heading);
+    margin: 0 0 var(--space-m);
+  }
+
+  /* ============================================================
+     HOURS TABLE
+     ============================================================ */
+
+  .visit-info__hours {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs) var(--space-l);
+    margin: 0;
+    padding: 0;
+  }
+
+  .visit-info__day {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-heading);
+    white-space: nowrap;
+  }
+
+  .visit-info__time {
+    font-size: var(--text-sm);
+    color: var(--color-text-base);
+    margin: 0;
+  }
+
+  .visit-info__time--closed {
+    color: var(--color-text-subtle);
+    font-style: italic;
+  }
+
+  /* ============================================================
+     CONTACT DETAILS
+     ============================================================ */
+
+  .visit-info__contact {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs) var(--space-l);
+    margin: 0;
+    padding: 0;
+  }
+
+  .visit-info__contact-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .visit-info__contact-value {
+    font-size: var(--text-sm);
+    color: var(--color-text-base);
+    margin: 0;
+  }
+
+  .visit-info__contact-value address {
+    font-style: normal;
+  }
+
+  .visit-info__link {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .visit-info__link:hover {
+    color: var(--color-accent-dark);
+  }
+
+  /* ============================================================
+     MAP
+     ============================================================ */
+
+  .visit-info__map-wrap {
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border: 1px solid var(--color-border);
+  }
+
+  .visit-info__map {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* ============================================================
+     FORM — constrained width, centered
+     ============================================================ */
+
+  .visit-form__wrap {
+    max-width: 48rem;
+    margin-inline: auto;
+  }
+</style>

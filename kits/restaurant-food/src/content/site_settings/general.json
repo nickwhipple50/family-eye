@@ -1,0 +1,60 @@
+{
+  "site_name": "The Red Barn Kitchen",
+  "tagline": "Classic American cooking, made from scratch since 1987.",
+  "logo": "",
+
+  "contact": {
+    "phone": "(555) 234-5678",
+    "email": "hello@redbarnnkitchen.com",
+    "address": "456 Main Street, Anytown, TX 78701",
+    "service_area": "Downtown Anytown — free parking on Oak Street and in the lot behind the building"
+  },
+
+  "hours": [
+    { "day": "Monday", "open": "00:00", "close": "00:00", "closed": true },
+    { "day": "Tuesday", "open": "11:00 AM", "close": "9:00 PM", "closed": false },
+    { "day": "Wednesday", "open": "11:00 AM", "close": "9:00 PM", "closed": false },
+    { "day": "Thursday", "open": "11:00 AM", "close": "9:00 PM", "closed": false },
+    { "day": "Friday", "open": "11:00 AM", "close": "10:00 PM", "closed": false },
+    { "day": "Saturday", "open": "10:00 AM", "close": "10:00 PM", "closed": false },
+    { "day": "Sunday", "open": "10:00 AM", "close": "8:00 PM", "closed": false }
+  ],
+
+  "social": {
+    "facebook": "",
+    "instagram": "",
+    "linkedin": "",
+    "x": "",
+    "youtube": ""
+  },
+
+  "nav": [
+    { "label": "Home", "href": "/" },
+    { "label": "Menu", "href": "/menu/" },
+    { "label": "About", "href": "/about/" },
+    { "label": "Visit", "href": "/visit/" }
+  ],
+
+  "social_proof": {
+    "rating": 4.8,
+    "review_count": 312,
+    "years": 37,
+    "customers": "10,000+ guests served"
+  },
+
+  "floating_cta": {
+    "label": "Reserve a table",
+    "href": "/visit#reservations"
+  },
+
+  "analytics": {
+    "ga_id": "",
+    "gtm_id": ""
+  },
+
+  "seo": {
+    "title": "The Red Barn Kitchen | Classic American Restaurant in Anytown",
+    "description": "Scratch-made American classics in the heart of downtown Anytown. Open Tuesday–Sunday. Dine in, take out, and private events welcome.",
+    "og_image": ""
+  }
+}

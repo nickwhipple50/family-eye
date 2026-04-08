@@ -1,0 +1,126 @@
+---
+/**
+ * pages/menu.astro
+ * Restaurant & Food kit — Menu page
+ *
+ * Sections:
+ *   1. Hero        — centered, short
+ *   2. MenuSection — full menu, all categories grouped
+ *   3. CTABand     — "Ready to dine?"
+ *
+ * Menu grouping:
+ *   MenuSection receives all items sorted by category_order then item_order.
+ *   The component handles grouping by category field value.
+ *   Editors control category order via category_order on each item.
+ *
+ * Allergen note:
+ *   A static allergen disclaimer is included below the menu.
+ *   This is not CMS-driven — it's a legal/operational requirement
+ *   that shouldn't be editable by non-technical staff.
+ *   Kit author: confirm disclaimer copy with client before launch.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, CTABand } from '@mmm/components';
+import MenuSection from '../components/MenuSection.astro';
+import { getCollection, getEntry } from 'astro:content';
+
+const menuItems = await getCollection('menu');
+const settings = (await getEntry('site_settings', 'general'))?.data;
+
+const sortedItems = menuItems
+  .sort(
+    (a, b) =>
+      (a.data.category_order ?? 0) - (b.data.category_order ?? 0) ||
+      (a.data.item_order ?? 0) - (b.data.item_order ?? 0)
+  )
+  .map((i) => i.data);
+---
+
+<Layout
+  title='Menu'
+  description='Browse our full menu — appetizers, mains, desserts, and drinks. Made from scratch daily using fresh, local ingredients.'
+  breadcrumbs={[{ label: 'Menu', href: '/menu' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='Our menu'
+      body='Everything made from scratch, daily. We source locally wherever we can and change our specials with the seasons.'
+      cta={{ label: 'Reserve a table', href: '/visit#reservations' }}
+    />
+
+    <!-- ② FULL MENU -->
+    {
+      sortedItems.length > 0 ? (
+        <MenuSection
+          heading=''
+          items={sortedItems}
+          showCategories={true}
+          surface='subtle'
+        />
+      ) : (
+        <section
+          class='section surface-subtle'
+          aria-label='Menu'
+        >
+          <div
+            class='section__inner'
+            style='text-align: center; padding-block: var(--space-2xl);'
+          >
+            <p style='color: var(--color-text-muted); font-size: var(--text-md);'>
+              Menu coming soon. Call us at{' '}
+              {settings?.contact?.phone && (
+                <a
+                  href={`tel:${settings.contact.phone.replace(/\D/g, '')}`}
+                  style='color: var(--color-accent)'
+                >
+                  {settings.contact.phone}
+                </a>
+              )}{' '}
+              for today's offerings.
+            </p>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Allergen disclaimer — static, not CMS-driven -->
+    <div class='allergen-note section surface-base'>
+      <div class='section__inner'>
+        <p class='allergen-note__text'>
+          Please inform your server of any allergies or dietary requirements before ordering. Our
+          kitchen handles nuts, gluten, dairy, and shellfish. While we take every precaution, we
+          cannot guarantee a completely allergen-free environment.
+        </p>
+      </div>
+    </div>
+
+    <!-- ③ CTA BAND -->
+    <CTABand
+      heading='Ready to dine?'
+      body='Walk-ins welcome. Reservations recommended on Friday and Saturday evenings.'
+      primaryCta={{ label: 'Reserve a table', href: '/visit#reservations' }}
+      secondaryCta={{ label: 'Get directions', href: '/visit' }}
+    />
+  </main>
+</Layout>
+
+<style>
+  .allergen-note {
+    padding-block: var(--space-m);
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .allergen-note__text {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+    max-width: var(--measure-default);
+    margin: 0;
+  }
+</style>

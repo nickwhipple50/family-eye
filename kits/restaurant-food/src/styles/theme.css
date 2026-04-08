@@ -1,0 +1,142 @@
+/*
+ * theme.css
+ * MMM T1 — Restaurant & Food Kit
+ *
+ * Brand direction: Classic American — dark red / white, familiar and trustworthy
+ * Font pairing:    Serif heading + clean sans body
+ *
+ * THE ONLY FILE THAT CHANGES PER PROJECT.
+ *
+ * Junior dev checklist (~30 min):
+ *   [ ] Replace @font-face src paths with real font files in /public/fonts/
+ *   [ ] Update --color-primary and variants to match client brand
+ *   [ ] Update --color-accent and variants
+ *   [ ] Update og.config.json brandColor and accentColor
+ *   [ ] Update manifest.json theme_color
+ *   [ ] Update <meta name="theme-color"> in Base.astro
+ *   [ ] Dark mode block — opt in or leave commented
+ *       (Restaurant is a good fit for dark mode per addons.md)
+ */
+
+/* ============================================================
+   FONTS
+   ============================================================ */
+
+@font-face {
+  font-family: 'Heading';
+  src: url('/fonts/heading-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Heading';
+  src: url('/fonts/heading-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Body';
+  src: url('/fonts/body-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Body';
+  src: url('/fonts/body-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Body';
+  src: url('/fonts/body-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   BRAND TOKENS
+   ============================================================ */
+
+:root {
+  /* --- Fonts --- */
+  --font-heading: 'Heading', 'Georgia', serif;
+  --font-body: 'Body', system-ui, sans-serif;
+  --font-weight-heading: var(--font-weight-bold);
+
+  /* --- Primary — deep American red --- */
+  --color-primary: #8b1a1a;
+  --color-primary-light: #a82020;
+  --color-primary-dark: #6b1212;
+
+  /* --- Accent — warm gold / amber --- */
+  --color-accent: #c17f24;
+  --color-accent-light: #d4952e;
+  --color-accent-dark: #9e6619;
+
+  /* --- Surfaces --- */
+  --color-surface-base: #ffffff;
+  --color-surface-subtle: #faf8f5; /* Warm off-white — paper feel */
+  --color-surface-muted: #f0ebe3;
+  --color-surface-inverse: var(--color-primary);
+
+  /* --- Text --- */
+  --color-text-heading: #1a0a0a; /* Very dark red-black */
+  --color-text-link: var(--color-primary);
+  --color-text-link-hover: var(--color-primary-dark);
+
+  /* --- Borders --- */
+  --color-border: #e8e0d8; /* Warm-tinted */
+  --color-border-strong: #d0c4b8;
+  --color-border-focus: var(--color-accent);
+
+  /* --- Gradient text --- */
+  --color-heading-grad-a: var(--color-primary);
+  --color-heading-grad-b: var(--color-accent);
+
+  /* --- Shadow --- */
+  --color-shadow: #1a0a0a;
+
+  /* --- Noise — slightly higher for warm tactile feel --- */
+  --noise-opacity: 0.05;
+
+  /* --- Radius — slightly rounder, approachable --- */
+  --radius-card: var(--radius-lg);
+  --radius-btn: var(--radius-md);
+}
+
+/* ============================================================
+   DARK MODE — opt-in, well-suited for restaurant
+   Food photography looks exceptional on dark backgrounds.
+   Per addons.md: Restaurant is one of the best fits for dark mode.
+   ============================================================ */
+
+/*
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface-base:    #1A0A0A;
+    --color-surface-subtle:  #261010;
+    --color-surface-muted:   #331818;
+    --color-surface-inverse: #0D0505;
+
+    --color-text-base:       #F5EDE8;
+    --color-text-muted:      #A8948C;
+    --color-text-subtle:     #7A6460;
+    --color-text-inverse:    #1A0A0A;
+    --color-text-heading:    #FDF5F0;
+
+    --color-border:          #331818;
+    --color-border-strong:   #4A2020;
+
+    --color-nav-bg-scrolled: color-mix(in srgb, var(--color-surface-base) 85%, transparent);
+  }
+}
+*/

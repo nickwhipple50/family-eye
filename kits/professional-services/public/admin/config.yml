@@ -1,0 +1,360 @@
+# =============================================================================
+# Decap CMS — config.yml
+# MMM T1 Launchpad — Professional Services Kit
+#
+# Collections in this kit:
+#   site_settings  — global singleton
+#   services       — ServiceList component
+#   testimonials   — TestimonialRow component
+#   team           — TeamGrid component (credentials field added)
+#   faq            — FAQAccordion component (used on Services page)
+#   pages          — Privacy policy, Terms of use
+#
+# Discipline note:
+#   Placeholder labels use generic terminology — "services", "team members".
+#   Kit author: update field hints and select options to match the client's
+#   discipline before handing off CMS access to the client.
+# =============================================================================
+
+backend:
+  name: git-gateway
+  branch: main
+
+local_backend: true # Uncomment for local dev — remove before deploying
+
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+slug:
+  encoding: unicode
+  clean_accents: true
+  sanitize_replacement: '-'
+
+collections:
+  # ---------------------------------------------------------------------------
+  # SITE SETTINGS
+  # ---------------------------------------------------------------------------
+
+  - name: site_settings
+    label: Site Settings
+    files:
+      - name: general
+        label: General
+        file: src/content/site_settings/general.json
+        fields:
+          - { label: Firm / Practice Name, name: site_name, widget: string, required: true }
+          - {
+              label: Tagline,
+              name: tagline,
+              widget: string,
+              required: false,
+              hint: "One line — e.g. 'Trusted advisors to growing businesses since 1998'",
+            }
+          - { label: Logo, name: logo, widget: image, required: false }
+
+          - label: Contact
+            name: contact
+            widget: object
+            fields:
+              - { label: Phone, name: phone, widget: string, required: false }
+              - { label: Email, name: email, widget: string, required: false }
+              - { label: Address, name: address, widget: string, required: false }
+              - {
+                  label: Service Area,
+                  name: service_area,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. 'Serving clients throughout the greater metro area'",
+                }
+
+          - label: Office Hours
+            name: hours
+            widget: list
+            required: false
+            max: 7
+            fields:
+              - {
+                  label: Day,
+                  name: day,
+                  widget: select,
+                  options: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday],
+                }
+              - { label: Opens, name: open, widget: string, hint: 'e.g. 9:00 AM' }
+              - { label: Closes, name: close, widget: string, hint: 'e.g. 5:30 PM' }
+              - { label: Closed, name: closed, widget: boolean, default: false }
+
+          - label: Social Links
+            name: social
+            widget: object
+            fields:
+              - { label: Facebook, name: facebook, widget: string, required: false }
+              - { label: Instagram, name: instagram, widget: string, required: false }
+              - {
+                  label: LinkedIn,
+                  name: linkedin,
+                  widget: string,
+                  required: false,
+                  hint: 'LinkedIn is the most relevant platform for most professional service firms.',
+                }
+              - { label: X/Twitter, name: x, widget: string, required: false }
+              - { label: YouTube, name: youtube, widget: string, required: false }
+
+          - label: Navigation
+            name: nav
+            widget: list
+            max: 7
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: URL, name: href, widget: string }
+
+          - label: Social Proof Bar
+            name: social_proof
+            widget: object
+            fields:
+              - {
+                  label: Rating,
+                  name: rating,
+                  widget: number,
+                  value_type: float,
+                  min: 1,
+                  max: 5,
+                  step: 0.1,
+                  required: false,
+                }
+              - { label: Review Count, name: review_count, widget: number, required: false }
+              - { label: Years in Practice, name: years, widget: number, required: false }
+              - {
+                  label: Stats Label,
+                  name: customers,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. '200+ clients served' or '40+ industries'",
+                }
+
+          - label: Floating CTA Button
+            name: floating_cta
+            widget: object
+            fields:
+              - {
+                  label: Label,
+                  name: label,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. 'Schedule a consultation'",
+                }
+              - { label: URL, name: href, widget: string, required: false }
+
+          - label: Analytics
+            name: analytics
+            widget: object
+            fields:
+              - { label: Google Analytics ID, name: ga_id, widget: string, required: false }
+              - { label: Google Tag Manager ID, name: gtm_id, widget: string, required: false }
+
+          - label: SEO Defaults
+            name: seo
+            widget: object
+            fields:
+              - { label: Default Title, name: title, widget: string, required: true }
+              - { label: Default Description, name: description, widget: text, required: true }
+              - {
+                  label: Default OG Image,
+                  name: og_image,
+                  widget: image,
+                  required: false,
+                  hint: '1200×630px.',
+                }
+
+  # ---------------------------------------------------------------------------
+  # SERVICES
+  # Drives ServiceList on Home and Services pages.
+  # ---------------------------------------------------------------------------
+
+  - name: services
+    label: Services
+    label_singular: Service
+    folder: src/content/services
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}}'
+    fields:
+      - {
+          label: Service Name,
+          name: name,
+          widget: string,
+          required: true,
+          hint: '2–5 words. Keep it plain — avoid jargon in the heading.',
+        }
+      - {
+          label: Description,
+          name: description,
+          widget: text,
+          required: true,
+          hint: '2–3 sentences. Who this service is for and what outcome it delivers.',
+        }
+
+      - label: Icon
+        name: icon
+        widget: select
+        required: false
+        options:
+          - { label: Briefcase, value: briefcase }
+          - { label: Shield, value: shield }
+          - { label: Award, value: award }
+          - { label: Check Circle, value: check-circle }
+          - { label: File Text, value: file-text }
+          - { label: Users, value: users }
+          - { label: Trending Up, value: trending-up }
+          - { label: Bar Chart, value: bar-chart }
+          - { label: Lock, value: lock }
+          - { label: Eye, value: eye }
+          - { label: Layers, value: layers }
+          - { label: Settings, value: settings }
+          - { label: Calendar, value: calendar }
+          - { label: Message Circle, value: message-circle }
+          - { label: Star, value: star }
+
+      - { label: Display Order, name: order, widget: number, default: 0, required: false }
+
+  # ---------------------------------------------------------------------------
+  # TESTIMONIALS
+  # Client quotes. Use full names and company/role for credibility.
+  # ---------------------------------------------------------------------------
+
+  - name: testimonials
+    label: Testimonials
+    label_singular: Testimonial
+    folder: src/content/testimonials
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}} — {{company}}'
+    fields:
+      - {
+          label: Quote,
+          name: quote,
+          widget: text,
+          required: true,
+          hint: "Client's own words. Specific outcomes beat vague praise.",
+        }
+      - {
+          label: Name,
+          name: name,
+          widget: string,
+          required: true,
+          hint: 'Full name — partial names reduce credibility.',
+        }
+      - {
+          label: Role,
+          name: role,
+          widget: string,
+          required: false,
+          hint: "e.g. 'CEO' or 'Founder'",
+        }
+      - {
+          label: Company,
+          name: company,
+          widget: string,
+          required: false,
+          hint: 'Company or organization name.',
+        }
+      - { label: Featured, name: featured, widget: boolean, default: false }
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # TEAM
+  # Credentials field added — relevant for licensed professionals.
+  # ---------------------------------------------------------------------------
+
+  - name: team
+    label: Team
+    label_singular: Team Member
+    folder: src/content/team
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}} — {{role}}'
+    fields:
+      - { label: Full Name, name: name, widget: string, required: true }
+      - {
+          label: Title / Role,
+          name: role,
+          widget: string,
+          required: true,
+          hint: "e.g. 'Senior Consultant', 'Managing Partner', 'Lead Advisor'",
+        }
+      - {
+          label: Credentials,
+          name: credentials,
+          widget: string,
+          required: false,
+          hint: "e.g. 'J.D.', 'CPA', 'CFP, CFA' — displayed below the name.",
+        }
+      - {
+          label: Bio,
+          name: bio,
+          widget: text,
+          required: false,
+          hint: '2–3 sentences. Background, specialty, and client focus.',
+        }
+
+      - label: Photo
+        name: photo
+        widget: object
+        required: false
+        hint: 'Professional headshot. Square crop, 400×400px minimum.'
+        fields:
+          - { label: Photo, name: src, widget: image }
+          - { label: Alt Text, name: alt, widget: string, required: true }
+
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # FAQ
+  # Used on the Services page. Pre-populate with real client objections.
+  # ---------------------------------------------------------------------------
+
+  - name: faq
+    label: FAQ
+    label_singular: FAQ Item
+    folder: src/content/faq
+    create: true
+    slug: '{{slug}}'
+    summary: '{{question}}'
+    fields:
+      - {
+          label: Question,
+          name: question,
+          widget: string,
+          required: true,
+          hint: "Write as the client would ask it. First person works well — 'How long does it take?'",
+        }
+      - {
+          label: Answer,
+          name: answer,
+          widget: text,
+          required: true,
+          hint: 'Plain language. Direct answer first, context second. 2–4 sentences.',
+        }
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # PAGES — Privacy Policy and Terms of Use
+  # ---------------------------------------------------------------------------
+
+  - name: pages
+    label: Pages
+    files:
+      - name: privacy
+        label: Privacy Policy
+        file: src/content/pages/privacy.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Privacy Policy' }
+          - { label: Body, name: body, widget: markdown }
+          - { label: Last Updated, name: updated_at, widget: datetime, required: false }
+
+      - name: terms
+        label: Terms of Use
+        file: src/content/pages/terms.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Terms of Use' }
+          - { label: Body, name: body, widget: markdown }
+          - { label: Last Updated, name: updated_at, widget: datetime, required: false }

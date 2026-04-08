@@ -1,0 +1,61 @@
+{
+  "site_name": "Meridian Advisory Group",
+  "tagline": "Trusted advisors to growing businesses since 1998.",
+  "logo": "",
+
+  "contact": {
+    "phone": "(555) 345-6789",
+    "email": "hello@meridianadvisory.com",
+    "address": "789 Commerce Drive, Suite 200, Anytown, CA 90210",
+    "service_area": "Serving clients throughout the greater metro area and nationally by arrangement"
+  },
+
+  "hours": [
+    { "day": "Monday", "open": "9:00 AM", "close": "5:30 PM", "closed": false },
+    { "day": "Tuesday", "open": "9:00 AM", "close": "5:30 PM", "closed": false },
+    { "day": "Wednesday", "open": "9:00 AM", "close": "5:30 PM", "closed": false },
+    { "day": "Thursday", "open": "9:00 AM", "close": "5:30 PM", "closed": false },
+    { "day": "Friday", "open": "9:00 AM", "close": "5:00 PM", "closed": false },
+    { "day": "Saturday", "open": "00:00", "close": "00:00", "closed": true },
+    { "day": "Sunday", "open": "00:00", "close": "00:00", "closed": true }
+  ],
+
+  "social": {
+    "facebook": "",
+    "instagram": "",
+    "linkedin": "",
+    "x": "",
+    "youtube": ""
+  },
+
+  "nav": [
+    { "label": "Home", "href": "/" },
+    { "label": "Services", "href": "/services/" },
+    { "label": "About", "href": "/about/" },
+    { "label": "Process", "href": "/process/" },
+    { "label": "Contact", "href": "/contact/" }
+  ],
+
+  "social_proof": {
+    "rating": 4.9,
+    "review_count": 84,
+    "years": 26,
+    "customers": "200+ clients served"
+  },
+
+  "floating_cta": {
+    "label": "Schedule a consultation",
+    "href": "/contact"
+  },
+
+  "analytics": {
+    "ga_id": "",
+    "gtm_id": ""
+  },
+
+  "seo": {
+    "title": "Meridian Advisory Group | Professional Advisory Services",
+    "description": "Trusted advisors helping businesses navigate complex challenges. Strategy, compliance, and growth — tailored to your situation. Schedule a free consultation.",
+    "og_image": ""
+  }
+}

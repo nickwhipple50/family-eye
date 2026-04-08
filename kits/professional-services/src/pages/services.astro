@@ -1,0 +1,76 @@
+---
+/**
+ * pages/services.astro
+ * Professional Services kit — Services page
+ *
+ * Sections:
+ *   1. Hero        — centered
+ *   2. ServiceList — grid-icon, 2 col, full descriptions
+ *   3. FAQAccordion — service and engagement questions
+ *   4. CTABand
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, ServiceList, FAQAccordion, CTABand } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const services = await getCollection('services');
+const faqItems = await getCollection('faq');
+
+const sortedServices = services
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((s) => s.data);
+
+const sortedFaq = faqItems
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((f) => f.data);
+---
+
+<Layout
+  title='Services'
+  description='Explore our full range of professional services — each one designed to deliver practical, measurable outcomes for your business.'
+  breadcrumbs={[{ label: 'Services', href: '/services' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='What we do'
+      body='We work across a focused set of disciplines — because doing a few things extremely well is more valuable than doing many things adequately.'
+      cta={{ label: 'Schedule a consultation', href: '/contact' }}
+      secondaryCta={{ label: 'How we work', href: '/process' }}
+    />
+
+    <!-- ② SERVICE LIST — 2 col gives room for fuller descriptions -->
+    <ServiceList
+      heading='Our services'
+      variant='grid-icon'
+      columns={2}
+      surface='subtle'
+      items={sortedServices}
+    />
+
+    <!-- ③ FAQ — common questions about services and engagement -->
+    {
+      sortedFaq.length > 0 && (
+        <FAQAccordion
+          heading='Common questions'
+          body="If you have a question we haven't answered here, just ask."
+          surface='base'
+          items={sortedFaq}
+        />
+      )
+    }
+
+    <!-- ④ CTA BAND -->
+    <CTABand
+      heading='Ready to get started?'
+      body="Tell us what you're working on and we'll tell you honestly how we can help."
+      primaryCta={{ label: 'Schedule a consultation', href: '/contact' }}
+      secondaryCta={{ label: 'Learn about our process', href: '/process' }}
+    />
+  </main>
+</Layout>

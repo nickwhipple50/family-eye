@@ -1,0 +1,45 @@
+---
+/**
+ * KitLayout.astro
+ * Restaurant & Food kit — page layout.
+ * Wires Nav and Footer into Base.astro slots.
+ *
+ * schemaType is 'FoodEstablishment' for this kit — more specific than
+ * LocalBusiness and qualifies for Google's restaurant rich results
+ * (menu, hours, reservations in search).
+ */
+
+import Base from './Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface BreadcrumbItem {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+  noindex?: boolean;
+  breadcrumbs?: BreadcrumbItem[];
+}
+
+const { title, description, ogImage, canonical, noindex, breadcrumbs } = Astro.props;
+---
+
+<Base
+  title={title}
+  description={description}
+  ogImage={ogImage}
+  canonical={canonical}
+  noindex={noindex}
+  breadcrumbs={breadcrumbs}
+  schemaType='FoodEstablishment'
+>
+  <Nav slot='nav' />
+  <slot />
+  <Footer slot='footer' />
+</Base>

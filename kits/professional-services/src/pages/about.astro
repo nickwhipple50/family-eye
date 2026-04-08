@@ -1,0 +1,174 @@
+---
+/**
+ * pages/about.astro
+ * Professional Services kit — About page
+ *
+ * HIGHEST-VALUE PAGE for this kit per t1.md.
+ * Professional services clients are buying the person as much as the service.
+ * This page needs to answer: who are these people, can I trust them,
+ * have they handled situations like mine before?
+ *
+ * Sections:
+ *   1. Hero          — split, founder or principal photo — weight this heavily
+ *   2. StatsRow      — years in practice, clients served, industries, credentials
+ *   3. FeatureGrid   — approach, philosophy, differentiators
+ *   4. TeamGrid      — principals, advisors, key staff
+ *   5. TestimonialRow — featured client quote
+ *   6. CTABand
+ *
+ * Kit author notes:
+ *   — Push back on stock photos. A real photo of the actual team converts
+ *     significantly better than a generic "professionals in an office" image.
+ *   — The FeatureGrid copy here should be specific and provable — not
+ *     "we care about our clients." What's your actual approach? What makes
+ *     the engagement different? How do you communicate with clients?
+ *   — TeamGrid credentials field is rendered here — ensure the CMS has
+ *     credentials populated for licensed professionals (J.D., CPA, CFP etc.)
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, StatsRow, FeatureGrid, TeamGrid, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection, getEntry } from 'astro:content';
+
+const team = await getCollection('team');
+const testimonials = await getCollection('testimonials');
+const settings = (await getEntry('site_settings', 'general'))?.data;
+
+const sortedTeam = team
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((m) => m.data);
+
+// Featured testimonial for the About page — picks marked featured first
+const sortedTestimonials = testimonials
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((t) => t.data);
+
+const featuredIndex = Math.max(
+  0,
+  sortedTestimonials.findIndex((t) => t.featured)
+);
+
+const siteName = settings?.site_name ?? 'us';
+---
+
+<Layout
+  title='About us'
+  description={`Meet the team at ${siteName} — experienced advisors who bring clarity to complex business challenges.`}
+  breadcrumbs={[{ label: 'About', href: '/about' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — split with founder or principal photo -->
+    <!--
+      Kit author: this image matters more than anywhere else on the site.
+      A real, confident, professional photo of the actual principals.
+      No stock. No group shots where no one can tell who runs the firm.
+    -->
+    <Hero
+      variant='split'
+      heading={`The team at ${siteName}`}
+      body='We started this practice because we saw too many businesses getting advice that sounded good in a presentation and fell apart in execution. We do things differently.'
+      cta={{ label: 'Meet the team', href: '#team' }}
+      secondaryCta={{ label: 'Schedule a consultation', href: '/contact' }}
+      image={{ src: '/images/team-photo.jpg', alt: `The ${siteName} advisory team` }}
+    />
+
+    <!-- ② STATS ROW — credentials and track record -->
+    <StatsRow
+      variant='band'
+      surface='inverse'
+      items={[
+        { value: 26, suffix: '+', label: 'Years in practice' },
+        { value: 200, suffix: '+', label: 'Clients served' },
+        { value: 40, suffix: '+', label: 'Industries' },
+        { value: 4.9, suffix: '★', label: 'Client satisfaction', decimals: 1 },
+      ]}
+    />
+
+    <!-- ③ FEATURE GRID — approach and philosophy -->
+    <!--
+      Kit author: these six points should answer the questions a serious
+      prospective client asks before picking up the phone. Replace every
+      placeholder with something specific to this firm's actual approach.
+    -->
+    <FeatureGrid
+      heading='How we work'
+      body="The things that make an engagement with us different from what you've probably experienced before."
+      variant='plain'
+      columns={3}
+      surface='subtle'
+      items={[
+        {
+          icon: 'eye',
+          heading: 'Direct and honest',
+          body: "We tell you what we see — not what you want to hear. If we think you're heading in the wrong direction, we'll say so, clearly and early.",
+        },
+        {
+          icon: 'users',
+          heading: 'Principals do the work',
+          body: "You hire us, you work with us. We don't take on more clients than we can personally serve. No hand-off to junior staff after the pitch.",
+        },
+        {
+          icon: 'clock',
+          heading: 'Responsive and available',
+          body: "We return calls and emails within the business day. If something urgent comes up, we're reachable. That's not exceptional — it's a baseline.",
+        },
+        {
+          icon: 'file-text',
+          heading: 'Clear deliverables',
+          body: "You always know what you're getting, when you're getting it, and what it costs. No scope creep, no bill shock.",
+        },
+        {
+          icon: 'trending-up',
+          heading: 'Practical over theoretical',
+          body: 'Our advice is built to be implemented by real people in real organizations — not to look impressive in a binder on a shelf.',
+        },
+        {
+          icon: 'shield',
+          heading: 'Long-term perspective',
+          body: 'We measure success by what happens to your business over time, not by how good our engagement summary looks.',
+        },
+      ]}
+    />
+
+    <!-- ④ TEAM GRID -->
+    {
+      sortedTeam.length > 0 && (
+        <div
+          id='team'
+          style='scroll-margin-top: var(--nav-height)'
+        >
+          <TeamGrid
+            heading="Who you'll work with"
+            columns={3}
+            surface='base'
+            items={sortedTeam}
+          />
+        </div>
+      )
+    }
+
+    <!-- ⑤ TESTIMONIAL — featured quote reinforces advisor credibility -->
+    {
+      sortedTestimonials.length > 0 && (
+        <TestimonialRow
+          heading='In their own words'
+          variant='featured'
+          surface='subtle'
+          featuredIndex={featuredIndex}
+          items={sortedTestimonials}
+        />
+      )
+    }
+
+    <!-- ⑥ CTA BAND -->
+    <CTABand
+      heading="Let's see if we're the right fit"
+      body='First conversation is always free. No sales pitch — just an honest discussion about your situation and whether we can help.'
+      primaryCta={{ label: 'Schedule a free consultation', href: '/contact' }}
+      secondaryCta={{ label: 'See how we work', href: '/process' }}
+    />
+  </main>
+</Layout>

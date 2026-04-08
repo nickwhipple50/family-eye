@@ -1,0 +1,123 @@
+---
+/**
+ * pages/about.astro
+ * Restaurant & Food kit — About page
+ *
+ * Sections:
+ *   1. Hero        — split, chef or interior photo
+ *   2. FeatureGrid — story, philosophy, sourcing, what makes the place special
+ *   3. TeamGrid    — chef, sous chef, front-of-house
+ *   4. CTABand
+ *
+ * Note: The About page for a restaurant is about atmosphere and trust
+ * as much as credentials. The FeatureGrid copy should feel personal —
+ * not corporate. Kit author: push back on generic "passion for food"
+ * filler. Specific details (local farm names, family history, signature
+ * technique) convert better than vague claims.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, FeatureGrid, TeamGrid, CTABand } from '@mmm/components';
+import { getCollection, getEntry } from 'astro:content';
+
+const team = await getCollection('team');
+const settings = (await getEntry('site_settings', 'general'))?.data;
+
+const sortedTeam = team
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((m) => m.data);
+
+const siteName = settings?.site_name ?? 'us';
+---
+
+<Layout
+  title='About us'
+  description={`The story behind ${siteName} — our history, our team, and the philosophy that's kept guests coming back for decades.`}
+  breadcrumbs={[{ label: 'About', href: '/about' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — split with chef or dining room photo -->
+    <Hero
+      variant='split'
+      heading='A family recipe, thirty-seven years in the making'
+      body="We opened our doors in 1987 with a simple idea: serve honest American food, made from scratch, to the people of this community. That hasn't changed."
+      cta={{ label: 'Meet our team', href: '#team' }}
+      secondaryCta={{ label: 'View our menu', href: '/menu' }}
+      image={{ src: '/images/chef-photo.jpg', alt: 'Head chef plating a dish in the kitchen' }}
+    />
+
+    <!-- ② FEATURE GRID — story and philosophy -->
+    <!--
+      Kit author: replace with real details specific to this restaurant.
+      Generic copy ("fresh ingredients", "passionate team") is filler.
+      Details that work: supplier names, family history, cooking methods,
+      specific dishes that define the restaurant's identity.
+    -->
+    <FeatureGrid
+      heading="What we're about"
+      variant='plain'
+      columns={3}
+      surface='subtle'
+      items={[
+        {
+          icon: 'map-pin',
+          heading: 'Local through and through',
+          body: 'Our produce comes from farms within 50 miles. Our beef is from Hartley Ranch. We put names on our menu because these relationships matter.',
+        },
+        {
+          icon: 'clock',
+          heading: 'Made from scratch, daily',
+          body: 'No shortcuts, no pre-made sauces, no frozen shortcuts. Every sauce, every dressing, every baked good starts from raw ingredients every morning.',
+        },
+        {
+          icon: 'users',
+          heading: 'Family-owned since day one',
+          body: 'Three generations of the Greer family have worked in this kitchen. That continuity shows up in everything from the recipes to how we treat our staff.',
+        },
+        {
+          icon: 'award',
+          heading: 'Part of this community',
+          body: "We've been here through the good times and the tough ones. We sponsor the Little League, host the holiday drive, and keep the porch light on for our neighbors.",
+        },
+        {
+          icon: 'star',
+          heading: 'The same classics, perfected',
+          body: 'Our menu changes with the seasons but the classics stay. The pot roast. The buttermilk pie. The chicken and waffles. Some things should never change.',
+        },
+        {
+          icon: 'message-circle',
+          heading: 'We want to hear from you',
+          body: "If something wasn't right, tell us. If something was great, tell a friend. We take both seriously and always have.",
+        },
+      ]}
+    />
+
+    <!-- ③ TEAM GRID -->
+    {
+      sortedTeam.length > 0 && (
+        <div
+          id='team'
+          style='scroll-margin-top: var(--nav-height)'
+        >
+          <TeamGrid
+            heading='The people behind the food'
+            columns={3}
+            surface='base'
+            items={sortedTeam}
+          />
+        </div>
+      )
+    }
+
+    <!-- ④ CTA BAND -->
+    <CTABand
+      heading='Come eat with us'
+      body="Open Tuesday through Sunday. We'd love to see you."
+      primaryCta={{ label: 'Reserve a table', href: '/visit#reservations' }}
+      secondaryCta={{ label: 'View our menu', href: '/menu' }}
+    />
+  </main>
+</Layout>

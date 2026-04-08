@@ -1,0 +1,52 @@
+---
+/**
+ * admin.astro
+ * Serves the Decap CMS UI at /admin.
+ *
+ * Workaround for Astro v5 bug: public/admin/index.html is not served
+ * by the dev server (index.html in public/ subdirectories returns 404).
+ * Moving the admin page into src/pages/ fixes this via Astro's file-based routing.
+ *
+ * config.yml stays in public/admin/config.yml — that's a static file
+ * fetched by the browser and doesn't need Astro routing.
+ *
+ * noindex is set via the meta tag below — this page is not in KitLayout
+ * so we handle it directly.
+ */
+---
+
+<!doctype html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta
+      name='viewport'
+      content='width=device-width, initial-scale=1'
+    />
+    <meta
+      name='robots'
+      content='noindex'
+    />
+    <title>Content Manager</title>
+    <link
+      rel='stylesheet'
+      href='https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.css'
+    />
+  </head>
+  <body>
+    <script src='https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js'></script>
+    <script>
+      // Explicitly set config path so Decap doesn't infer it from the page URL.
+      // Without this, /admin (no trailing slash) causes Decap to resolve
+      // config.yml relative to the root instead of /admin/config.yml.
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      CMS.init({
+        config: {
+          load_config_file: true,
+          config_url: '/admin/config.yml',
+        },
+      });
+    </script>
+  </body>
+</html>

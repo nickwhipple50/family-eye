@@ -1,0 +1,352 @@
+# =============================================================================
+# Decap CMS — config.yml
+# MMM T1 Launchpad — Restaurant & Food Kit
+#
+# Collections in this kit:
+#   site_settings  — global singleton
+#   menu           — MenuSection component (kit-local)
+#   testimonials   — TestimonialRow
+#   team           — TeamGrid
+#   pages          — Privacy policy, Terms of use
+#
+# Menu structure:
+#   Items belong to a category via the category field (plain string).
+#   MenuSection groups items by category at render time.
+#   category_order controls the display order of categories.
+#   item_order controls display order within a category.
+# =============================================================================
+
+backend:
+  name: git-gateway
+  branch: main
+
+# local_backend: true   # Uncomment for local dev — remove before deploying
+
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+slug:
+  encoding: unicode
+  clean_accents: true
+  sanitize_replacement: '-'
+
+collections:
+  # ---------------------------------------------------------------------------
+  # SITE SETTINGS
+  # ---------------------------------------------------------------------------
+
+  - name: site_settings
+    label: Site Settings
+    files:
+      - name: general
+        label: General
+        file: src/content/site_settings/general.json
+        fields:
+          - { label: Restaurant Name, name: site_name, widget: string, required: true }
+          - {
+              label: Tagline,
+              name: tagline,
+              widget: string,
+              required: false,
+              hint: "One line — e.g. 'Classic American cooking since 1987'",
+            }
+          - { label: Logo, name: logo, widget: image, required: false }
+
+          - label: Contact
+            name: contact
+            widget: object
+            fields:
+              - { label: Phone, name: phone, widget: string, required: false }
+              - { label: Email, name: email, widget: string, required: false }
+              - { label: Address, name: address, widget: string, required: false }
+              - {
+                  label: Neighborhood,
+                  name: service_area,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. 'Downtown Anytown — free parking on Oak Street'",
+                }
+
+          - label: Hours
+            name: hours
+            widget: list
+            required: false
+            max: 7
+            hint: 'Displayed on the Visit page. Keep up to date.'
+            fields:
+              - {
+                  label: Day,
+                  name: day,
+                  widget: select,
+                  options: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday],
+                }
+              - { label: Opens, name: open, widget: string, hint: 'e.g. 11:00 AM' }
+              - { label: Closes, name: close, widget: string, hint: 'e.g. 10:00 PM' }
+              - { label: Closed, name: closed, widget: boolean, default: false }
+
+          - label: Social Links
+            name: social
+            widget: object
+            fields:
+              - { label: Facebook, name: facebook, widget: string, required: false }
+              - { label: Instagram, name: instagram, widget: string, required: false }
+              - { label: LinkedIn, name: linkedin, widget: string, required: false }
+              - { label: X/Twitter, name: x, widget: string, required: false }
+              - { label: YouTube, name: youtube, widget: string, required: false }
+
+          - label: Navigation
+            name: nav
+            widget: list
+            max: 7
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: URL, name: href, widget: string }
+
+          - label: Social Proof Bar
+            name: social_proof
+            widget: object
+            fields:
+              - {
+                  label: Star Rating,
+                  name: rating,
+                  widget: number,
+                  value_type: float,
+                  min: 1,
+                  max: 5,
+                  step: 0.1,
+                  required: false,
+                }
+              - { label: Review Count, name: review_count, widget: number, required: false }
+              - { label: Years Open, name: years, widget: number, required: false }
+              - {
+                  label: Stats Label,
+                  name: customers,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. '10,000+ guests served'",
+                }
+
+          - label: Floating CTA Button
+            name: floating_cta
+            widget: object
+            fields:
+              - {
+                  label: Label,
+                  name: label,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. 'Reserve a table'",
+                }
+              - { label: URL, name: href, widget: string, required: false }
+
+          - label: Analytics
+            name: analytics
+            widget: object
+            fields:
+              - { label: Google Analytics ID, name: ga_id, widget: string, required: false }
+              - { label: Google Tag Manager ID, name: gtm_id, widget: string, required: false }
+
+          - label: SEO Defaults
+            name: seo
+            widget: object
+            fields:
+              - { label: Default Title, name: title, widget: string, required: true }
+              - { label: Default Description, name: description, widget: text, required: true }
+              - {
+                  label: Default OG Image,
+                  name: og_image,
+                  widget: image,
+                  required: false,
+                  hint: '1200×630px. Use a strong food or interior photo.',
+                }
+
+  # ---------------------------------------------------------------------------
+  # MENU
+  # Items are grouped by category at render time — not a nested collection.
+  # category_order controls category display order.
+  # item_order controls order within a category.
+  # ---------------------------------------------------------------------------
+
+  - name: menu
+    label: Menu
+    label_singular: Menu Item
+    folder: src/content/menu
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}} — {{category}} (${{price}})'
+    sortable_fields: [category, item_order, name]
+    fields:
+      - { label: Item Name, name: name, widget: string, required: true }
+
+      - {
+          label: Description,
+          name: description,
+          widget: text,
+          required: false,
+          hint: '1–2 sentences. Ingredients, preparation, or what makes it special.',
+        }
+
+      - {
+          label: Price,
+          name: price,
+          widget: string,
+          required: true,
+          hint: "Display string — e.g. '14', '14.99', 'Market price'",
+        }
+
+      - {
+          label: Category,
+          name: category,
+          widget: string,
+          required: true,
+          hint: "e.g. 'Appetizers', 'Mains', 'Desserts', 'Drinks'. Exact spelling determines grouping.",
+        }
+
+      - {
+          label: Category Order,
+          name: category_order,
+          widget: number,
+          default: 0,
+          hint: 'Controls the order categories appear in. All items in the same category should share the same number.',
+        }
+
+      - {
+          label: Item Order,
+          name: item_order,
+          widget: number,
+          default: 0,
+          hint: 'Controls order within the category. Lower numbers appear first.',
+        }
+
+      - {
+          label: Featured,
+          name: featured,
+          widget: boolean,
+          default: false,
+          hint: 'Featured items appear on the Home page.',
+        }
+
+      - label: Dietary Tags
+        name: dietary
+        widget: select
+        multiple: true
+        required: false
+        hint: 'Select all that apply.'
+        options:
+          - { label: Vegetarian, value: vegetarian }
+          - { label: Vegan, value: vegan }
+          - { label: Gluten-Free, value: gluten-free }
+          - { label: Dairy-Free, value: dairy-free }
+          - { label: Nut-Free, value: nut-free }
+          - { label: Spicy, value: spicy }
+
+      - label: Photo
+        name: image
+        widget: object
+        required: false
+        hint: 'Optional. Use on featured items — 3:2 ratio, minimum 600×400px.'
+        fields:
+          - { label: Photo, name: src, widget: image }
+          - { label: Alt Text, name: alt, widget: string, required: true }
+
+  # ---------------------------------------------------------------------------
+  # TESTIMONIALS
+  # Diner reviews. Mix of platforms — Google, Yelp, TripAdvisor, OpenTable.
+  # ---------------------------------------------------------------------------
+
+  - name: testimonials
+    label: Reviews
+    label_singular: Review
+    folder: src/content/testimonials
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}}'
+    fields:
+      - {
+          label: Review,
+          name: quote,
+          widget: text,
+          required: true,
+          hint: "Guest's own words. No quotation marks.",
+        }
+      - { label: Name, name: name, widget: string, required: true }
+      - {
+          label: Source,
+          name: company,
+          widget: string,
+          required: false,
+          hint: "e.g. 'via Google', 'via Yelp', 'via OpenTable'",
+        }
+      - {
+          label: Star Rating,
+          name: rating,
+          widget: number,
+          required: false,
+          value_type: int,
+          min: 1,
+          max: 5,
+        }
+      - { label: Featured, name: featured, widget: boolean, default: false }
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # TEAM
+  # Chef, sous chef, front-of-house. Keep bios short and warm.
+  # ---------------------------------------------------------------------------
+
+  - name: team
+    label: Team
+    label_singular: Team Member
+    folder: src/content/team
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}} — {{role}}'
+    fields:
+      - { label: Name, name: name, widget: string, required: true }
+      - {
+          label: Role,
+          name: role,
+          widget: string,
+          required: true,
+          hint: "e.g. 'Executive Chef', 'Sous Chef', 'General Manager'",
+        }
+      - {
+          label: Bio,
+          name: bio,
+          widget: text,
+          required: false,
+          hint: '1–2 sentences. Background, specialty, or what they love about the restaurant.',
+        }
+
+      - label: Photo
+        name: photo
+        widget: object
+        required: false
+        fields:
+          - { label: Photo, name: src, widget: image }
+          - { label: Alt Text, name: alt, widget: string, required: true }
+
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # PAGES — Privacy Policy and Terms of Use
+  # ---------------------------------------------------------------------------
+
+  - name: pages
+    label: Pages
+    files:
+      - name: privacy
+        label: Privacy Policy
+        file: src/content/pages/privacy.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Privacy Policy' }
+          - { label: Body, name: body, widget: markdown }
+          - { label: Last Updated, name: updated_at, widget: datetime, required: false }
+
+      - name: terms
+        label: Terms of Use
+        file: src/content/pages/terms.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Terms of Use' }
+          - { label: Body, name: body, widget: markdown }
+          - { label: Last Updated, name: updated_at, widget: datetime, required: false }

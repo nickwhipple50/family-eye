@@ -1,0 +1,149 @@
+---
+/**
+ * pages/process.astro
+ * Professional Services kit — Process page
+ *
+ * Sections:
+ *   1. Hero          — centered
+ *   2. ProcessSteps  — engagement process, 4–5 steps
+ *   3. FeatureGrid   — what to expect, reassurance points
+ *   4. TestimonialRow — quote from a client who went through the process
+ *   5. CTABand
+ *
+ * Purpose of this page:
+ *   Prospective clients are often anxious about engaging professional
+ *   advisors — cost uncertainty, unclear timelines, fear of being sold
+ *   something they don't need. This page removes that friction by making
+ *   the engagement process transparent and predictable.
+ *
+ *   The FeatureGrid "what to expect" section is as important as the steps —
+ *   it handles the objections that prevent someone from picking up the phone.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, ProcessSteps, FeatureGrid, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const testimonials = await getCollection('testimonials');
+
+const sortedTestimonials = testimonials
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((t) => t.data);
+
+const featuredIndex = Math.max(
+  0,
+  sortedTestimonials.findIndex((t) => t.featured)
+);
+---
+
+<Layout
+  title='Our process'
+  description="A clear, predictable engagement process — no surprises, no hidden costs. Here's exactly how we work with clients from first call to completion."
+  breadcrumbs={[{ label: 'Process', href: '/process' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='How we work together'
+      body="We've designed our engagement process to be transparent from day one — so you always know where you are, what comes next, and what it costs."
+      cta={{ label: 'Schedule a consultation', href: '/contact' }}
+    />
+
+    <!-- ② PROCESS STEPS -->
+    <ProcessSteps
+      heading='The engagement process'
+      body="From first conversation to final deliverable — here's what to expect."
+      variant='numbered'
+      layout='horizontal'
+      surface='subtle'
+      items={[
+        {
+          title: 'Free consultation',
+          body: "We start with a conversation — no charge, no obligation. You tell us what you're working on, we tell you honestly whether and how we can help.",
+        },
+        {
+          title: 'Scope and proposal',
+          body: "If it's a good fit, we outline the engagement: what we'll do, what you'll get, the timeline, and the cost. No vague retainers, no open-ended billing.",
+        },
+        {
+          title: 'Active engagement',
+          body: "We get to work. You have direct access to the people doing the work. We check in regularly — you're never wondering where things stand.",
+        },
+        {
+          title: 'Delivery and review',
+          body: 'We deliver the work and walk you through it. You have time to review, ask questions, and request refinements before we close out.',
+        },
+        {
+          title: 'Ongoing support',
+          body: "Many clients stay in touch for ongoing questions or follow-on work. There's no pressure either way — we're here if you need us.",
+        },
+      ]}
+    />
+
+    <!-- ③ FEATURE GRID — what to expect, objection handling -->
+    <FeatureGrid
+      heading='What to expect'
+      body='The questions we hear most often before someone schedules a first call.'
+      variant='plain'
+      columns={3}
+      surface='base'
+      items={[
+        {
+          icon: 'check-circle',
+          heading: 'No commitment to consult',
+          body: "The first conversation costs nothing and obligates you to nothing. We'd rather you walk away informed than feel pressured into something that isn't right.",
+        },
+        {
+          icon: 'file-text',
+          heading: 'Fixed-fee where possible',
+          body: "We quote a fixed price whenever the scope allows. Hourly billing only applies to genuinely open-ended advisory relationships — and we'll tell you upfront which is which.",
+        },
+        {
+          icon: 'clock',
+          heading: 'Clear timelines',
+          body: 'Every proposal includes a delivery timeline. We hit our deadlines. If something changes on our end, we tell you immediately and before it affects you.',
+        },
+        {
+          icon: 'message-circle',
+          heading: 'Direct access',
+          body: 'You work with the people you hired. Your calls go to your advisor, not a receptionist. Your emails get answered within the business day.',
+        },
+        {
+          icon: 'eye',
+          heading: 'No surprises on billing',
+          body: "We don't add costs mid-engagement without your approval. If scope changes, we talk about it before the work happens — not after.",
+        },
+        {
+          icon: 'users',
+          heading: 'Comfortable stopping',
+          body: "If at any point you feel the engagement isn't working, say so. We'd rather have that conversation early and part on good terms than push through something that isn't serving you.",
+        },
+      ]}
+    />
+
+    <!-- ④ TESTIMONIAL — from a client who went through the process -->
+    {
+      sortedTestimonials.length > 0 && (
+        <TestimonialRow
+          heading='From a recent client'
+          variant='featured'
+          surface='subtle'
+          featuredIndex={featuredIndex}
+          items={sortedTestimonials}
+        />
+      )
+    }
+
+    <!-- ⑤ CTA BAND -->
+    <CTABand
+      heading='Ready to take the first step?'
+      body="Schedule a free consultation. We'll ask the right questions, listen carefully, and give you a straight answer."
+      primaryCta={{ label: 'Schedule a free consultation', href: '/contact' }}
+      secondaryCta={{ label: 'View our services', href: '/services' }}
+    />
+  </main>
+</Layout>

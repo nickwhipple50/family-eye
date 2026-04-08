@@ -1,0 +1,66 @@
+---
+/**
+ * changelog.astro
+ * Internal build record — not for client or public consumption.
+ * noindex set in Base via the noindex prop.
+ * Excluded from sitemap.xml.
+ * QA check: this file must be updated within 30 days of deploy.
+ *
+ * Update the entry below before handoff.
+ * Format: date / what was built or changed / your initials.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+
+const entries = [
+  {
+    date: '2025-01-01',
+    description:
+      'Initial build — service-business kit. All five pages, CMS wired, deployed to Netlify.',
+    author: 'authorname',
+  },
+];
+---
+
+<Layout
+  title='Changelog'
+  noindex={true}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+    style='padding: var(--space-2xl) var(--gutter); max-width: 48rem; margin-inline: auto;'
+  >
+    <h1
+      style='font-family: var(--font-heading); font-size: var(--text-h2); margin-block-end: var(--space-l);'
+    >
+      Build changelog
+    </h1>
+    <p
+      style='color: var(--color-text-muted); font-size: var(--text-sm); margin-block-end: var(--space-xl);'
+    >
+      Internal reference. Not indexed. Update before each client handoff.
+    </p>
+
+    <ol
+      style='list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-m);'
+    >
+      {
+        entries.map((entry) => (
+          <li style='display: grid; grid-template-columns: 8rem 1fr auto; gap: var(--space-m); padding-block: var(--space-m); border-block-start: 1px solid var(--color-border); align-items: baseline;'>
+            <time
+              datetime={entry.date}
+              style='font-size: var(--text-sm); color: var(--color-text-muted); font-variant-numeric: tabular-nums;'
+            >
+              {entry.date}
+            </time>
+            <span style='font-size: var(--text-base);'>{entry.description}</span>
+            <span style='font-size: var(--text-xs); color: var(--color-text-subtle); font-weight: var(--font-weight-semibold);'>
+              {entry.author}
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </main>
+</Layout>
