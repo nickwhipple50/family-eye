@@ -1,23 +1,12 @@
 ---
 /**
  * KitLayout.astro
- * Service Business kit — page layout.
- * Wires Nav and Footer into Base.astro slots.
- * Used by every page in this kit.
+ * Health & Wellness kit — page layout.
  *
- * All SEO/meta props are passed through to Base.astro.
- * schemaType is fixed to 'LocalBusiness' for this kit —
- * service businesses are local entities, not organisations.
- *
- * Usage:
- *   ---
- *   import Layout from '../layouts/KitLayout.astro';
- *   ---
- *   <Layout title="About us" description="We do X for Y.">
- *     <main id="main-content" tabindex="-1">
- *       <Hero ... />
- *     </main>
- *   </Layout>
+ * schemaType is 'HealthAndBeautyBusiness' — covers massage therapists,
+ * yoga studios, nutritionists, wellness coaches, and similar.
+ * Kit author: for mental health practitioners use 'MedicalBusiness',
+ * for physiotherapists or chiropractors use 'MedicalClinic'.
  */
 
 import Base from './Base.astro';
@@ -48,7 +37,7 @@ const { title, description, ogImage, canonical, noindex, breadcrumbs } = Astro.p
   canonical={canonical}
   noindex={noindex}
   breadcrumbs={breadcrumbs}
-  schemaType='LocalBusiness'
+  schemaType='HealthAndBeautyBusiness'
 >
   <Nav slot='nav' />
   <slot />

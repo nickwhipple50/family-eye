@@ -1,17 +1,110 @@
 ---
+/**
+ * pages/index.astro
+ * Health & Wellness kit — Home page
+ *
+ * Sections:
+ *   1. Hero        — split, practitioner with client or calming space
+ *   2. StatsRow    — years in practice, clients helped, services, rating
+ *   3. ServiceList — grid-icon, what they offer
+ *   4. TestimonialRow — client experiences
+ *   5. CTABand     — "Book a session"
+ *
+ * Tone guidance:
+ *   This kit is different from service-business and professional services
+ *   in one important way — the client is often anxious, in pain, or
+ *   approaching something vulnerable. The copy throughout should be warm,
+ *   low-pressure, and reassuring. Avoid urgency language ("limited spots",
+ *   "don't wait"). Avoid clinical language unless the client is a
+ *   medical practice.
+ */
 
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, StatsRow, ServiceList, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const services = await getCollection('services');
+const testimonials = await getCollection('testimonials');
+const settings = (await getCollection('site_settings'))[0]?.data;
+
+const sortedServices = services
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .slice(0, 6)
+  .map((s) => s.data);
+
+const sortedTestimonials = testimonials
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .slice(0, 3)
+  .map((t) => t.data);
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
-  </head>
-  <body>
-    <h1>Astro</h1>
-  </body>
-</html>
+<Layout
+  title='Home'
+  description={settings?.seo?.description}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — split, warm and welcoming -->
+    <Hero
+      variant='split'
+      heading='Feel better. Move easier. Come back to yourself.'
+      body="We offer restorative massage and bodywork in a calm, private space. Whether you're managing chronic pain, recovering from stress, or just ready to slow down — you're in the right place."
+      cta={{ label: 'Book a session', href: '/contact' }}
+      secondaryCta={{ label: 'See our services', href: '/services' }}
+      image={{
+        src: '/images/hero-home.jpg',
+        alt: 'Practitioner working with a client in a calm treatment room',
+      }}
+    />
+
+    <!-- ② STATS ROW — gentle, not salesy -->
+    <StatsRow
+      variant='band'
+      surface='inverse'
+      items={[
+        { value: 8, suffix: '+', label: 'Years in practice' },
+        { value: 500, suffix: '+', label: 'Clients helped' },
+        { value: 6, label: 'Services offered' },
+        { value: 5.0, suffix: '★', label: 'Average rating', decimals: 1 },
+      ]}
+    />
+
+    <!-- ③ SERVICE LIST -->
+    {
+      sortedServices.length > 0 && (
+        <ServiceList
+          heading='What we offer'
+          body='Every session is tailored to what your body needs that day.'
+          variant='grid-icon'
+          columns={3}
+          surface='subtle'
+          items={sortedServices}
+        />
+      )
+    }
+
+    <!-- ④ TESTIMONIALS — client experiences -->
+    {
+      sortedTestimonials.length > 0 && (
+        <TestimonialRow
+          heading='What our clients say'
+          variant='cards'
+          columns={3}
+          surface='base'
+          items={sortedTestimonials}
+        />
+      )
+    }
+
+    <!-- ⑤ CTA BAND — warm, no pressure -->
+    <CTABand
+      heading='Ready to feel the difference?'
+      body="New clients are always welcome. Book online or reach out with any questions — there's no pressure and no commitment."
+      eyebrow='Book a session'
+      primaryCta={{ label: 'Book a session', href: '/contact' }}
+      secondaryCta={{ label: 'Read our FAQ', href: '/faq' }}
+    />
+  </main>
+</Layout>

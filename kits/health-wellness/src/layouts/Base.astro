@@ -51,9 +51,9 @@
 import { ClientRouter } from 'astro:transitions';
 
 // CSS — order is load order. Do not reorder.
-import '../styles/tokens.css';
+import '@mmm/components/styles/tokens.css';
 import '../styles/theme.css';
-import '../styles/globals.css';
+import '@mmm/components/styles/globals.css';
 
 // Site settings from Decap CMS singleton
 // The kit's astro.config.ts must define the content collection.
@@ -82,7 +82,7 @@ const {
   ogImage,
   canonical,
   noindex = false,
-  schemaType = 'Organization',
+  schemaType = 'LocalBusiness',
   breadcrumbs,
 } = Astro.props;
 

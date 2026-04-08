@@ -1,0 +1,8 @@
+/* TEAM */
+Development: McGuinness Media & Marketing
+Site: mcguinnessmedia.com
+
+/* TECHNOLOGY */
+Framework: Astro
+CMS: Decap CMS
+Hosting: Netlify

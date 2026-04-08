@@ -390,14 +390,14 @@ function isActive(href: string): boolean {
     inset-inline: 0;
     bottom: 0;
     height: 2px;
-    background-color: var(--color-accent);
+    background-color: var(--color-primary);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform var(--duration-normal) var(--ease-spring);
   }
 
   .nav__link:hover {
-    color: var(--color-accent);
+    color: var(--color-primary);
   }
 
   .nav__link:hover::after,
@@ -406,7 +406,7 @@ function isActive(href: string): boolean {
   }
 
   .nav__link--active {
-    color: var(--color-accent);
+    color: var(--color-primary);
   }
 
   .nav__link:focus-visible {
@@ -480,14 +480,24 @@ function isActive(href: string): boolean {
   .nav__mobile {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows var(--duration-normal) var(--ease-out);
     overflow: hidden;
     background-color: var(--color-surface-base);
-    border-block-end: 1px solid var(--color-border);
+    border-block-end: 1px solid transparent;
+    transition:
+      grid-template-rows var(--duration-normal) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-default);
+  }
+
+  /* Hidden entirely at desktop — removes from layout, not just visibility */
+  @media (min-width: 768px) {
+    .nav__mobile {
+      display: none;
+    }
   }
 
   .nav--open .nav__mobile {
     grid-template-rows: 1fr;
+    border-block-end-color: var(--color-border);
   }
 
   .nav__mobile nav {
@@ -514,12 +524,12 @@ function isActive(href: string): boolean {
 
   .nav__mobile-link:hover {
     background-color: var(--color-surface-subtle);
-    color: var(--color-accent);
+    color: var(--color-primary);
   }
 
   .nav__mobile-link--active {
-    color: var(--color-accent);
-    background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+    color: var(--color-primary);
+    background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
   }
 
   .nav__mobile-link:focus-visible {
