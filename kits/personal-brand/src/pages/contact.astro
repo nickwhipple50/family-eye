@@ -1,0 +1,310 @@
+---
+/**
+ * pages/contact.astro
+ * Personal Brand kit — Contact page
+ *
+ * Sections:
+ *   1. Hero         — centered, direct
+ *   2. Contact section — form + response expectations (no map)
+ *
+ * Inquiry routing:
+ *   The "Type of inquiry" select field routes the lead before it hits
+ *   the inbox: speaking / workshop / advisory / media / collaboration / other.
+ *   This is the most important field — personal brand clients get a lot
+ *   of noise and need to triage quickly.
+ *
+ * URL param pre-selection:
+ *   The press page links to /contact?type=press — the select field
+ *   reads this param and pre-selects "Media / press inquiry" on load.
+ *   Implemented via a small inline script that reads URLSearchParams.
+ *
+ * Response expectations:
+ *   Personal brand clients are often selective and slow to respond.
+ *   Setting realistic expectations ("I respond within two business days")
+ *   reduces follow-up noise without making them seem unresponsive.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, ContactForm } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const settings = (await getCollection('site_settings'))[0]?.data;
+const contact = settings?.contact;
+const siteName = settings?.site_name ?? 'Alex Rivera';
+---
+
+<Layout
+  title='Contact'
+  description={`Get in touch with ${siteName} — speaking bookings, advisory inquiries, media requests, and collaborations.`}
+  breadcrumbs={[{ label: 'Contact', href: '/contact' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='Get in touch'
+      body='I respond to all inquiries personally within two business days. The more context you give me, the better I can respond.'
+      cta={{ label: 'Jump to form', href: '#contact-form' }}
+    />
+
+    <!-- ② CONTACT SECTION -->
+    <section
+      class='contact-page section surface-base'
+      aria-label='Contact form'
+    >
+      <div class='contact-page__inner section__inner'>
+        <!-- LEFT — form -->
+        <div
+          id='contact-form'
+          style='scroll-margin-top: var(--nav-height)'
+        >
+          <ContactForm
+            heading='Send me a message'
+            body="Tell me what you're working on and what kind of help you're looking for."
+            action='/contact'
+            submitLabel='Send message'
+            fields={[
+              {
+                name: 'name',
+                label: 'Your name',
+                type: 'text',
+                required: true,
+                width: 'half',
+                autocomplete: 'name',
+              },
+              {
+                name: 'email',
+                label: 'Email address',
+                type: 'email',
+                required: true,
+                width: 'half',
+                autocomplete: 'email',
+              },
+              {
+                name: 'organization',
+                label: 'Organization',
+                type: 'text',
+                required: false,
+                width: 'half',
+                autocomplete: 'organization',
+                placeholder: 'Company, publication, or event',
+              },
+              {
+                name: 'type',
+                label: 'Type of inquiry',
+                type: 'select',
+                required: true,
+                options: [
+                  'Keynote speaking',
+                  'Workshop or training',
+                  'Strategic advisory',
+                  'Media / press inquiry',
+                  'Podcast or interview',
+                  'Collaboration or partnership',
+                  'Something else',
+                ],
+              },
+              {
+                name: 'message',
+                label: 'Tell me more',
+                type: 'textarea',
+                required: true,
+                placeholder:
+                  "What's the context? What are you working on? What would success look like? The more you share, the better I can respond.",
+              },
+            ]}
+          />
+        </div>
+
+        <!-- RIGHT — expectations and contact details -->
+        <aside
+          class='contact-page__details'
+          aria-label='Contact details'
+        >
+          <!-- What to expect -->
+          <div class='contact-page__expectations'>
+            <h2 class='contact-page__expectations-heading'>What to expect</h2>
+            <ul class='contact-page__expectation-list'>
+              <li>I read and respond to every message personally.</li>
+              <li>Response time is typically one to two business days.</li>
+              <li>
+                For speaking and advisory, I'll ask a few questions before we get on a call — this
+                helps us both use our time well.
+              </li>
+              <li>
+                If something isn't a fit, I'll say so directly and try to point you toward someone
+                who might be.
+              </li>
+            </ul>
+          </div>
+
+          <!-- Direct contact -->
+          {
+            contact?.email && (
+              <div class='contact-page__direct'>
+                <p class='contact-page__direct-label'>Direct email</p>
+                <a
+                  href={`mailto:${contact.email}`}
+                  class='contact-page__email'
+                >
+                  {contact.email}
+                </a>
+              </div>
+            )
+          }
+
+          <!-- Location and availability -->
+          {
+            (contact?.address || contact?.service_area) && (
+              <dl class='contact-page__info'>
+                {contact.address && (
+                  <>
+                    <dt class='contact-page__info-label'>Based in</dt>
+                    <dd class='contact-page__info-value'>{contact.address}</dd>
+                  </>
+                )}
+                {contact.service_area && (
+                  <>
+                    <dt class='contact-page__info-label'>Availability</dt>
+                    <dd class='contact-page__info-value'>{contact.service_area}</dd>
+                  </>
+                )}
+              </dl>
+            )
+          }
+        </aside>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<!-- Pre-select inquiry type from URL param (?type=press) -->
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const type = params.get('type');
+  if (type === 'press') {
+    const select = document.querySelector<HTMLSelectElement>('select[name="type"]');
+    if (select) {
+      const option = Array.from(select.options).find(
+        (o) => o.value.toLowerCase().includes('media') || o.value.toLowerCase().includes('press')
+      );
+      if (option) select.value = option.value;
+    }
+  }
+</script>
+
+<style>
+  .contact-page__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .contact-page__inner {
+      grid-template-columns: 1.4fr 1fr;
+    }
+  }
+
+  .contact-page__details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  /* ============================================================
+     EXPECTATIONS BLOCK
+     ============================================================ */
+
+  .contact-page__expectations {
+    padding: var(--space-l);
+    background-color: var(--color-surface-subtle);
+    border-radius: var(--card-radius);
+    border-inline-start: 3px solid var(--color-accent);
+  }
+
+  .contact-page__expectations-heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    color: var(--color-text-heading);
+    margin: 0 0 var(--space-m);
+  }
+
+  .contact-page__expectation-list {
+    margin: 0;
+    padding-inline-start: var(--space-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  .contact-page__expectation-list li {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-base);
+  }
+
+  /* ============================================================
+     DIRECT EMAIL
+     ============================================================ */
+
+  .contact-page__direct {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .contact-page__direct-label {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .contact-page__email {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+    text-decoration: none;
+    letter-spacing: var(--tracking-snug);
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .contact-page__email:hover {
+    color: var(--color-accent-dark);
+  }
+
+  /* ============================================================
+     INFO
+     ============================================================ */
+
+  .contact-page__info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs) var(--space-m);
+    align-items: baseline;
+    margin: 0;
+    padding: 0;
+  }
+
+  .contact-page__info-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .contact-page__info-value {
+    font-size: var(--text-sm);
+    color: var(--color-text-base);
+    margin: 0;
+  }
+</style>

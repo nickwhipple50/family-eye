@@ -1,0 +1,463 @@
+---
+/**
+ * PressGrid.astro
+ * Kit-local component — lives in kits/personal-brand/src/components/.
+ * Not part of packages/components.
+ *
+ * Displays press mentions, media appearances, and awards in a
+ * scannable grid. Featured items get a larger card treatment.
+ * Non-featured items render as compact list cards.
+ *
+ * Props (max 6 — T1 rule):
+ *   items      PressItem[]    required
+ *   heading    string?
+ *   body       string?
+ *   surface    'base' | 'subtle'    default: 'base'
+ *   maxItems   number?              default: 12
+ *
+ * PressItem (mirrors Decap press collection schema):
+ *   publication  string
+ *   title        string
+ *   description  string?
+ *   url          string?
+ *   date         string     ISO date string
+ *   type         'article' | 'interview' | 'podcast' | 'tv' | 'radio' | 'award' | 'other'
+ *   logo         { src: string; alt: string }?
+ *   featured     boolean
+ *   order        number
+ */
+
+interface PressLogo {
+  src: string;
+  alt: string;
+}
+
+type PressType = 'article' | 'interview' | 'podcast' | 'tv' | 'radio' | 'award' | 'other';
+
+interface PressItem {
+  publication: string;
+  title: string;
+  description?: string;
+  url?: string;
+  date: string;
+  type?: PressType;
+  logo?: PressLogo;
+  featured: boolean;
+  order: number;
+}
+
+interface Props {
+  items: PressItem[];
+  heading?: string;
+  body?: string;
+  surface?: 'base' | 'subtle';
+  maxItems?: number;
+}
+
+const { items, heading, body, surface = 'base', maxItems = 12 } = Astro.props;
+
+const displayItems = items.slice(0, maxItems);
+const featured = displayItems.filter((i) => i.featured);
+const standard = displayItems.filter((i) => !i.featured);
+
+const typeLabel: Record<PressType, string> = {
+  article: 'Article',
+  interview: 'Interview',
+  podcast: 'Podcast',
+  tv: 'TV',
+  radio: 'Radio',
+  award: 'Award',
+  other: 'Feature',
+};
+
+function formatDate(dateStr: string): string {
+  try {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+}
+---
+
+<section
+  class={`press-grid section surface-${surface}`}
+  aria-label={heading ?? 'Press and media'}
+>
+  <div class='press-grid__inner section__inner'>
+    {
+      (heading || body) && (
+        <header
+          class='section__header'
+          data-reveal
+        >
+          {heading && <h2 class='section__heading'>{heading}</h2>}
+          {body && <p class='section__body'>{body}</p>}
+        </header>
+      )
+    }
+
+    {displayItems.length === 0 && <p class='press-grid__empty'>Press coverage coming soon.</p>}
+
+    {/* Featured items — larger cards */}
+    {
+      featured.length > 0 && (
+        <div
+          class={`press-grid__featured press-grid__featured--${Math.min(featured.length, 3)}`}
+          data-reveal-group
+        >
+          {featured.map((item) => (
+            <article
+              class='press-card press-card--featured'
+              data-reveal
+            >
+              <div class='press-card__header'>
+                {item.logo ? (
+                  <img
+                    src={item.logo.src}
+                    alt={item.logo.alt}
+                    class='press-card__logo'
+                    width={120}
+                    height={40}
+                    loading='lazy'
+                    decoding='async'
+                  />
+                ) : (
+                  <span class='press-card__publication'>{item.publication}</span>
+                )}
+                {item.type && <span class='press-card__type'>{typeLabel[item.type]}</span>}
+              </div>
+
+              <h3 class='press-card__title'>
+                {item.url ? (
+                  <a
+                    href={item.url}
+                    class='press-card__link'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
+                    {item.title}
+                  </a>
+                ) : (
+                  item.title
+                )}
+              </h3>
+
+              {item.description && <p class='press-card__description'>{item.description}</p>}
+
+              <footer class='press-card__footer'>
+                <time
+                  class='press-card__date'
+                  datetime={item.date}
+                >
+                  {formatDate(item.date)}
+                </time>
+                {item.url && (
+                  <a
+                    href={item.url}
+                    class='press-card__read-more'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    aria-label={`Read ${item.title} on ${item.publication}`}
+                  >
+                    Read →
+                  </a>
+                )}
+              </footer>
+            </article>
+          ))}
+        </div>
+      )
+    }
+
+    {/* Standard items — compact list */}
+    {
+      standard.length > 0 && (
+        <div
+          class='press-grid__list'
+          data-reveal-group
+        >
+          {standard.map((item) => (
+            <article
+              class='press-card press-card--compact'
+              data-reveal
+            >
+              <div class='press-card__compact-logo'>
+                {item.logo ? (
+                  <img
+                    src={item.logo.src}
+                    alt={item.logo.alt}
+                    width={80}
+                    height={28}
+                    loading='lazy'
+                    decoding='async'
+                  />
+                ) : (
+                  <span class='press-card__publication press-card__publication--compact'>
+                    {item.publication}
+                  </span>
+                )}
+              </div>
+
+              <div class='press-card__compact-body'>
+                <h3 class='press-card__compact-title'>
+                  {item.url ? (
+                    <a
+                      href={item.url}
+                      class='press-card__link'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                    >
+                      {item.title}
+                    </a>
+                  ) : (
+                    item.title
+                  )}
+                </h3>
+                <time
+                  class='press-card__date'
+                  datetime={item.date}
+                >
+                  {item.type && `${typeLabel[item.type]} · `}
+                  {formatDate(item.date)}
+                </time>
+              </div>
+            </article>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     FEATURED CARDS
+     1, 2, or 3 columns depending on count
+     ============================================================ */
+
+  .press-grid__featured {
+    display: grid;
+    gap: var(--space-l);
+    margin-block-end: var(--space-xl);
+  }
+
+  @media (min-width: 600px) {
+    .press-grid__featured--2,
+    .press-grid__featured--3 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 960px) {
+    .press-grid__featured--3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* ============================================================
+     FEATURED CARD
+     ============================================================ */
+
+  .press-card--featured {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    padding: var(--space-l);
+    background-color: var(--color-surface-base);
+    border-radius: var(--card-radius);
+    border: 1px solid var(--color-border);
+    transition:
+      border-color var(--duration-fast) var(--ease-default),
+      box-shadow var(--duration-fast) var(--ease-default);
+  }
+
+  .press-card--featured:has(.press-card__link:hover) {
+    border-color: var(--color-accent);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--color-shadow) 8%, transparent);
+  }
+
+  .press-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+  }
+
+  .press-card__logo {
+    height: 2rem;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    /* Normalize logo colors — works for most logos */
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition:
+      filter var(--duration-fast) var(--ease-default),
+      opacity var(--duration-fast) var(--ease-default);
+  }
+
+  .press-card--featured:has(.press-card__link:hover) .press-card__logo {
+    filter: grayscale(0%);
+    opacity: 1;
+  }
+
+  .press-card__publication {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-heading);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .press-card__type {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+
+  .press-card__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-md);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+    flex: 1;
+  }
+
+  .press-card__link {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .press-card__link:hover {
+    color: var(--color-accent);
+  }
+
+  .press-card__link:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: var(--radius-sm);
+  }
+
+  .press-card__description {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .press-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    margin-block-start: auto;
+    padding-block-start: var(--space-s);
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .press-card__date {
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+  }
+
+  .press-card__read-more {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent);
+    text-decoration: none;
+    letter-spacing: var(--tracking-wide);
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .press-card__read-more:hover {
+    color: var(--color-accent-dark);
+  }
+
+  /* ============================================================
+     COMPACT LIST
+     ============================================================ */
+
+  .press-grid__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .press-card--compact {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    gap: var(--space-m);
+    align-items: center;
+    padding-block: var(--space-m);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  @media (min-width: 600px) {
+    .press-card--compact {
+      grid-template-columns: 8rem 1fr;
+    }
+  }
+
+  .press-card__compact-logo {
+    display: flex;
+    align-items: center;
+  }
+
+  .press-card__compact-logo img {
+    height: 1.5rem;
+    width: auto;
+    object-fit: contain;
+    filter: grayscale(100%);
+    opacity: 0.6;
+    transition:
+      filter var(--duration-fast) var(--ease-default),
+      opacity var(--duration-fast) var(--ease-default);
+  }
+
+  .press-card--compact:has(.press-card__link:hover) .press-card__compact-logo img {
+    filter: grayscale(0%);
+    opacity: 1;
+  }
+
+  .press-card__publication--compact {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-muted);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .press-card__compact-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .press-card__compact-title {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--leading-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  /* ============================================================
+     EMPTY STATE
+     ============================================================ */
+
+  .press-grid__empty {
+    color: var(--color-text-muted);
+    font-size: var(--text-md);
+    text-align: center;
+    padding-block: var(--space-2xl);
+  }
+</style>

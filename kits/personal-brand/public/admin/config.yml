@@ -1,0 +1,370 @@
+# =============================================================================
+# Decap CMS — config.yml
+# MMM T1 Launchpad — Personal Brand Kit
+#
+# Collections in this kit:
+#   site_settings  — global singleton
+#   offers         — Work + Offers page (speaking, consulting, workshops, etc.)
+#   testimonials   — TestimonialRow
+#   press          — Press page (media mentions, podcast appearances, articles)
+#   pages          — Privacy policy, Terms of use
+#
+# Language note:
+#   This kit uses "offers" not "services" — personal brand clients often
+#   resist the word "services". Kit author can update field labels to match
+#   the client's preferred language before handoff.
+# =============================================================================
+
+backend:
+  name: git-gateway
+  branch: main
+
+# local_backend: true   # Uncomment for local dev — remove before deploying
+
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+slug:
+  encoding: unicode
+  clean_accents: true
+  sanitize_replacement: '-'
+
+collections:
+  # ---------------------------------------------------------------------------
+  # SITE SETTINGS
+  # ---------------------------------------------------------------------------
+
+  - name: site_settings
+    label: Site Settings
+    files:
+      - name: general
+        label: General
+        file: src/content/site_settings/general.json
+        fields:
+          - {
+              label: Your Name,
+              name: site_name,
+              widget: string,
+              required: true,
+              hint: "Your full name or personal brand name — e.g. 'Alex Morgan' or 'The Morgan Method'",
+            }
+          - {
+              label: Tagline,
+              name: tagline,
+              widget: string,
+              required: false,
+              hint: "One line — e.g. 'Keynote speaker, author, and leadership coach'",
+            }
+          - {
+              label: Logo / Wordmark,
+              name: logo,
+              widget: image,
+              required: false,
+              hint: 'Your logo or wordmark. Falls back to your name in text if blank.',
+            }
+
+          - label: Contact
+            name: contact
+            widget: object
+            fields:
+              - {
+                  label: Email,
+                  name: email,
+                  widget: string,
+                  required: false,
+                  hint: 'Primary contact email — this is what most people will use.',
+                }
+              - { label: Phone, name: phone, widget: string, required: false }
+              - {
+                  label: Based in,
+                  name: address,
+                  widget: string,
+                  required: false,
+                  hint: "City and state — e.g. 'Austin, TX'. Full address not needed for personal brands.",
+                }
+              - {
+                  label: Availability,
+                  name: service_area,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. 'Available for in-person and virtual engagements worldwide'",
+                }
+
+          - label: Social Links
+            name: social
+            widget: object
+            fields:
+              - { label: LinkedIn, name: linkedin, widget: string, required: false }
+              - { label: X/Twitter, name: x, widget: string, required: false }
+              - { label: Instagram, name: instagram, widget: string, required: false }
+              - { label: YouTube, name: youtube, widget: string, required: false }
+              - { label: Facebook, name: facebook, widget: string, required: false }
+
+          - label: Navigation
+            name: nav
+            widget: list
+            max: 7
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: URL, name: href, widget: string }
+
+          - label: Social Proof Bar
+            name: social_proof
+            widget: object
+            fields:
+              - { label: Years Experience, name: years, widget: number, required: false }
+              - {
+                  label: Stats Label,
+                  name: customers,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. '50+ keynotes delivered', '10,000+ newsletter subscribers', '3 published books'",
+                }
+
+          - label: Floating CTA Button
+            name: floating_cta
+            widget: object
+            fields:
+              - {
+                  label: Label,
+                  name: label,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. 'Work with me', 'Book a call', 'Download my guide'",
+                }
+              - { label: URL, name: href, widget: string, required: false }
+
+          - label: Analytics
+            name: analytics
+            widget: object
+            fields:
+              - { label: Google Analytics ID, name: ga_id, widget: string, required: false }
+              - { label: Google Tag Manager ID, name: gtm_id, widget: string, required: false }
+
+          - label: SEO Defaults
+            name: seo
+            widget: object
+            fields:
+              - { label: Default Title, name: title, widget: string, required: true }
+              - { label: Default Description, name: description, widget: text, required: true }
+              - {
+                  label: Default OG Image,
+                  name: og_image,
+                  widget: image,
+                  required: false,
+                  hint: '1200×630px. A strong headshot or branded image works well.',
+                }
+
+  # ---------------------------------------------------------------------------
+  # OFFERS
+  # What you offer — speaking, consulting, workshops, courses, books.
+  # Kit author: update labels to match the client's preferred language.
+  # ---------------------------------------------------------------------------
+
+  - name: offers
+    label: Work & Offers
+    label_singular: Offer
+    folder: src/content/offers
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}}'
+    fields:
+      - {
+          label: Name,
+          name: name,
+          widget: string,
+          required: true,
+          hint: "e.g. 'Keynote Speaking', '1:1 Coaching', 'The Leadership Workshop', 'My New Book'",
+        }
+      - {
+          label: Description,
+          name: description,
+          widget: text,
+          required: true,
+          hint: "2–3 sentences. What it is, who it's for, and what outcome it delivers.",
+        }
+
+      - label: Type
+        name: type
+        widget: select
+        required: false
+        hint: 'Used for internal organization — not displayed on the site.'
+        options:
+          - { label: Speaking, value: speaking }
+          - { label: Consulting, value: consulting }
+          - { label: Workshop, value: workshop }
+          - { label: Course, value: course }
+          - { label: Book, value: book }
+          - { label: Podcast, value: podcast }
+          - { label: Other, value: other }
+
+      - label: Icon
+        name: icon
+        widget: select
+        required: false
+        options:
+          - { label: Mic / Speaking, value: message-circle }
+          - { label: Briefcase, value: briefcase }
+          - { label: Users / Workshop, value: users }
+          - { label: Layers / Course, value: layers }
+          - { label: File Text / Book, value: file-text }
+          - { label: Trending Up, value: trending-up }
+          - { label: Star, value: star }
+          - { label: Award, value: award }
+          - { label: Zap, value: zap }
+          - { label: Eye, value: eye }
+          - { label: Calendar, value: calendar }
+
+      - label: Call to Action
+        name: cta
+        widget: object
+        required: false
+        hint: "Optional per-offer CTA — e.g. 'Book a call' linking to /contact, or 'Buy the book' linking to Amazon."
+        fields:
+          - { label: Label, name: label, widget: string }
+          - { label: URL, name: href, widget: string }
+
+      - { label: Featured, name: featured, widget: boolean, default: false }
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # TESTIMONIALS
+  # Client, collaborator, and audience quotes.
+  # Attribution matters a lot for personal brands — full name + company.
+  # ---------------------------------------------------------------------------
+
+  - name: testimonials
+    label: Testimonials
+    label_singular: Testimonial
+    folder: src/content/testimonials
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}} — {{company}}'
+    fields:
+      - {
+          label: Quote,
+          name: quote,
+          widget: text,
+          required: true,
+          hint: "Their own words. Outcome-focused quotes convert best — 'changed how I think about X' beats 'highly recommend'.",
+        }
+      - {
+          label: Name,
+          name: name,
+          widget: string,
+          required: true,
+          hint: 'Full name — partial names reduce credibility for personal brands.',
+        }
+      - {
+          label: Title,
+          name: role,
+          widget: string,
+          required: false,
+          hint: "e.g. 'CEO', 'VP of Marketing', 'Conference organizer'",
+        }
+      - { label: Company, name: company, widget: string, required: false }
+      - {
+          label: Featured,
+          name: featured,
+          widget: boolean,
+          default: false,
+          hint: 'Featured testimonials are highlighted on the Home and About pages.',
+        }
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # PRESS
+  # Media appearances, articles, podcast features, awards.
+  # ---------------------------------------------------------------------------
+
+  - name: press
+    label: Press
+    label_singular: Press Item
+    folder: src/content/press
+    create: true
+    slug: '{{slug}}'
+    summary: '{{publication}} — {{title}}'
+    fields:
+      - {
+          label: Publication,
+          name: publication,
+          widget: string,
+          required: true,
+          hint: "e.g. 'Forbes', 'The Tim Ferriss Show', 'Harvard Business Review'",
+        }
+      - {
+          label: Title,
+          name: title,
+          widget: string,
+          required: true,
+          hint: 'Article headline or episode title.',
+        }
+      - {
+          label: Description,
+          name: description,
+          widget: text,
+          required: false,
+          hint: '1–2 sentences. Optional summary or pull quote.',
+        }
+      - {
+          label: URL,
+          name: url,
+          widget: string,
+          required: false,
+          hint: 'Link to the article, episode, or feature.',
+        }
+      - { label: Date, name: date, widget: datetime, required: true }
+
+      - label: Type
+        name: type
+        widget: select
+        required: false
+        options:
+          - { label: Article, value: article }
+          - { label: Interview, value: interview }
+          - { label: Podcast, value: podcast }
+          - { label: TV, value: tv }
+          - { label: Radio, value: radio }
+          - { label: Award, value: award }
+          - { label: Other, value: other }
+
+      - label: Publication Logo
+        name: logo
+        widget: object
+        required: false
+        hint: 'Publication logo for the PressGrid and LogoBar.'
+        fields:
+          - { label: Logo, name: src, widget: image }
+          - { label: Alt Text, name: alt, widget: string, required: true }
+
+      - {
+          label: Featured,
+          name: featured,
+          widget: boolean,
+          default: false,
+          hint: 'Featured items appear prominently in the press grid.',
+        }
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # PAGES — Privacy Policy and Terms of Use
+  # ---------------------------------------------------------------------------
+
+  - name: pages
+    label: Pages
+    files:
+      - name: privacy
+        label: Privacy Policy
+        file: src/content/pages/privacy.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Privacy Policy' }
+          - { label: Body, name: body, widget: markdown }
+          - { label: Last Updated, name: updated_at, widget: datetime, required: false }
+
+      - name: terms
+        label: Terms of Use
+        file: src/content/pages/terms.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Terms of Use' }
+          - { label: Body, name: body, widget: markdown }
+          - { label: Last Updated, name: updated_at, widget: datetime, required: false }

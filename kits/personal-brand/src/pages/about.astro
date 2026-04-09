@@ -1,0 +1,120 @@
+---
+/**
+ * pages/about.astro
+ * Personal Brand kit — About page
+ *
+ * Sections:
+ *   1. Hero        — fullbleed or split, strong personal photo
+ *   2. StatsRow    — years of experience, engagements, publications, reach
+ *   3. FeatureGrid — story, values, expertise areas, point of view
+ *   4. CTABand
+ *
+ * Note: Personal brand About pages are fundamentally different from
+ * corporate About pages. This isn't about credentials and org charts —
+ * it's about why this person thinks the way they do, what they've
+ * learned, and whether the reader feels a connection.
+ *
+ * Kit author:
+ *   The FeatureGrid copy here must be the client's actual words and
+ *   perspective. The most damaging thing you can do to a personal brand
+ *   site is make it sound like everyone else. Push for specificity:
+ *   "What's a belief you hold that most people in your field disagree with?"
+ *   "What's the most important thing you've changed your mind about?"
+ *   Those answers make the best FeatureGrid content.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, StatsRow, FeatureGrid, CTABand } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const settings = (await getCollection('site_settings'))[0]?.data;
+const siteName = settings?.site_name ?? 'Alex Rivera';
+---
+
+<Layout
+  title='About'
+  description={`About ${siteName} — background, beliefs, and what drives the work.`}
+  breadcrumbs={[{ label: 'About', href: '/about' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — strong personal photo -->
+    <Hero
+      variant='split'
+      heading="I've spent twelve years in rooms where hard decisions get made."
+      body='Strategy consulting. Leadership coaching. Three books. Fifty-plus keynotes in twenty countries. The thread through all of it: helping smart people do the hard thing well.'
+      cta={{ label: 'Work with me', href: '/contact' }}
+      secondaryCta={{ label: 'See my press', href: '/press' }}
+      image={{ src: '/images/about-photo.jpg', alt: `${siteName} speaking at a leadership event` }}
+    />
+
+    <!-- ② STATS ROW -->
+    <StatsRow
+      variant='band'
+      surface='inverse'
+      items={[
+        { value: 12, suffix: '+', label: 'Years of experience' },
+        { value: 50, suffix: '+', label: 'Keynotes delivered' },
+        { value: 3, label: 'Books published' },
+        { value: 20000, suffix: '+', label: 'Newsletter readers' },
+      ]}
+    />
+
+    <!-- ③ FEATURE GRID — story, beliefs, point of view -->
+    <!--
+      Kit author: these six points are the most important copy on the
+      whole site. Replace every placeholder with something specific
+      to this person. Generic values ("I believe in hard work") are
+      invisible. Specific, slightly contrarian points of view are memorable.
+    -->
+    <FeatureGrid
+      heading='What I believe'
+      body='The ideas that drive the work — for better or worse.'
+      variant='plain'
+      columns={3}
+      surface='subtle'
+      items={[
+        {
+          icon: 'eye',
+          heading: 'Most strategy fails at the human layer',
+          body: "The slide deck is fine. The logic is sound. Then it hits the organization and stalls. I've spent my career studying why that happens and what to do about it.",
+        },
+        {
+          icon: 'trending-up',
+          heading: 'Clarity is the real competitive advantage',
+          body: "Not speed, not data, not AI. The organizations that win are the ones where people understand what they're doing and why. Obvious in theory. Rare in practice.",
+        },
+        {
+          icon: 'shield',
+          heading: 'Comfort with disagreement is a skill',
+          body: "The most useful thing I can do for most leadership teams is make it safe to say the thing no one's saying. That sounds simple. It almost never is.",
+        },
+        {
+          icon: 'file-text',
+          heading: 'Writing forces thinking',
+          body: 'I write to figure out what I actually believe — not to publish. Most of my best work started as something I wrote to understand, not something I planned to share.',
+        },
+        {
+          icon: 'users',
+          heading: 'The best consulting is teaching',
+          body: "If you need me back in twelve months to solve the same problem, I failed. I'm here to build your capacity, not your dependency.",
+        },
+        {
+          icon: 'zap',
+          heading: "There's no such thing as a purely technical problem",
+          body: "Every hard technical problem has a political or relational dimension. Every hard people problem has a structural or incentive dimension. Solving one without the other doesn't work.",
+        },
+      ]}
+    />
+
+    <!-- ④ CTA BAND -->
+    <CTABand
+      heading='Want to dig into this thinking?'
+      body="My writing goes deeper. Or we can just talk — I'm selective about engagements but not about conversations."
+      primaryCta={{ label: 'Work with me', href: '/contact' }}
+      secondaryCta={{ label: 'Read my press', href: '/press' }}
+    />
+  </main>
+</Layout>

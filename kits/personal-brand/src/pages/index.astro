@@ -1,17 +1,148 @@
 ---
+/**
+ * pages/index.astro
+ * Personal Brand kit — Home page
+ *
+ * Sections:
+ *   1. Hero        — centered or fullbleed, person is the brand
+ *   2. LogoBar     — "as featured in" or "worked with"
+ *   3. FeatureGrid — areas of expertise / what you do
+ *   4. TestimonialRow
+ *   5. CTABand     — primary call to action
+ *
+ * Tone guidance:
+ *   Personal brand sites live or die on specificity and voice.
+ *   The placeholder copy here is intentionally generic — the most
+ *   important kit author task is replacing it with the client's
+ *   actual words and point of view. Do not launch with placeholder
+ *   hero copy. It will immediately read as inauthentic.
+ */
 
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, LogoBar, FeatureGrid, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const offers = await getCollection('offers');
+const testimonials = await getCollection('testimonials');
+const settings = (await getCollection('site_settings'))[0]?.data;
+
+const sortedTestimonials = testimonials
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .slice(0, 3)
+  .map((t) => t.data);
+
+const featuredOffers = offers
+  .filter((o) => o.data.featured)
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .slice(0, 6)
+  .map((o) => o.data);
+
+const siteName = settings?.site_name ?? 'Alex Rivera';
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
-  </head>
-  <body>
-    <h1>Astro</h1>
-  </body>
-</html>
+<Layout
+  title='Home'
+  description={settings?.seo?.description}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — centered, person is the brand -->
+    <!--
+      Kit author: this is the most important copy on the site.
+      Replace it with the client's actual voice and point of view.
+      Generic leadership language is a red flag — specificity converts.
+    -->
+    <Hero
+      variant='centered'
+      heading='I help organizations do the hard thing well.'
+      body='Twelve years of strategy, leadership, and change work — distilled into keynotes, workshops, and advisory engagements that actually move the needle.'
+      cta={{ label: 'Work with me', href: '/contact' }}
+      secondaryCta={{ label: 'See my work', href: '/work' }}
+      image={{ src: '/images/hero-photo.jpg', alt: `${siteName} on stage delivering a keynote` }}
+    />
+
+    <!-- ② LOGO BAR — "as featured in" / "trusted by" -->
+    <LogoBar
+      heading='As seen in'
+      variant='marquee'
+      surface='subtle'
+      items={[
+        { src: '/images/logos/publication-1.svg', alt: 'Forbes', width: 80, height: 30 },
+        {
+          src: '/images/logos/publication-2.svg',
+          alt: 'Harvard Business Review',
+          width: 120,
+          height: 30,
+        },
+        { src: '/images/logos/publication-3.svg', alt: 'Fast Company', width: 100, height: 30 },
+        { src: '/images/logos/publication-4.svg', alt: 'TED', width: 60, height: 30 },
+        { src: '/images/logos/publication-5.svg', alt: 'Inc. Magazine', width: 60, height: 30 },
+      ]}
+    />
+
+    <!-- ③ FEATURE GRID — expertise areas -->
+    {
+      featuredOffers.length > 0 ? (
+        <FeatureGrid
+          heading='What I do'
+          variant='cards'
+          columns={3}
+          surface='base'
+          items={featuredOffers.map((o) => ({
+            icon: o.icon,
+            heading: o.name,
+            body: o.description,
+          }))}
+        />
+      ) : (
+        <FeatureGrid
+          heading='What I do'
+          variant='cards'
+          columns={3}
+          surface='base'
+          items={[
+            {
+              icon: 'message-circle',
+              heading: 'Keynote Speaking',
+              body: 'High-energy, research-backed talks on leadership, change, and the future of work. Delivered at conferences, company offsites, and leadership summits.',
+            },
+            {
+              icon: 'users',
+              heading: 'Workshops',
+              body: 'Half-day and full-day working sessions that equip teams with frameworks they can use the next morning — not just insights they forget by Friday.',
+            },
+            {
+              icon: 'briefcase',
+              heading: 'Advisory',
+              body: 'Strategic counsel for founders and executives navigating growth, change, and organizational complexity. A small number of clients, deeply engaged.',
+            },
+          ]}
+        />
+      )
+    }
+
+    <!-- ④ TESTIMONIALS -->
+    {
+      sortedTestimonials.length > 0 && (
+        <TestimonialRow
+          heading='What people say'
+          variant='cards'
+          columns={3}
+          surface='subtle'
+          items={sortedTestimonials}
+        />
+      )
+    }
+
+    <!-- ⑤ CTA BAND -->
+    <CTABand
+      heading="Let's work together"
+      body="Whether you're booking a keynote, exploring an advisory relationship, or just want to talk — I'd love to hear what you're working on."
+      eyebrow='Get in touch'
+      primaryCta={{ label: 'Work with me', href: '/contact' }}
+      secondaryCta={{ label: 'See my work', href: '/work' }}
+    />
+  </main>
+</Layout>

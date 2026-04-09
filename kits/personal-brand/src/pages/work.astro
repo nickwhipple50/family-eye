@@ -1,0 +1,129 @@
+---
+/**
+ * pages/work.astro
+ * Personal Brand kit — Work + Offers page
+ *
+ * Sections:
+ *   1. Hero          — centered
+ *   2. ServiceList   — all offers, 2 col, full descriptions
+ *   3. TestimonialRow — from clients who've worked with them
+ *   4. CTABand       — "Let's work together"
+ *
+ * ServiceList is used here with offers data mapped to the expected
+ * items shape — name → name, description → description, icon → icon.
+ * This avoids building a separate OffersGrid component for what is
+ * structurally identical to ServiceList.
+ *
+ * Blog / newsletter scope note (from t1.md):
+ *   Blog and newsletter = T2. Do not absorb these here.
+ *   If the client asks for a blog, re-scope to Tier 2.
+ *   If they have an external newsletter (Substack, Mailchimp, etc.)
+ *   link to it from the CTABand — do not build it into this kit.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, ServiceList, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const offers = await getCollection('offers');
+const testimonials = await getCollection('testimonials');
+
+const sortedOffers = offers
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((o) => o.data);
+
+const sortedTestimonials = testimonials
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .slice(0, 3)
+  .map((t) => t.data);
+---
+
+<Layout
+  title='Work with me'
+  description="Speaking, workshops, and advisory engagements. Here's how we can work together — and what to expect."
+  breadcrumbs={[{ label: 'Work', href: '/work' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='How we can work together'
+      body="I take on a small number of engagements each year — which means I'm genuinely selective. If something here feels like a fit, I'd love to hear about it."
+      cta={{ label: "Let's talk", href: '/contact' }}
+    />
+
+    <!-- ② OFFERS — 2 col gives room for full descriptions -->
+    {
+      sortedOffers.length > 0 ? (
+        <ServiceList
+          heading='What I offer'
+          variant='grid-icon'
+          columns={2}
+          surface='subtle'
+          items={sortedOffers.map((o) => ({
+            name: o.name,
+            description: o.description,
+            icon: o.icon,
+          }))}
+        />
+      ) : (
+        <ServiceList
+          heading='What I offer'
+          variant='grid-icon'
+          columns={2}
+          surface='subtle'
+          items={[
+            {
+              name: 'Keynote Speaking',
+              description:
+                'Designed for conferences, company events, and leadership summits. I work with organizers well in advance to tailor every talk to the audience and moment — nothing off-the-shelf.',
+              icon: 'message-circle',
+            },
+            {
+              name: 'Team Workshops',
+              description:
+                'Half-day and full-day working sessions for leadership teams and functional groups. Built around real challenges, not generic frameworks. Teams leave with something they can actually use.',
+              icon: 'users',
+            },
+            {
+              name: 'Strategic Advisory',
+              description:
+                'A long-term relationship for founders and executives who want a thinking partner — not a consultant with a deck. I work with a small number of clients at any one time.',
+              icon: 'briefcase',
+            },
+            {
+              name: 'Writing & Media',
+              description:
+                "I write for select publications and appear on podcasts and panels. Pitches welcome — please read what I've already published before reaching out.",
+              icon: 'file-text',
+            },
+          ]}
+        />
+      )
+    }
+
+    <!-- ③ TESTIMONIALS — from people who've worked with them -->
+    {
+      sortedTestimonials.length > 0 && (
+        <TestimonialRow
+          heading="From people I've worked with"
+          variant='cards'
+          columns={3}
+          surface='base'
+          items={sortedTestimonials}
+        />
+      )
+    }
+
+    <!-- ④ CTA BAND -->
+    <CTABand
+      heading='Ready to explore working together?'
+      body="Tell me what you're working on and what kind of help you're looking for. I'll get back to you within two business days."
+      primaryCta={{ label: 'Get in touch', href: '/contact' }}
+      secondaryCta={{ label: 'Read my press', href: '/press' }}
+    />
+  </main>
+</Layout>

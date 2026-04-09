@@ -1,0 +1,116 @@
+---
+/**
+ * pages/press.astro
+ * Personal Brand kit — Press page
+ *
+ * Sections:
+ *   1. Hero      — centered, brief
+ *   2. PressGrid — featured items large, standard items as compact list
+ *   3. LogoBar   — publication logos as a continuous bar
+ *   4. CTABand   — media inquiries
+ *
+ * The PressGrid component is kit-local — lives in src/components/.
+ * Featured press items get large cards with descriptions.
+ * Non-featured items render as a compact publication + title list.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, LogoBar, CTABand } from '@mmm/components';
+import PressGrid from '../components/PressGrid.astro';
+import { getCollection } from 'astro:content';
+
+const pressItems = await getCollection('press');
+const settings = (await getCollection('site_settings'))[0]?.data;
+
+const sortedPress = pressItems
+  .sort((a, b) => {
+    // Featured first, then by order, then by date descending
+    if (a.data.featured !== b.data.featured) {
+      return a.data.featured ? -1 : 1;
+    }
+    if ((a.data.order ?? 0) !== (b.data.order ?? 0)) {
+      return (a.data.order ?? 0) - (b.data.order ?? 0);
+    }
+    return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+  })
+  .map((p) => p.data);
+
+// Build logo bar items from press items that have logos
+const logoBarItems = pressItems
+  .filter((p) => p.data.logo?.src)
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((p) => ({
+    src: p.data.logo!.src,
+    alt: p.data.logo!.alt,
+    width: 120,
+    height: 40,
+  }));
+
+const siteName = settings?.site_name ?? 'Alex Rivera';
+---
+
+<Layout
+  title='Press'
+  description={`Media appearances, articles, and features. Booking ${siteName} for press or media — contact details below.`}
+  breadcrumbs={[{ label: 'Press', href: '/press' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='Press and media'
+      body='Articles, interviews, podcast appearances, and speaking features. For media inquiries, use the contact form below.'
+      cta={{ label: 'Media inquiry', href: '/contact?type=press' }}
+    />
+
+    <!-- ② PRESS GRID -->
+    {
+      sortedPress.length > 0 ? (
+        <PressGrid
+          heading='Featured coverage'
+          items={sortedPress}
+          surface='subtle'
+          maxItems={24}
+        />
+      ) : (
+        <section
+          class='section surface-subtle'
+          aria-label='Press'
+        >
+          <div
+            class='section__inner'
+            style='text-align: center; padding-block: var(--space-2xl);'
+          >
+            <p style='color: var(--color-text-muted); font-size: var(--text-md);'>
+              Press coverage coming soon.
+            </p>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- ③ LOGO BAR — publication logos -->
+    {
+      logoBarItems.length > 0 && (
+        <LogoBar
+          heading='As seen in'
+          variant='marquee'
+          surface='base'
+          items={logoBarItems}
+        />
+      )
+    }
+
+    <!-- ④ CTA BAND — media inquiries -->
+    <CTABand
+      heading='Media inquiries'
+      body='For interview requests, podcast bookings, article contributions, and speaking inquiries — get in touch. I try to respond to all press inquiries within two business days.'
+      eyebrow='Press contact'
+      primaryCta={{ label: 'Send a media inquiry', href: '/contact' }}
+      secondaryCta={{ label: 'View my work', href: '/work' }}
+    />
+  </main>
+</Layout>

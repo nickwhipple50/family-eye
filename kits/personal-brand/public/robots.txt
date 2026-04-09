@@ -1,0 +1,19 @@
+# robots.txt — Service Business kit
+# https://yourclientdomain.com/robots.txt
+# Replace yourclientdomain.com with the real domain before deploying.
+
+User-agent: *
+Allow: /
+
+# Block CMS admin
+Disallow: /admin
+Disallow: /admin/
+
+# Block internal pages
+Disallow: /changelog
+
+# Block generated OG images from indexing
+Disallow: /og/
+
+# @astrojs/sitemap generates sitemap-index.xml at build time
+Sitemap: https://yourclientdomain.com/sitemap-index.xml

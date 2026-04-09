@@ -1,0 +1,111 @@
+---
+/**
+ * 404.astro
+ * Custom 404 error page — service business kit.
+ * Uses KitLayout so nav and footer render correctly.
+ * noindex is set automatically by Astro for 404 pages.
+ *
+ * Keep this page simple — the user is lost.
+ * One clear message, one clear action.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { getEntry } from 'astro:content';
+
+const settings = (await getEntry('site_settings', 'general'))?.data;
+const phone = settings?.contact?.phone;
+---
+
+<Layout
+  title='Page not found'
+  noindex={true}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+    class='not-found'
+  >
+    <div class='not-found__inner'>
+      <p class='not-found__code'>404</p>
+
+      <h1 class='not-found__heading'>Page not found</h1>
+
+      <p class='not-found__body'>The page you're looking for doesn't exist or may have moved.</p>
+
+      <div class='not-found__actions'>
+        <a
+          href='/'
+          class='btn btn--primary btn--lg'
+        >
+          Back to home
+        </a>
+        {
+          phone && (
+            <a
+              href={`tel:${phone.replace(/\s/g, '')}`}
+              class='btn btn--ghost btn--lg'
+            >
+              Call us: {phone}
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .not-found {
+    min-height: calc(100svh - var(--nav-height));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl) var(--gutter);
+    padding-block-start: calc(var(--nav-height) + var(--space-2xl));
+    text-align: center;
+  }
+
+  .not-found__inner {
+    max-width: var(--max-width-narrow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-m);
+  }
+
+  .not-found__code {
+    font-family: var(--font-heading);
+    font-size: var(--text-4xl);
+    font-weight: var(--font-weight-black);
+    color: var(--color-accent);
+    line-height: 1;
+    margin: 0;
+    opacity: 0.4;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .not-found__heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-h2);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  .not-found__body {
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    justify-content: center;
+    margin-block-start: var(--space-s);
+  }
+</style>

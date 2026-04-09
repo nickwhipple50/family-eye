@@ -1,0 +1,49 @@
+{
+  "site_name": "Alex Rivera",
+  "tagline": "Keynote speaker, strategist, and author on the future of work.",
+  "logo": "",
+
+  "contact": {
+    "email": "hello@alexrivera.com",
+    "phone": "",
+    "address": "Austin, TX",
+    "service_area": "Available for in-person and virtual engagements worldwide"
+  },
+
+  "social": {
+    "linkedin": "",
+    "x": "",
+    "instagram": "",
+    "youtube": "",
+    "facebook": ""
+  },
+
+  "nav": [
+    { "label": "Home", "href": "/" },
+    { "label": "Work", "href": "/work/" },
+    { "label": "About", "href": "/about/" },
+    { "label": "Press", "href": "/press/" },
+    { "label": "Contact", "href": "/contact/" }
+  ],
+
+  "social_proof": {
+    "years": 12,
+    "customers": "50+ keynotes · 3 books · 20,000+ readers"
+  },
+
+  "floating_cta": {
+    "label": "Work with me",
+    "href": "/contact"
+  },
+
+  "analytics": {
+    "ga_id": "",
+    "gtm_id": ""
+  },
+
+  "seo": {
+    "title": "Alex Rivera | Keynote Speaker & Strategist",
+    "description": "Alex Rivera helps organizations navigate change, build better teams, and lead with clarity. Keynote speaker, author, and strategic advisor.",
+    "og_image": ""
+  }
+}
