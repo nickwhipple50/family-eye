@@ -37,6 +37,8 @@ export type IconName =
   | 'phone'
   | 'mail'
   | 'message-circle'
+  | 'thermometer'
+  | 'monitor'
   // Features / product
   | 'zap'
   | 'layers'
@@ -49,6 +51,9 @@ export type IconName =
   | 'bar-chart'
   | 'pie-chart'
   | 'activity'
+  | 'heart'
+  | 'ear'
+  | 'message'
   // Content
   | 'image'
   | 'file'

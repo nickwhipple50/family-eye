@@ -77,6 +77,8 @@ import {
   Phone,
   Mail,
   MessageCircle,
+  Thermometer,
+  Monitor,
   // Features / product
   Zap,
   Layers,
@@ -89,6 +91,7 @@ import {
   BarChart,
   PieChart,
   Activity,
+  Heart,
   // Content
   Image,
   File,
@@ -97,6 +100,7 @@ import {
   Upload,
   Link,
   Rss,
+  Ear,
 } from 'lucide-astro';
 
 import type { IconName } from './icons';
@@ -147,6 +151,11 @@ const iconMap = {
   upload: Upload,
   link: Link,
   rss: Rss,
+  thermometer: Thermometer,
+  monitor: Monitor,
+  heart: Heart,
+  ear: Ear,
+  message: MessageCircle,
 } as const;
 
 interface Props {
