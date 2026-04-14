@@ -1,0 +1,28 @@
+# public/_redirects
+# Netlify redirect rules — copied to dist/ by Astro at build time.
+#
+# Astro generates static HTML for every route, so a 404 fallback
+# isn't needed the way it would be for a SPA. These rules handle
+# edge cases and legacy URL cleanup.
+#
+# Format: /from  /to  status
+# Netlify docs: https://docs.netlify.com/routing/redirects/
+
+# ── ADMIN ─────────────────────────────────────────────────────────────────────
+# Handled by astro.config.ts trailingSlash: 'always' but belt-and-suspenders.
+/admin  /admin/  301
+
+# ── WWW → NON-WWW (or flip this if client prefers www) ───────────────────────
+# Uncomment whichever applies. Set the canonical domain in Netlify
+# dashboard under Domain settings → Primary domain.
+# Only one redirect direction should be active at a time.
+
+# Non-www canonical (most common):
+# https://www.yourclientdomain.com/*  https://yourclientdomain.com/:splat  301!
+
+# www canonical (less common):
+# https://yourclientdomain.com/*  https://www.yourclientdomain.com/:splat  301!
+
+# ── 404 FALLBACK ──────────────────────────────────────────────────────────────
+# Astro generates a 404.html — Netlify serves it automatically for
+# unmatched routes. No explicit rule needed.

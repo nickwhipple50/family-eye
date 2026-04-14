@@ -1,0 +1,83 @@
+# netlify.toml
+# MMM T1 Launchpad — Health & Wellness kit
+#
+# Each kit is a separate Netlify site. This file tells Netlify:
+#   — Where the kit lives in the monorepo (base)
+#   — How to build it (command)
+#   — Where the built output is (publish)
+#
+# Setup in Netlify dashboard:
+#   1. New site → Import from Git → select the monorepo repo
+#   2. Netlify will detect this netlify.toml automatically
+#   3. Set environment variables if needed (analytics IDs, etc.)
+#   4. Enable Netlify Identity (for Decap CMS auth)
+#   5. Enable Git Gateway (for Decap CMS writes)
+#
+# One netlify.toml per kit — do not share across kits.
+# If you have multiple kits in the same repo, each Netlify site
+# points to its own kit directory via the `base` setting below.
+
+[build]
+  # !! UPDATE THIS before connecting to Netlify !!
+  # Set to the path of this client's folder from the repo root.
+  # e.g. if the client folder is clients/smith-heating, use:
+  #   base = "clients/smith-heating"
+  base    = "clients/[client-slug]"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# ── HEADERS ───────────────────────────────────────────────────────────────────
+# Security headers applied to all pages.
+# Content-Security-Policy is intentionally permissive here —
+# tighten it per client once analytics and third-party scripts are confirmed.
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options           = "DENY"
+    X-Content-Type-Options    = "nosniff"
+    Referrer-Policy           = "strict-origin-when-cross-origin"
+    Permissions-Policy        = "camera=(), microphone=(), geolocation=()"
+
+# Cache static assets aggressively — Astro adds content hashes to filenames
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache uploaded images
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"   # 30 days
+
+# Cache fonts
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Never cache HTML — ensures fresh content after deploys
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Block CMS admin from being indexed or cached
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag  = "noindex"
+    Cache-Control = "no-store"
+
+# ── NETLIFY IDENTITY ──────────────────────────────────────────────────────────
+# Inject the Netlify Identity widget script on the admin page only.
+# This is required for the Decap CMS login flow in production.
+
+[[edge_functions]]
+  # No edge functions in T1 — this section left intentionally empty.
+  # Edge functions for view counter and smart form filtering are
+  # available as add-ons (see addons.md).
