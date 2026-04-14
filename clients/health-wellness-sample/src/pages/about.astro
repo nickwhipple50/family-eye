@@ -56,22 +56,17 @@ const siteName = settings?.site_name ?? 'us';
     <!-- ① HERO — split, warm practitioner photo -->
     <Hero
       variant='split'
-      heading='Rooted in the belief that your body knows how to heal'
-      body='I started this practice because I believe most people are carrying more than they need to. My work is to help you put some of it down.'
-      cta={{ label: 'Meet the team', href: '#team' }}
-      secondaryCta={{ label: 'Book a session', href: '/contact' }}
+      heading='A small practice that takes its time'
+      body='Coastal Family Medicine opened in Narragansett because South County deserved a primary care option that felt like a practice — not a processing center. We see fewer patients so we can do the job properly.'
+      cta={{ label: 'Meet Dr. Hartnett', href: '#team' }}
+      secondaryCta={{ label: 'Request an appointment', href: '/contact' }}
       image={{
-        src: '/images/practitioner-photo.jpg',
-        alt: 'Lead practitioner in the treatment room',
+        src: '/images/about-lead-practitioner-in-treatment-room.jpeg',
+        alt: 'Dr. Hartnett in the treatment room',
       }}
     />
 
     <!-- ② FEATURE GRID — philosophy and approach -->
-    <!--
-      Kit author: replace these with the practitioner's actual beliefs.
-      The most effective About pages in wellness are specific and personal —
-      not a list of generic values any practice could claim.
-    -->
     <FeatureGrid
       heading='How I approach the work'
       variant='plain'
@@ -79,34 +74,34 @@ const siteName = settings?.site_name ?? 'us';
       surface='subtle'
       items={[
         {
-          icon: 'eye',
-          heading: 'I listen first',
-          body: "Before I put my hands on anyone I want to understand what they're carrying. The body tells a story — my job is to hear it before I start working.",
+          icon: 'ear',
+          heading: 'We listen before we conclude',
+          body: "Your history and your symptoms together tell a more complete story than either one alone. We don't walk in with a diagnosis already written.",
         },
         {
-          icon: 'activity',
-          heading: 'The whole person, not just the symptom',
-          body: "A tight neck is rarely just a tight neck. I'm trained to work with the whole pattern — and to notice when something needs more than bodywork.",
-        },
-        {
-          icon: 'shield',
-          heading: 'Your comfort is not optional',
-          body: "You're in control of every session. What we work on, the pressure, the pace — all of it. You can change your mind at any point, no explanation needed.",
+          icon: 'message',
+          heading: 'We explain what we find',
+          body: "What we see, what it means, and what we recommend — in plain language. If you leave confused, we haven't done our job.",
         },
         {
           icon: 'clock',
-          heading: 'I take time seriously',
-          body: "Your appointment time is yours. I don't double-book, I don't run late, and I don't rush you out the door. You get the full session you booked.",
+          heading: "We don't rush appointments",
+          body: 'Your appointment time is yours. We keep our patient volume manageable so no one is moved through in 7 minutes.',
         },
         {
-          icon: 'award',
-          heading: 'Continuously trained',
-          body: 'I complete continuing education every year — not because I have to, but because the body keeps teaching me things. I want to stay current.',
+          icon: 'x-circle',
+          heading: "We don't overtreat",
+          body: "We don't order tests to cover ourselves. If watchful waiting is the right call, we'll say so and explain why.",
         },
         {
-          icon: 'users',
-          heading: 'A space for everyone',
-          body: "My practice is welcoming to all bodies, all backgrounds, and all comfort levels with touch. If you've had bad experiences with bodywork before, I want to know.",
+          icon: 'phone',
+          heading: 'We return calls same-day',
+          body: "If you call with a concern, you'll hear back before the end of the day. A doctor who's hard to reach isn't much use.",
+        },
+        {
+          icon: 'map-pin',
+          heading: "We're part of this community",
+          body: "Dr. Hartnett grew up in South Kingstown. This isn't a regional chain with rotating staff — it's a practice that knows its patients by name.",
         },
       ]}
     />
@@ -119,7 +114,7 @@ const siteName = settings?.site_name ?? 'us';
           style='scroll-margin-top: var(--nav-height)'
         >
           <TeamGrid
-            heading={sortedTeam.length === 1 ? 'Your practitioner' : 'Our practitioners'}
+            heading={sortedTeam.length === 1 ? 'Your practitioner' : 'Our staff'}
             columns={3}
             surface='base'
             items={sortedTeam}
@@ -133,7 +128,7 @@ const siteName = settings?.site_name ?? 'us';
       sortedTestimonials.length > 0 && (
         <TestimonialRow
           heading='In their own words'
-          variant='featured'
+          variant='cards'
           surface='subtle'
           featuredIndex={featuredIndex}
           items={sortedTestimonials}

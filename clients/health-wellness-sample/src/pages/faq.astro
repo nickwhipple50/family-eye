@@ -25,10 +25,9 @@
 
 import Layout from '../layouts/KitLayout.astro';
 import { Hero, FAQAccordion, CTABand } from '@mmm/components';
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 
 const faqItems = await getCollection('faq');
-const settings = (await getCollection('site_settings'))[0]?.data;
 
 const sortedFaq = faqItems
   .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
@@ -95,8 +94,9 @@ const displayFaq = sortedFaq.length > 0 ? sortedFaq : fallbackFaq;
     <!-- ① HERO -->
     <Hero
       variant='centered'
-      heading='Questions? We have answers.'
-      body="We've tried to answer everything we're commonly asked. If something's missing, just reach out — we're happy to talk through anything before you book."
+      heading='Common questions'
+      body="Everything you need to know before your first
+    visit. If something's missing, call us — we're happy to talk through anything."
       cta={{ label: 'Book a session', href: '/contact' }}
     />
 
@@ -110,7 +110,7 @@ const displayFaq = sortedFaq.length > 0 ? sortedFaq : fallbackFaq;
     <!-- ③ CTA BAND -->
     <CTABand
       heading='Still have questions?'
-      body="Send us a message and we'll get back to you the same day. No question is too small."
+      body="Call us at (401) 555-0182 or send a message through our Contact page. We'll get back to you the same day."
       primaryCta={{ label: 'Get in touch', href: '/contact' }}
       secondaryCta={{ label: 'See our services', href: '/services' }}
     />

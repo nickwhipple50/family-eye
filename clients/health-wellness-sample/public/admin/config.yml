@@ -15,7 +15,7 @@ backend:
   name: git-gateway
   branch: main
 
-# local_backend: true   # Uncomment for local dev — remove before deploying
+local_backend: true # Uncomment for local dev — remove before deploying
 
 media_folder: public/images/uploads
 public_folder: /images/uploads
@@ -170,7 +170,7 @@ collections:
     label_singular: Service
     folder: src/content/services
     create: true
-    slug: '{{slug}}'
+    slug: '{{name}}'
     summary: '{{name}}'
     fields:
       - {
@@ -209,6 +209,8 @@ collections:
         options:
           - { label: Heart, value: heart }
           - { label: Activity, value: activity }
+          - { label: Thermometer, value: thermometer }
+          - { label: Monitor, value: monitor }
           - { label: Shield, value: shield }
           - { label: Sun, value: star }
           - { label: Leaf / Natural, value: check-circle }
@@ -226,8 +228,8 @@ collections:
         required: false
         hint: 'Optional. 3:2 ratio, minimum 600×400px.'
         fields:
-          - { label: Photo, name: src, widget: image }
-          - { label: Alt Text, name: alt, widget: string, required: true }
+          - { label: Photo, name: src, widget: image, required: false }
+          - { label: Alt Text, name: alt, widget: string, required: false }
 
       - { label: Display Order, name: order, widget: number, default: 0 }
 
@@ -242,7 +244,7 @@ collections:
     label_singular: Testimonial
     folder: src/content/testimonials
     create: true
-    slug: '{{slug}}'
+    slug: '{{name}}'
     summary: '{{name}}'
     fields:
       - {
@@ -295,7 +297,7 @@ collections:
     label_singular: Practitioner
     folder: src/content/team
     create: true
-    slug: '{{slug}}'
+    slug: '{{name}}'
     summary: '{{name}} — {{role}}'
     fields:
       - { label: Full Name, name: name, widget: string, required: true }
@@ -345,7 +347,7 @@ collections:
     label_singular: FAQ Item
     folder: src/content/faq
     create: true
-    slug: '{{slug}}'
+    slug: '{{question}}'
     summary: '{{question}}'
     fields:
       - {

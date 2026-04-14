@@ -94,7 +94,7 @@ const site_settings = defineCollection({
 });
 
 const services = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: './src/content/services' }),
+  loader: glob({ pattern: '**/*.md', base: './src/content/services' }),
   schema: z.object({
     name: z.string(),
     description: z.string(),
@@ -107,7 +107,7 @@ const services = defineCollection({
 });
 
 const testimonials = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: './src/content/testimonials' }),
+  loader: glob({ pattern: '**/*.md', base: './src/content/testimonials' }),
   schema: z.object({
     quote: z.string(),
     name: z.string(),
@@ -120,7 +120,7 @@ const testimonials = defineCollection({
 });
 
 const team = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: './src/content/team' }),
+  loader: glob({ pattern: '**/*.md', base: './src/content/team' }),
   schema: z.object({
     name: z.string(),
     role: z.string(),
@@ -132,7 +132,7 @@ const team = defineCollection({
 });
 
 const faq = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: './src/content/faq' }),
+  loader: glob({ pattern: '**/*.md', base: './src/content/faq' }),
   schema: z.object({
     question: z.string(),
     answer: z.string(),
@@ -141,7 +141,7 @@ const faq = defineCollection({
 });
 
 const pages = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: './src/content/pages' }),
+  loader: glob({ pattern: '**/*.md', base: './src/content/pages' }),
   schema: z.object({
     title: z.string(),
     body: z.string(),

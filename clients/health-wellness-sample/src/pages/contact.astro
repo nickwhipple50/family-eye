@@ -6,22 +6,6 @@
  * Sections:
  *   1. Hero         — centered, warm and low-pressure
  *   2. Contact section — booking form + contact details (no map)
- *
- * Booking vs. contact framing:
- *   The nav link says "Book" — so this page should feel like booking,
- *   not just a generic contact form. The heading, body, and field labels
- *   all reinforce that this is a positive, easy step.
- *
- * No map:
- *   Wellness clients find practitioners online, not by walking past.
- *   The address is in the footer. Including a map here adds weight
- *   without adding value for this kit type.
- *
- * Live booking systems:
- *   If the client uses MindBody, Acuity, Jane App, or similar — replace
- *   ContactForm with an embed of their booking widget. Note it in
- *   changelog.astro as a project-specific modification.
- *   Live booking integrations = T2 scope conversation.
  */
 
 import Layout from '../layouts/KitLayout.astro';
@@ -46,7 +30,7 @@ const siteName = settings?.site_name ?? 'us';
     <Hero
       variant='centered'
       heading="Let's get you booked"
-      body="Fill in the form and we'll confirm your session within a few hours. If you have questions first, just ask — we're happy to chat before you commit to anything."
+      body="Fill in the form and we'll follow up within one business day to confirm your visit. For urgent concerns, please call us directly at (401) 555-1082."
       cta={{ label: 'Jump to booking form', href: '#booking-form' }}
     />
 
@@ -68,17 +52,25 @@ const siteName = settings?.site_name ?? 'us';
         >
           <ContactForm
             heading='Book or get in touch'
-            body='We respond to all inquiries the same day — usually within a couple of hours.'
+            body='We respond to all requests within one business day. For sick visits, call us directly — same-week appointments are available.'
             action='/contact'
             submitLabel='Send my request'
             fields={[
               {
-                name: 'name',
-                label: 'Your name',
+                name: 'first_name',
+                label: 'First name',
                 type: 'text',
                 required: true,
                 width: 'half',
-                autocomplete: 'name',
+                autocomplete: 'given-name',
+              },
+              {
+                name: 'last_name',
+                label: 'Last name',
+                type: 'text',
+                required: true,
+                width: 'half',
+                autocomplete: 'family-name',
               },
               {
                 name: 'phone',
@@ -87,7 +79,6 @@ const siteName = settings?.site_name ?? 'us';
                 required: false,
                 width: 'half',
                 autocomplete: 'tel',
-                placeholder: 'Optional — for scheduling',
               },
               {
                 name: 'email',
@@ -98,39 +89,53 @@ const siteName = settings?.site_name ?? 'us';
                 autocomplete: 'email',
               },
               {
-                name: 'service',
-                label: 'What are you interested in?',
+                name: 'insurance',
+                label: 'Insurance provider',
+                type: 'text',
+                required: false,
+                width: 'full',
+                placeholder: 'e.g. Blue Cross Blue Shield of RI',
+              },
+              {
+                name: 'visit_type',
+                label: 'What type of visit are you requesting?',
                 type: 'select',
                 required: false,
                 options: [
-                  "I'm not sure yet — help me choose",
-                  'Swedish massage',
-                  'Deep tissue massage',
-                  'Prenatal massage',
-                  'Sports massage',
-                  'Hot stone massage',
-                  'Something else',
+                  'New patient exam',
+                  'Annual wellness visit',
+                  'Sick visit',
+                  'Follow-up appointment',
+                  'Telehealth visit',
+                  "I'm not sure — help me choose",
                 ],
               },
               {
-                name: 'new_client',
-                label: 'Are you a new client?',
-                type: 'select',
-                required: false,
-                options: ['Yes — first time here', "No — I've been before"],
+                name: 'preferred_days',
+                label: 'Preferred days',
+                type: 'checkbox-group',
+                width: 'full',
+                options: ['Monday–Friday', 'Saturday morning'],
+              },
+              {
+                name: 'preferred_time',
+                label: 'Preferred time of day',
+                type: 'checkbox-group',
+                width: 'full',
+                options: ['Morning (8am–12pm)', 'Afternoon (12pm–5pm)'],
               },
               {
                 name: 'message',
-                label: 'Anything you want us to know?',
+                label: 'Anything else we should know?',
                 type: 'textarea',
                 required: false,
                 placeholder:
-                  "Areas of tension, injuries or conditions, what you're hoping to get from the session — anything that helps us prepare for you.",
+                  'Current medications, conditions, reason for visit, or any questions — anything that helps us prepare for your visit.',
               },
               {
                 name: 'consent',
                 label:
-                  'I agree to be contacted about my inquiry. We will never share your information with third parties.',
+                  'I agree to be contacted about my inquiry. Your information is kept private and never shared.',
                 type: 'checkbox',
                 required: true,
               },
@@ -150,21 +155,22 @@ const siteName = settings?.site_name ?? 'us';
               <li class='contact-page__step'>
                 <span class='contact-page__step-number'>01</span>
                 <span class='contact-page__step-text'>
-                  We receive your request and get back to you within a few hours to confirm your
-                  session.
+                  We receive your request and follow up within one business day to confirm your
+                  appointment.
                 </span>
               </li>
               <li class='contact-page__step'>
                 <span class='contact-page__step-number'>02</span>
                 <span class='contact-page__step-text'>
-                  If you have questions or want to talk through which service is right for you,
-                  we're happy to chat first.
+                  Before your visit, we'll send a short intake form - health history, medications,
+                  and insurance information.
                 </span>
               </li>
               <li class='contact-page__step'>
                 <span class='contact-page__step-number'>03</span>
                 <span class='contact-page__step-text'>
-                  Show up as you are. We'll take care of the rest.
+                  Arrive 10-15 minutes early on your first visit. Your appointment time is yours
+                  from there.
                 </span>
               </li>
             </ol>
@@ -205,7 +211,7 @@ const siteName = settings?.site_name ?? 'us';
             {
               contact?.address && (
                 <>
-                  <dt class='contact-page__info-label'>Studio</dt>
+                  <dt class='contact-page__info-label'>Address</dt>
                   <dd class='contact-page__info-value'>
                     <address>{contact.address}</address>
                   </dd>
