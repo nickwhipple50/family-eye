@@ -26,7 +26,6 @@ import { getCollection } from 'astro:content';
 
 const team = await getCollection('team');
 const testimonials = await getCollection('testimonials');
-const settings = (await getCollection('site_settings'))[0]?.data;
 
 const sortedTeam = team
   .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
@@ -136,9 +135,9 @@ const featuredIndex = Math.max(
 
     <!-- ⑤ CTA BAND -->
     <CTABand
-      heading='Ready to work together?'
-      body="New clients are always welcome. Book online or send a message if you'd like to talk first."
-      primaryCta={{ label: 'Book a session', href: '/contact' }}
+      heading='Become a patient.'
+      body="We're accepting new patients of all ages in South County. Request an appointment online — we'll follow up within one business day."
+      primaryCta={{ label: 'Request an appointment', href: '/contact' }}
       secondaryCta={{ label: 'See our services', href: '/services' }}
     />
   </main>
