@@ -30,10 +30,10 @@
 
   "nav": [
     { "label": "Home", "href": "/" },
-    { "label": "Services", "href": "/services" },
-    { "label": "About", "href": "/about" },
-    { "label": "FAQ", "href": "/faq" },
-    { "label": "Book", "href": "/contact" }
+    { "label": "Services", "href": "/services/" },
+    { "label": "About", "href": "/about/" },
+    { "label": "FAQ", "href": "/faq/" },
+    { "label": "Book", "href": "/contact/" }
   ],
 
   "social_proof": {
@@ -45,7 +45,7 @@
 
   "floating_cta": {
     "label": "Book a session",
-    "href": "/contact"
+    "href": "/contact/"
   },
 
   "analytics": {
