@@ -26,7 +26,7 @@
 
 @font-face {
   font-family: 'Heading';
-  src: url('/fonts/heading-bold.woff2') format('woff2');
+  src: url('/fonts/Neuton-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -34,7 +34,7 @@
 
 @font-face {
   font-family: 'Heading';
-  src: url('/fonts/heading-regular.woff2') format('woff2');
+  src: url('/fonts/Neuton-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -42,7 +42,7 @@
 
 @font-face {
   font-family: 'Body';
-  src: url('/fonts/body-regular.woff2') format('woff2');
+  src: url('/fonts/NotoSans-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -50,7 +50,7 @@
 
 @font-face {
   font-family: 'Body';
-  src: url('/fonts/body-medium.woff2') format('woff2');
+  src: url('/fonts/NotoSans-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -58,7 +58,7 @@
 
 @font-face {
   font-family: 'Body';
-  src: url('/fonts/body-semibold.woff2') format('woff2');
+  src: url('/fonts/NotoSans-SemiBold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -74,36 +74,30 @@
   --font-body: 'Body', system-ui, sans-serif;
   --font-weight-heading: var(--font-weight-bold);
 
-  /* --- Primary — sage green --- */
-  --color-primary: #5c7a5c;
-  --color-primary-light: #6e8f6e;
-  --color-primary-dark: #445944;
+  --color-primary: #1c398e;
+  --color-primary-light: #193cb8;
+  --color-primary-dark: #162556;
 
-  /* --- Accent — warm terracotta / clay ---
-       Complements sage without competing.
-       Draws the eye to CTAs without feeling urgent. */
-  --color-accent: #b5724a;
-  --color-accent-light: #c8845c;
-  --color-accent-dark: #8f5535;
+  --color-accent: #e17100;
+  --color-accent-light: #f0b100;
+  --color-accent-dark: #973c00;
 
-  /* --- Surfaces — warm cream palette --- */
-  --color-surface-base: #fdfaf6; /* Warm white — never stark */
-  --color-surface-subtle: #f5f0e8; /* Cream — breathable, calm */
-  --color-surface-muted: #ede5d8; /* Deeper cream for contrast sections */
+  --color-surface-base: #e7eef0;
+  --color-surface-subtle: #dce7ea;
+  --color-surface-muted: #ccdce0;
   --color-surface-inverse: var(--color-primary-dark);
 
-  /* --- Text --- */
-  --color-text-base: #3d3530; /* Warm dark brown — softer than pure black */
-  --color-text-muted: #7a6e66;
-  --color-text-subtle: #a89d94;
-  --color-text-heading: #2a2420;
-  --color-text-inverse: #fdfaf6;
+  --color-text-base: #1c223d;
+  --color-text-muted: #616fad;
+  --color-text-subtle: #3a436f;
+  --color-text-heading: #1e212f;
+  --color-text-inverse: #e7eef0;
   --color-text-link: var(--color-primary);
   --color-text-link-hover: var(--color-primary-dark);
 
   /* --- Borders --- */
-  --color-border: #e2d9cc; /* Warm-tinted */
-  --color-border-strong: #c8bdb0;
+  --color-border: #ccdce0;
+  --color-border-strong: #9889c2;
   --color-border-focus: var(--color-primary);
 
   /* --- Nav --- */
@@ -116,23 +110,13 @@
   --color-heading-grad-a: var(--color-primary);
   --color-heading-grad-b: var(--color-accent);
 
-  /* --- Shadow --- */
   --color-shadow: #2a2420;
 
-  /* --- Mesh gradient --- */
   --color-mesh-a: color-mix(in srgb, var(--color-primary) 15%, transparent);
   --color-mesh-b: color-mix(in srgb, var(--color-accent) 10%, transparent);
 
-  /* --- Noise — very subtle on this kit, keeps surfaces feeling organic --- */
   --noise-opacity: 0.04;
 
-  /* --- Radius — rounder and softer, not sharp or corporate --- */
   --radius-card: var(--radius-xl);
-  --radius-btn: var(--radius-full); /* Pill buttons — approachable feel */
+  --radius-btn: var(--radius-full);
 }
-
-/* ============================================================
-   DARK MODE — not recommended for this kit.
-   Health & wellness brands almost universally use light,
-   airy interfaces. Dark mode undermines the calm, open feel.
-   ============================================================ */
