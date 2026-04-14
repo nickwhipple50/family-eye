@@ -40,13 +40,11 @@ const featuredIndex = Math.max(
   0,
   sortedTestimonials.findIndex((t) => t.featured)
 );
-
-const siteName = settings?.site_name ?? 'us';
 ---
 
 <Layout
-  title='About'
-  description={`Meet the practitioners at ${siteName} — trained, licensed, and genuinely invested in your wellbeing.`}
+  title='About Us'
+  description='Meet Dr. Megan Hartnett and the Coastal Family Medicine team. A small, independent primary care practice in Narragansett serving South County, RI.'
   breadcrumbs={[{ label: 'About', href: '/about' }]}
 >
   <main

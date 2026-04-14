@@ -14,12 +14,11 @@ import { getCollection } from 'astro:content';
 
 const settings = (await getCollection('site_settings'))[0]?.data;
 const contact = settings?.contact;
-const siteName = settings?.site_name ?? 'us';
 ---
 
 <Layout
-  title='Book a session'
-  description={`Book your session at ${siteName}. New clients welcome — simple online booking, we'll confirm within a few hours.`}
+  title='Request an Appointment'
+  description='Request an appointment at Coastal Family Medicine in Narragansett, RI. Accepting new patients. Same-week availability for sick visits. Call (401) 555-0182.'
   breadcrumbs={[{ label: 'Book', href: '/contact' }]}
 >
   <main
