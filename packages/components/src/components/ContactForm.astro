@@ -95,7 +95,7 @@
  *   />
  */
 
-type FieldType = 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'checkbox';
+type FieldType = 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'checkbox' | 'checkbox-group';
 
 interface FieldDef {
   name: string;
@@ -142,6 +142,12 @@ fields.forEach((field) => {
   if (field.type === 'select' && (!field.options || field.options.length === 0)) {
     console.warn(
       `[ContactForm] field "${field.name}" is type "select" but has no options defined.`
+    );
+  }
+
+  if (field.type === 'checkbox-group' && (!field.options || field.options.length === 0)) {
+    console.warn(
+      `[ContactForm] field "${field.name}" is type "checkbox-group" but has no options defined.`
     );
   }
 });
@@ -213,7 +219,7 @@ fields.forEach((field) => {
                 class={`contact-form__field ${isHalf ? 'contact-form__field--half' : 'contact-form__field--full'} ${field.type === 'checkbox' ? 'contact-form__field--checkbox' : ''}`}
               >
                 {/* All types except checkbox: label above input */}
-                {field.type !== 'checkbox' && (
+                {field.type !== 'checkbox' && field.type !== 'checkbox-group' && (
                   <label
                     class='contact-form__label'
                     for={fieldId}
@@ -278,6 +284,48 @@ fields.forEach((field) => {
                       <option value={opt}>{opt}</option>
                     ))}
                   </select>
+                )}
+
+                {/* checkbox-group */}
+                {field.type === 'checkbox-group' && field.options && (
+                  <fieldset
+                    class='contact-form__checkbox-group'
+                    aria-required={isRequired ? 'true' : undefined}
+                  >
+                    <legend class='contact-form__label'>
+                      {field.label}
+                      {isRequired && (
+                        <span
+                          class='contact-form__required'
+                          aria-hidden='true'
+                        >
+                          {' '}
+                          *
+                        </span>
+                      )}
+                    </legend>
+                    <div class='contact-form__checkbox-group-options'>
+                      {field.options.map((opt) => {
+                        const optId = `${fieldId}-${opt.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+                        return (
+                          <label
+                            class='contact-form__checkbox-label'
+                            for={optId}
+                          >
+                            <input
+                              id={optId}
+                              class='contact-form__checkbox'
+                              type='checkbox'
+                              name={field.name}
+                              value={opt}
+                              aria-required={isRequired ? 'true' : undefined}
+                            />
+                            <span class='contact-form__checkbox-text'>{opt}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
                 )}
 
                 {/* checkbox — label wraps input */}
@@ -388,6 +436,15 @@ fields.forEach((field) => {
               isValid = false;
               field.setAttribute('aria-invalid', 'true');
               if (errorEl) errorEl.textContent = 'Please enter a valid email address.';
+            }
+          }
+
+          // checkbox-group — check if at least one option in the group is checked
+          if (field.type === 'checkbox' && field.name) {
+            const group = form.querySelectorAll(`input[type="checkbox"][name="${field.name}"]`);
+            if (group.length > 1) {
+              // This is a checkbox-group — handle separately, skip single-checkbox logic
+              return;
             }
           }
         });
@@ -693,6 +750,36 @@ fields.forEach((field) => {
   .contact-form__checkbox:focus-visible {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: var(--focus-ring-offset);
+  }
+
+  /* ============================================================
+   CHECKBOX GROUP
+   ============================================================ */
+
+  .contact-form__checkbox-group {
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .contact-form__checkbox-group legend {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-base);
+    line-height: var(--leading-snug);
+    margin-block-end: var(--space-xs);
+    float: left; /* Pulls legend into normal flow — avoids fieldset indent */
+    width: 100%;
+  }
+
+  .contact-form__checkbox-group-options {
+    clear: left;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
   }
 
   /* ============================================================
