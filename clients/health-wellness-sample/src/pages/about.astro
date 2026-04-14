@@ -1,0 +1,152 @@
+---
+/**
+ * pages/about.astro
+ * Health & Wellness kit — About page
+ *
+ * Sections:
+ *   1. Hero          — split, practitioner photo — trust is personal here
+ *   2. FeatureGrid   — philosophy, approach, credentials, why this practice
+ *   3. TeamGrid      — solo or multi-practitioner
+ *   4. TestimonialRow — client stories reinforce the personal connection
+ *   5. CTABand
+ *
+ * Note: In wellness, clients are choosing a person more than a service.
+ * The practitioner photo in the hero is important — a real, warm photo
+ * of the actual practitioner outperforms any other image on this page.
+ * Push back on launching with a stock photo here.
+ *
+ * The FeatureGrid should reflect real values and approach — not generic
+ * wellness language. What does this practitioner actually believe about
+ * the body? What's their method? Why did they enter this field?
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, FeatureGrid, TeamGrid, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const team = await getCollection('team');
+const testimonials = await getCollection('testimonials');
+const settings = (await getCollection('site_settings'))[0]?.data;
+
+const sortedTeam = team
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((m) => m.data);
+
+const sortedTestimonials = testimonials
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((t) => t.data);
+
+const featuredIndex = Math.max(
+  0,
+  sortedTestimonials.findIndex((t) => t.featured)
+);
+
+const siteName = settings?.site_name ?? 'us';
+---
+
+<Layout
+  title='About'
+  description={`Meet the practitioners at ${siteName} — trained, licensed, and genuinely invested in your wellbeing.`}
+  breadcrumbs={[{ label: 'About', href: '/about' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — split, warm practitioner photo -->
+    <Hero
+      variant='split'
+      heading='Rooted in the belief that your body knows how to heal'
+      body='I started this practice because I believe most people are carrying more than they need to. My work is to help you put some of it down.'
+      cta={{ label: 'Meet the team', href: '#team' }}
+      secondaryCta={{ label: 'Book a session', href: '/contact' }}
+      image={{
+        src: '/images/practitioner-photo.jpg',
+        alt: 'Lead practitioner in the treatment room',
+      }}
+    />
+
+    <!-- ② FEATURE GRID — philosophy and approach -->
+    <!--
+      Kit author: replace these with the practitioner's actual beliefs.
+      The most effective About pages in wellness are specific and personal —
+      not a list of generic values any practice could claim.
+    -->
+    <FeatureGrid
+      heading='How I approach the work'
+      variant='plain'
+      columns={3}
+      surface='subtle'
+      items={[
+        {
+          icon: 'eye',
+          heading: 'I listen first',
+          body: "Before I put my hands on anyone I want to understand what they're carrying. The body tells a story — my job is to hear it before I start working.",
+        },
+        {
+          icon: 'activity',
+          heading: 'The whole person, not just the symptom',
+          body: "A tight neck is rarely just a tight neck. I'm trained to work with the whole pattern — and to notice when something needs more than bodywork.",
+        },
+        {
+          icon: 'shield',
+          heading: 'Your comfort is not optional',
+          body: "You're in control of every session. What we work on, the pressure, the pace — all of it. You can change your mind at any point, no explanation needed.",
+        },
+        {
+          icon: 'clock',
+          heading: 'I take time seriously',
+          body: "Your appointment time is yours. I don't double-book, I don't run late, and I don't rush you out the door. You get the full session you booked.",
+        },
+        {
+          icon: 'award',
+          heading: 'Continuously trained',
+          body: 'I complete continuing education every year — not because I have to, but because the body keeps teaching me things. I want to stay current.',
+        },
+        {
+          icon: 'users',
+          heading: 'A space for everyone',
+          body: "My practice is welcoming to all bodies, all backgrounds, and all comfort levels with touch. If you've had bad experiences with bodywork before, I want to know.",
+        },
+      ]}
+    />
+
+    <!-- ③ TEAM GRID -->
+    {
+      sortedTeam.length > 0 && (
+        <div
+          id='team'
+          style='scroll-margin-top: var(--nav-height)'
+        >
+          <TeamGrid
+            heading={sortedTeam.length === 1 ? 'Your practitioner' : 'Our practitioners'}
+            columns={3}
+            surface='base'
+            items={sortedTeam}
+          />
+        </div>
+      )
+    }
+
+    <!-- ④ TESTIMONIALS -->
+    {
+      sortedTestimonials.length > 0 && (
+        <TestimonialRow
+          heading='In their own words'
+          variant='featured'
+          surface='subtle'
+          featuredIndex={featuredIndex}
+          items={sortedTestimonials}
+        />
+      )
+    }
+
+    <!-- ⑤ CTA BAND -->
+    <CTABand
+      heading='Ready to work together?'
+      body="New clients are always welcome. Book online or send a message if you'd like to talk first."
+      primaryCta={{ label: 'Book a session', href: '/contact' }}
+      secondaryCta={{ label: 'See our services', href: '/services' }}
+    />
+  </main>
+</Layout>

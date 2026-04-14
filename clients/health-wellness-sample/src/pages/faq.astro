@@ -1,0 +1,118 @@
+---
+/**
+ * pages/faq.astro
+ * Health & Wellness kit — FAQ page
+ *
+ * Sections:
+ *   1. Hero         — centered, brief and warm
+ *   2. FAQAccordion — pre-populated with real client objections
+ *   3. CTABand      — "Still have questions? Let's talk."
+ *
+ * Per t1.md: "FAQ: pre-populate with real objections."
+ * The FAQ page for wellness businesses does real conversion work.
+ * People don't book until their fears are answered. The hardcoded
+ * fallback below covers the most common objections across modalities —
+ * kit author should replace with questions specific to this practice.
+ *
+ * Common categories to cover:
+ *   — What to expect / first visit logistics
+ *   — What to wear / how to prepare
+ *   — Pain, pressure, and comfort during treatment
+ *   — Cancellation and scheduling policies
+ *   — Insurance and payment
+ *   — Contraindications and who shouldn't book
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, FAQAccordion, CTABand } from '@mmm/components';
+import { getCollection, getEntry } from 'astro:content';
+
+const faqItems = await getCollection('faq');
+const settings = (await getCollection('site_settings'))[0]?.data;
+
+const sortedFaq = faqItems
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((f) => f.data);
+
+// Hardcoded fallback FAQ — shown when the CMS collection is empty.
+// Kit author: replace these via the CMS with questions relevant to
+// this specific practice and modality.
+const fallbackFaq = [
+  {
+    question: 'What should I wear to my appointment?',
+    answer:
+      "For massage sessions, you'll undress to your comfort level and be professionally draped throughout — only the area being worked is uncovered. For movement or yoga sessions, wear comfortable clothes you can move in. When in doubt, ask us before you arrive.",
+  },
+  {
+    question: 'Will the massage hurt?',
+    answer:
+      "Good bodywork should not hurt. You may feel pressure and some tenderness in tight areas, but sharp or shooting pain is always a signal to stop. Tell your practitioner at any point if you need less pressure — there's no such thing as 'toughing it out' here.",
+  },
+  {
+    question: "I've never had a massage before. What should I expect?",
+    answer:
+      "You'll be shown to a private room and given time to undress and get onto the table. Your practitioner will knock before entering. We'll check in at the start about pressure and focus areas, and again during the session. Most first-time clients are surprised by how comfortable it feels.",
+  },
+  {
+    question: 'How do I know which service to book?',
+    answer:
+      "If you're not sure, book a Swedish massage or our general wellness session — it's a good starting point for most people. You can also reach out before booking and we'll help you pick the right fit based on what you're looking for.",
+  },
+  {
+    question: 'What is your cancellation policy?',
+    answer:
+      'We ask for 24 hours notice for cancellations or rescheduling. Late cancellations may be charged a fee. We understand that life happens — if something comes up, just let us know as soon as you can.',
+  },
+  {
+    question: 'Do you accept insurance?',
+    answer:
+      "We don't bill insurance directly, but we can provide a receipt you may be able to submit for reimbursement depending on your plan. Some HSA and FSA accounts also cover massage therapy — check with your provider.",
+  },
+  {
+    question: 'Is there anything that would prevent me from booking?',
+    answer:
+      "Some conditions require a note from your doctor before receiving massage — including recent surgery, certain skin conditions, blood clots, or pregnancy in the first trimester. If you're unsure, reach out before booking and we'll talk it through.",
+  },
+  {
+    question: 'How often should I come in?',
+    answer:
+      "It depends on your goals. For general wellness, once or twice a month is a common rhythm. For chronic pain or recovery, more frequent sessions initially can help build momentum. We'll talk about what makes sense for you after your first visit.",
+  },
+];
+
+const displayFaq = sortedFaq.length > 0 ? sortedFaq : fallbackFaq;
+---
+
+<Layout
+  title='FAQ'
+  description='Common questions about our services, what to expect, cancellation policies, and more. Everything you need to know before your first visit.'
+  breadcrumbs={[{ label: 'FAQ', href: '/faq' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='Questions? We have answers.'
+      body="We've tried to answer everything we're commonly asked. If something's missing, just reach out — we're happy to talk through anything before you book."
+      cta={{ label: 'Book a session', href: '/contact' }}
+    />
+
+    <!-- ② FAQ ACCORDION -->
+    <FAQAccordion
+      heading='Frequently asked questions'
+      surface='subtle'
+      items={displayFaq}
+    />
+
+    <!-- ③ CTA BAND -->
+    <CTABand
+      heading='Still have questions?'
+      body="Send us a message and we'll get back to you the same day. No question is too small."
+      primaryCta={{ label: 'Get in touch', href: '/contact' }}
+      secondaryCta={{ label: 'See our services', href: '/services' }}
+    />
+  </main>
+</Layout>

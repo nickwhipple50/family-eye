@@ -1,0 +1,42 @@
+---
+/**
+ * admin.astro
+ * Serves the Decap CMS UI at /admin/.
+ *
+ * Workaround for Astro v5 bug: public/admin/index.html is not served
+ * by the dev server — moving it to src/pages/ fixes routing.
+ *
+ * View Transitions are explicitly disabled on this page via
+ * <meta name="astro-view-transitions-enabled"> — Decap's React
+ * reconciler conflicts with Astro's ClientRouter and throws a
+ * removeChild NotFoundError on mount without this.
+ */
+---
+
+<!doctype html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta
+      name='viewport'
+      content='width=device-width, initial-scale=1'
+    />
+    <meta
+      name='robots'
+      content='noindex'
+    />
+    <!-- Disable Astro View Transitions on this page — conflicts with Decap's React reconciler -->
+    <meta
+      name='astro-view-transitions-enabled'
+      content='false'
+    />
+    <title>Content Manager</title>
+    <link
+      rel='stylesheet'
+      href='https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.css'
+    />
+  </head>
+  <body>
+    <script src='https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js'></script>
+  </body>
+</html>

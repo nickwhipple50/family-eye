@@ -1,0 +1,21 @@
+{
+  "name": "@mmm-clients/health-wellness-sample",
+  "description": "Kit Sample - Health & Wellness kit",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "sync": "astro sync"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.2",
+    "@mmm/components": "*",
+    "astro": "^5.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

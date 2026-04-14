@@ -1,0 +1,388 @@
+# =============================================================================
+# Decap CMS — config.yml
+# MMM T1 Launchpad — Health & Wellness Kit
+#
+# Collections in this kit:
+#   site_settings  — global singleton
+#   services       — ServiceList (duration + price fields added)
+#   testimonials   — TestimonialRow
+#   team           — TeamGrid (credentials field for licensed practitioners)
+#   faq            — FAQAccordion (pre-populate with real client objections)
+#   pages          — Privacy policy, Terms of use
+# =============================================================================
+
+backend:
+  name: git-gateway
+  branch: main
+
+# local_backend: true   # Uncomment for local dev — remove before deploying
+
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+slug:
+  encoding: unicode
+  clean_accents: true
+  sanitize_replacement: '-'
+
+collections:
+  # ---------------------------------------------------------------------------
+  # SITE SETTINGS
+  # ---------------------------------------------------------------------------
+
+  - name: site_settings
+    label: Site Settings
+    files:
+      - name: general
+        label: General
+        file: src/content/site_settings/general.json
+        fields:
+          - { label: Practice Name, name: site_name, widget: string, required: true }
+          - {
+              label: Tagline,
+              name: tagline,
+              widget: string,
+              required: false,
+              hint: "One line — e.g. 'Restorative massage and bodywork in downtown Anytown'",
+            }
+          - { label: Logo, name: logo, widget: image, required: false }
+
+          - label: Contact
+            name: contact
+            widget: object
+            fields:
+              - { label: Phone, name: phone, widget: string, required: false }
+              - { label: Email, name: email, widget: string, required: false }
+              - { label: Address, name: address, widget: string, required: false }
+              - {
+                  label: Neighborhood,
+                  name: service_area,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. 'Located in the Riverside Arts District — free street parking'",
+                }
+
+          - label: Hours
+            name: hours
+            widget: list
+            required: false
+            max: 7
+            fields:
+              - {
+                  label: Day,
+                  name: day,
+                  widget: select,
+                  options: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday],
+                }
+              - { label: Opens, name: open, widget: string, hint: 'e.g. 9:00 AM' }
+              - { label: Closes, name: close, widget: string, hint: 'e.g. 6:00 PM' }
+              - { label: Closed, name: closed, widget: boolean, default: false }
+
+          - label: Social Links
+            name: social
+            widget: object
+            fields:
+              - { label: Facebook, name: facebook, widget: string, required: false }
+              - {
+                  label: Instagram,
+                  name: instagram,
+                  widget: string,
+                  required: false,
+                  hint: 'Instagram is typically the most valuable platform for wellness businesses.',
+                }
+              - { label: LinkedIn, name: linkedin, widget: string, required: false }
+              - { label: X/Twitter, name: x, widget: string, required: false }
+              - { label: YouTube, name: youtube, widget: string, required: false }
+
+          - label: Navigation
+            name: nav
+            widget: list
+            max: 7
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: URL, name: href, widget: string }
+
+          - label: Social Proof Bar
+            name: social_proof
+            widget: object
+            fields:
+              - {
+                  label: Star Rating,
+                  name: rating,
+                  widget: number,
+                  value_type: float,
+                  min: 1,
+                  max: 5,
+                  step: 0.1,
+                  required: false,
+                }
+              - { label: Review Count, name: review_count, widget: number, required: false }
+              - { label: Years in Practice, name: years, widget: number, required: false }
+              - {
+                  label: Stats Label,
+                  name: customers,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. '500+ clients helped'",
+                }
+
+          - label: Floating CTA Button
+            name: floating_cta
+            widget: object
+            fields:
+              - {
+                  label: Label,
+                  name: label,
+                  widget: string,
+                  required: false,
+                  hint: "e.g. 'Book a session'",
+                }
+              - { label: URL, name: href, widget: string, required: false }
+
+          - label: Analytics
+            name: analytics
+            widget: object
+            fields:
+              - { label: Google Analytics ID, name: ga_id, widget: string, required: false }
+              - { label: Google Tag Manager ID, name: gtm_id, widget: string, required: false }
+
+          - label: SEO Defaults
+            name: seo
+            widget: object
+            fields:
+              - { label: Default Title, name: title, widget: string, required: true }
+              - { label: Default Description, name: description, widget: text, required: true }
+              - {
+                  label: Default OG Image,
+                  name: og_image,
+                  widget: image,
+                  required: false,
+                  hint: '1200×630px. Use a warm, welcoming photo.',
+                }
+
+  # ---------------------------------------------------------------------------
+  # SERVICES
+  # Duration and price fields added — both common on wellness sites.
+  # ---------------------------------------------------------------------------
+
+  - name: services
+    label: Services
+    label_singular: Service
+    folder: src/content/services
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}}'
+    fields:
+      - {
+          label: Service Name,
+          name: name,
+          widget: string,
+          required: true,
+          hint: "Plain, clear name — e.g. 'Swedish Massage', 'Prenatal Yoga', 'Nutrition Consultation'",
+        }
+      - {
+          label: Description,
+          name: description,
+          widget: text,
+          required: true,
+          hint: "2–3 sentences. What it is, who it's for, and what the client can expect to feel afterward.",
+        }
+      - {
+          label: Duration,
+          name: duration,
+          widget: string,
+          required: false,
+          hint: "e.g. '60 min', '90 min', '30 or 60 min'",
+        }
+      - {
+          label: Price,
+          name: price,
+          widget: string,
+          required: false,
+          hint: "e.g. '$85', 'From $75', 'Package from $200'",
+        }
+
+      - label: Icon
+        name: icon
+        widget: select
+        required: false
+        options:
+          - { label: Heart, value: heart }
+          - { label: Activity, value: activity }
+          - { label: Shield, value: shield }
+          - { label: Sun, value: star }
+          - { label: Leaf / Natural, value: check-circle }
+          - { label: Users, value: users }
+          - { label: Calendar, value: calendar }
+          - { label: Clock, value: clock }
+          - { label: Award, value: award }
+          - { label: Zap / Energy, value: zap }
+          - { label: Eye / Mindful, value: eye }
+          - { label: Layers, value: layers }
+
+      - label: Photo
+        name: image
+        widget: object
+        required: false
+        hint: 'Optional. 3:2 ratio, minimum 600×400px.'
+        fields:
+          - { label: Photo, name: src, widget: image }
+          - { label: Alt Text, name: alt, widget: string, required: true }
+
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # TESTIMONIALS
+  # Client experiences. Warmth and specificity matter here more than
+  # most other kit types — people are choosing based on how they'll feel.
+  # ---------------------------------------------------------------------------
+
+  - name: testimonials
+    label: Testimonials
+    label_singular: Testimonial
+    folder: src/content/testimonials
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}}'
+    fields:
+      - {
+          label: Their Experience,
+          name: quote,
+          widget: text,
+          required: true,
+          hint: "Their own words. Specific feelings and outcomes beat vague praise — 'I slept through the night for the first time in months' converts better than 'highly recommend'.",
+        }
+      - {
+          label: Name,
+          name: name,
+          widget: string,
+          required: true,
+          hint: "First name and last initial is fine — full names aren't required for wellness clients.",
+        }
+      - {
+          label: Context,
+          name: role,
+          widget: string,
+          required: false,
+          hint: "e.g. 'Massage client', 'Yoga student', 'Nutrition client'",
+        }
+      - {
+          label: Source,
+          name: company,
+          widget: string,
+          required: false,
+          hint: "e.g. 'via Google', 'via Yelp'",
+        }
+      - {
+          label: Star Rating,
+          name: rating,
+          widget: number,
+          required: false,
+          value_type: int,
+          min: 1,
+          max: 5,
+        }
+      - { label: Featured, name: featured, widget: boolean, default: false }
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # TEAM
+  # Credentials are important for licensed wellness practitioners.
+  # ---------------------------------------------------------------------------
+
+  - name: team
+    label: Team
+    label_singular: Practitioner
+    folder: src/content/team
+    create: true
+    slug: '{{slug}}'
+    summary: '{{name}} — {{role}}'
+    fields:
+      - { label: Full Name, name: name, widget: string, required: true }
+      - {
+          label: Title,
+          name: role,
+          widget: string,
+          required: true,
+          hint: "e.g. 'Licensed Massage Therapist', 'Registered Yoga Teacher', 'Certified Nutrition Coach'",
+        }
+      - {
+          label: Credentials,
+          name: credentials,
+          widget: string,
+          required: false,
+          hint: "Licenses and certifications — e.g. 'LMT', 'RYT-500', 'NASM-CPT, NASM-CNC'",
+        }
+      - {
+          label: Bio,
+          name: bio,
+          widget: text,
+          required: false,
+          hint: '2–3 sentences. Training background, specialties, and what drew them to this work.',
+        }
+
+      - label: Photo
+        name: photo
+        widget: object
+        required: false
+        hint: 'Warm, natural photo — not a stiff headshot. Square crop, 400×400px minimum.'
+        fields:
+          - { label: Photo, name: src, widget: image }
+          - { label: Alt Text, name: alt, widget: string, required: true }
+
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # FAQ
+  # Pre-populate with real objections — "does it hurt?", "what do I wear?",
+  # "is it covered by insurance?", "what's your cancellation policy?"
+  # These questions exist whether or not you answer them on the site.
+  # Answer them here and reduce friction to booking.
+  # ---------------------------------------------------------------------------
+
+  - name: faq
+    label: FAQ
+    label_singular: FAQ Item
+    folder: src/content/faq
+    create: true
+    slug: '{{slug}}'
+    summary: '{{question}}'
+    fields:
+      - {
+          label: Question,
+          name: question,
+          widget: string,
+          required: true,
+          hint: "Write as the client would ask it. First person: 'Will it hurt?', 'What should I wear?'",
+        }
+      - {
+          label: Answer,
+          name: answer,
+          widget: text,
+          required: true,
+          hint: 'Warm, plain language. Reassure first, inform second. 2–4 sentences.',
+        }
+      - { label: Display Order, name: order, widget: number, default: 0 }
+
+  # ---------------------------------------------------------------------------
+  # PAGES — Privacy Policy and Terms of Use
+  # ---------------------------------------------------------------------------
+
+  - name: pages
+    label: Pages
+    files:
+      - name: privacy
+        label: Privacy Policy
+        file: src/content/pages/privacy.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Privacy Policy' }
+          - { label: Body, name: body, widget: markdown }
+          - { label: Last Updated, name: updated_at, widget: datetime, required: false }
+
+      - name: terms
+        label: Terms of Use
+        file: src/content/pages/terms.json
+        fields:
+          - { label: Title, name: title, widget: string, default: 'Terms of Use' }
+          - { label: Body, name: body, widget: markdown }
+          - { label: Last Updated, name: updated_at, widget: datetime, required: false }

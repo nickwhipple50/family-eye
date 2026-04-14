@@ -1,0 +1,45 @@
+---
+/**
+ * KitLayout.astro
+ * Health & Wellness kit — page layout.
+ *
+ * schemaType is 'HealthAndBeautyBusiness' — covers massage therapists,
+ * yoga studios, nutritionists, wellness coaches, and similar.
+ * Kit author: for mental health practitioners use 'MedicalBusiness',
+ * for physiotherapists or chiropractors use 'MedicalClinic'.
+ */
+
+import Base from './Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface BreadcrumbItem {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+  noindex?: boolean;
+  breadcrumbs?: BreadcrumbItem[];
+}
+
+const { title, description, ogImage, canonical, noindex, breadcrumbs } = Astro.props;
+---
+
+<Base
+  title={title}
+  description={description}
+  ogImage={ogImage}
+  canonical={canonical}
+  noindex={noindex}
+  breadcrumbs={breadcrumbs}
+  schemaType='HealthAndBeautyBusiness'
+>
+  <Nav slot='nav' />
+  <slot />
+  <Footer slot='footer' />
+</Base>

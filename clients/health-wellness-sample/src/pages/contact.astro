@@ -1,0 +1,357 @@
+---
+/**
+ * pages/contact.astro
+ * Health & Wellness kit — Contact + Book page
+ *
+ * Sections:
+ *   1. Hero         — centered, warm and low-pressure
+ *   2. Contact section — booking form + contact details (no map)
+ *
+ * Booking vs. contact framing:
+ *   The nav link says "Book" — so this page should feel like booking,
+ *   not just a generic contact form. The heading, body, and field labels
+ *   all reinforce that this is a positive, easy step.
+ *
+ * No map:
+ *   Wellness clients find practitioners online, not by walking past.
+ *   The address is in the footer. Including a map here adds weight
+ *   without adding value for this kit type.
+ *
+ * Live booking systems:
+ *   If the client uses MindBody, Acuity, Jane App, or similar — replace
+ *   ContactForm with an embed of their booking widget. Note it in
+ *   changelog.astro as a project-specific modification.
+ *   Live booking integrations = T2 scope conversation.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, ContactForm } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const settings = (await getCollection('site_settings'))[0]?.data;
+const contact = settings?.contact;
+const siteName = settings?.site_name ?? 'us';
+---
+
+<Layout
+  title='Book a session'
+  description={`Book your session at ${siteName}. New clients welcome — simple online booking, we'll confirm within a few hours.`}
+  breadcrumbs={[{ label: 'Book', href: '/contact' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — warm, low-pressure -->
+    <Hero
+      variant='centered'
+      heading="Let's get you booked"
+      body="Fill in the form and we'll confirm your session within a few hours. If you have questions first, just ask — we're happy to chat before you commit to anything."
+      cta={{ label: 'Jump to booking form', href: '#booking-form' }}
+    />
+
+    <!-- ② BOOKING SECTION -->
+    <!--
+      Kit author: if the client uses a booking platform (MindBody, Acuity,
+      Jane App, etc.) replace the ContactForm below with their embed code.
+      Keep the surrounding section markup and heading — just swap the form.
+    -->
+    <section
+      class='contact-page section surface-base'
+      aria-label='Booking form and contact details'
+    >
+      <div class='contact-page__inner section__inner'>
+        <!-- LEFT — booking form -->
+        <div
+          id='booking-form'
+          style='scroll-margin-top: var(--nav-height)'
+        >
+          <ContactForm
+            heading='Book or get in touch'
+            body='We respond to all inquiries the same day — usually within a couple of hours.'
+            action='/contact'
+            submitLabel='Send my request'
+            fields={[
+              {
+                name: 'name',
+                label: 'Your name',
+                type: 'text',
+                required: true,
+                width: 'half',
+                autocomplete: 'name',
+              },
+              {
+                name: 'phone',
+                label: 'Phone number',
+                type: 'tel',
+                required: false,
+                width: 'half',
+                autocomplete: 'tel',
+                placeholder: 'Optional — for scheduling',
+              },
+              {
+                name: 'email',
+                label: 'Email address',
+                type: 'email',
+                required: true,
+                width: 'full',
+                autocomplete: 'email',
+              },
+              {
+                name: 'service',
+                label: 'What are you interested in?',
+                type: 'select',
+                required: false,
+                options: [
+                  "I'm not sure yet — help me choose",
+                  'Swedish massage',
+                  'Deep tissue massage',
+                  'Prenatal massage',
+                  'Sports massage',
+                  'Hot stone massage',
+                  'Something else',
+                ],
+              },
+              {
+                name: 'new_client',
+                label: 'Are you a new client?',
+                type: 'select',
+                required: false,
+                options: ['Yes — first time here', "No — I've been before"],
+              },
+              {
+                name: 'message',
+                label: 'Anything you want us to know?',
+                type: 'textarea',
+                required: false,
+                placeholder:
+                  "Areas of tension, injuries or conditions, what you're hoping to get from the session — anything that helps us prepare for you.",
+              },
+              {
+                name: 'consent',
+                label:
+                  'I agree to be contacted about my inquiry. We will never share your information with third parties.',
+                type: 'checkbox',
+                required: true,
+              },
+            ]}
+          />
+        </div>
+
+        <!-- RIGHT — contact details and reassurance -->
+        <aside
+          class='contact-page__details'
+          aria-label='Contact details'
+        >
+          <!-- Reassurance block -->
+          <div class='contact-page__reassurance'>
+            <h2 class='contact-page__reassurance-heading'>What happens next</h2>
+            <ol class='contact-page__steps'>
+              <li class='contact-page__step'>
+                <span class='contact-page__step-number'>01</span>
+                <span class='contact-page__step-text'>
+                  We receive your request and get back to you within a few hours to confirm your
+                  session.
+                </span>
+              </li>
+              <li class='contact-page__step'>
+                <span class='contact-page__step-number'>02</span>
+                <span class='contact-page__step-text'>
+                  If you have questions or want to talk through which service is right for you,
+                  we're happy to chat first.
+                </span>
+              </li>
+              <li class='contact-page__step'>
+                <span class='contact-page__step-number'>03</span>
+                <span class='contact-page__step-text'>
+                  Show up as you are. We'll take care of the rest.
+                </span>
+              </li>
+            </ol>
+          </div>
+
+          <!-- Contact details -->
+          <dl class='contact-page__info'>
+            {
+              contact?.phone && (
+                <>
+                  <dt class='contact-page__info-label'>Phone</dt>
+                  <dd class='contact-page__info-value'>
+                    <a
+                      href={`tel:${contact.phone.replace(/\D/g, '')}`}
+                      class='contact-page__link'
+                    >
+                      {contact.phone}
+                    </a>
+                  </dd>
+                </>
+              )
+            }
+            {
+              contact?.email && (
+                <>
+                  <dt class='contact-page__info-label'>Email</dt>
+                  <dd class='contact-page__info-value'>
+                    <a
+                      href={`mailto:${contact.email}`}
+                      class='contact-page__link'
+                    >
+                      {contact.email}
+                    </a>
+                  </dd>
+                </>
+              )
+            }
+            {
+              contact?.address && (
+                <>
+                  <dt class='contact-page__info-label'>Studio</dt>
+                  <dd class='contact-page__info-value'>
+                    <address>{contact.address}</address>
+                  </dd>
+                </>
+              )
+            }
+            {
+              contact?.service_area && (
+                <>
+                  <dt class='contact-page__info-label'>Parking</dt>
+                  <dd class='contact-page__info-value'>{contact.service_area}</dd>
+                </>
+              )
+            }
+          </dl>
+
+          <!-- Gentle privacy note -->
+          <p class='contact-page__privacy'>
+            Your information is kept private. We only use it to confirm your booking and follow up
+            on your inquiry.
+          </p>
+        </aside>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .contact-page__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .contact-page__inner {
+      grid-template-columns: 1.4fr 1fr;
+    }
+  }
+
+  .contact-page__details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  /* ============================================================
+     REASSURANCE BLOCK
+     ============================================================ */
+
+  .contact-page__reassurance {
+    padding: var(--space-l);
+    background-color: var(--color-surface-subtle);
+    border-radius: var(--card-radius);
+    border-inline-start: 3px solid var(--color-primary);
+  }
+
+  .contact-page__reassurance-heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-heading, var(--font-weight-bold));
+    color: var(--color-text-heading);
+    margin: 0 0 var(--space-m);
+  }
+
+  .contact-page__steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+
+  .contact-page__step {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: var(--space-s);
+    align-items: baseline;
+  }
+
+  .contact-page__step-number {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .contact-page__step-text {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-base);
+  }
+
+  /* ============================================================
+     CONTACT INFO
+     ============================================================ */
+
+  .contact-page__info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-xs) var(--space-m);
+    align-items: baseline;
+    margin: 0;
+    padding: 0;
+  }
+
+  .contact-page__info-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .contact-page__info-value {
+    font-size: var(--text-sm);
+    color: var(--color-text-base);
+    margin: 0;
+  }
+
+  .contact-page__info-value address {
+    font-style: normal;
+  }
+
+  .contact-page__link {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-default);
+  }
+
+  .contact-page__link:hover {
+    color: var(--color-primary-dark);
+  }
+
+  /* ============================================================
+     PRIVACY NOTE
+     ============================================================ */
+
+  .contact-page__privacy {
+    font-size: var(--text-xs);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-subtle);
+    margin: 0;
+    padding-block-start: var(--space-m);
+    border-block-start: 1px solid var(--color-border);
+  }
+</style>

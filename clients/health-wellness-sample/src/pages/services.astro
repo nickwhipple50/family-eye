@@ -1,0 +1,102 @@
+---
+/**
+ * pages/services.astro
+ * Health & Wellness kit — Services page
+ *
+ * Sections:
+ *   1. Hero         — centered
+ *   2. ServiceList  — grid-icon, 2 col, full descriptions with duration + price
+ *   3. ProcessSteps — what a first session looks like
+ *   4. CTABand      — "Book your first session"
+ *
+ * ProcessSteps purpose:
+ *   New clients in wellness contexts often have anxiety about what to
+ *   expect — especially for bodywork or hands-on treatments. Walking
+ *   through the process ("what happens when I arrive", "what do I wear",
+ *   "what happens during the session") reduces that friction significantly.
+ *   Kit author: replace these steps with the client's actual intake process.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, ServiceList, ProcessSteps, CTABand } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const services = await getCollection('services');
+
+const sortedServices = services
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((s) => s.data);
+---
+
+<Layout
+  title='Services'
+  description='Explore our full range of wellness services — massage therapy, bodywork, and more. Every session is tailored to what your body needs.'
+  breadcrumbs={[{ label: 'Services', href: '/services' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='Our services'
+      body='Every session is different — because every body is different. We work with you, not on you.'
+      cta={{ label: 'Book a session', href: '/contact' }}
+      secondaryCta={{ label: 'Read our FAQ', href: '/faq' }}
+    />
+
+    <!-- ② SERVICE LIST — 2 col with duration and price -->
+    {
+      sortedServices.length > 0 && (
+        <ServiceList
+          heading='What we offer'
+          variant='grid-icon'
+          columns={2}
+          surface='subtle'
+          items={sortedServices}
+        />
+      )
+    }
+
+    <!-- ③ PROCESS STEPS — what to expect at your first visit -->
+    <div
+      id='first-visit'
+      style='scroll-margin-top: var(--nav-height)'
+    >
+      <ProcessSteps
+        heading='What to expect at your first visit'
+        body="First visits can feel unfamiliar. Here's exactly what happens — so you can arrive relaxed."
+        variant='numbered'
+        layout='horizontal'
+        surface='base'
+        items={[
+          {
+            title: 'You arrive and settle in',
+            body: "We'll greet you, offer water, and give you a moment to arrive. No rushing — your session time starts when you're ready.",
+          },
+          {
+            title: 'We talk about your needs',
+            body: "A brief intake conversation about what brought you in, any areas of concern, and what you'd like to focus on. You guide the session.",
+          },
+          {
+            title: 'Your session',
+            body: "You'll have complete privacy to get comfortable on the table. We use professional draping throughout — only the area being worked is uncovered.",
+          },
+          {
+            title: 'How you feel after',
+            body: "Most clients feel deeply relaxed or noticeably lighter. We'll check in, give you water, and take a moment before you head out.",
+          },
+        ]}
+      />
+    </div>
+
+    <!-- ④ CTA BAND -->
+    <CTABand
+      heading='Ready to book your first session?'
+      body="New clients are always welcome. If you have questions before booking, we're happy to chat."
+      primaryCta={{ label: 'Book a session', href: '/contact' }}
+      secondaryCta={{ label: 'Read our FAQ', href: '/faq' }}
+    />
+  </main>
+</Layout>

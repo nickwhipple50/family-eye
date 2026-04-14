@@ -1,0 +1,61 @@
+{
+  "site_name": "Rooted Wellness Studio",
+  "tagline": "Restorative massage and bodywork in the heart of Anytown.",
+  "logo": "",
+
+  "contact": {
+    "phone": "(555) 456-7890",
+    "email": "hello@rootedwellness.com",
+    "address": "321 Elm Street, Suite 4, Anytown, OR 97401",
+    "service_area": "Located in the Riverside Arts District — free street parking on Elm and Oak"
+  },
+
+  "hours": [
+    { "day": "Monday", "open": "00:00", "close": "00:00", "closed": true },
+    { "day": "Tuesday", "open": "10:00 AM", "close": "6:00 PM", "closed": false },
+    { "day": "Wednesday", "open": "10:00 AM", "close": "6:00 PM", "closed": false },
+    { "day": "Thursday", "open": "10:00 AM", "close": "7:00 PM", "closed": false },
+    { "day": "Friday", "open": "9:00 AM", "close": "5:00 PM", "closed": false },
+    { "day": "Saturday", "open": "9:00 AM", "close": "4:00 PM", "closed": false },
+    { "day": "Sunday", "open": "00:00", "close": "00:00", "closed": true }
+  ],
+
+  "social": {
+    "facebook": "",
+    "instagram": "",
+    "linkedin": "",
+    "x": "",
+    "youtube": ""
+  },
+
+  "nav": [
+    { "label": "Home", "href": "/" },
+    { "label": "Services", "href": "/services/" },
+    { "label": "About", "href": "/about/" },
+    { "label": "FAQ", "href": "/faq/" },
+    { "label": "Book", "href": "/contact/" }
+  ],
+
+  "social_proof": {
+    "rating": 5.0,
+    "review_count": 148,
+    "years": 8,
+    "customers": "500+ clients helped"
+  },
+
+  "floating_cta": {
+    "label": "Book a session",
+    "href": "/contact/"
+  },
+
+  "analytics": {
+    "ga_id": "",
+    "gtm_id": ""
+  },
+
+  "seo": {
+    "title": "Rooted Wellness Studio | Massage & Bodywork in Anytown",
+    "description": "Restorative massage therapy, deep tissue work, and holistic bodywork in downtown Anytown. Book your session online — new clients always welcome.",
+    "og_image": ""
+  }
+}
