@@ -15,7 +15,7 @@ backend:
   name: git-gateway
   branch: main
 
-local_backend: true # Uncomment for local dev — remove before deploying
+# local_backend: true # Uncomment for local dev — remove before deploying
 
 media_folder: public/images/uploads
 public_folder: /images/uploads
