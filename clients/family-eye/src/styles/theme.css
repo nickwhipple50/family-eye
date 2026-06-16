@@ -70,8 +70,8 @@
 
 :root {
   /* --- Fonts --- */
-  --font-heading: 'Heading', 'Georgia', serif;
-  --font-body: 'Body', system-ui, sans-serif;
+  --font-heading: 'amifer', sans-serif;
+  --font-body: 'amifer', system-ui, sans-serif;
   --font-weight-heading: var(--font-weight-bold);
 
   /* --- Primary colors --- */
@@ -127,4 +127,8 @@
   /* --- Radius — rounder and softer, not sharp or corporate --- */
   --radius-card: var(--radius-xl);
   --radius-btn: var(--radius-full); /* Pill buttons — approachable feel */
+}
+
+.btn {
+  line-height: 0.9 !important;
 }
