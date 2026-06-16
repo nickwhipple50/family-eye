@@ -1,0 +1,102 @@
+{
+  "contact": {
+    "phone": "(401) 921-0098",
+    "address": "2374 Post Road, Suite 104, Warwick, RI 02886",
+    "service_area": "Our office is located in the back right building, #2374. After entering the main lobby, take a left. We're the first door on the right. "
+  },
+  "site_name": "Family Eye Health Associates",
+  "nav": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "Services",
+      "href": "/services/"
+    },
+    {
+      "label": "About",
+      "href": "/about/"
+    },
+    {
+      "label": "FAQ",
+      "href": "/faq/"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact/"
+    }
+  ],
+  "analytics": {
+    "ga_id": "",
+    "gtm_id": ""
+  },
+  "logo": "",
+  "social": {
+    "facebook": "https://www.facebook.com/FamilyEyeRI/",
+    "instagram": "https://www.instagram.com/familyeyeri",
+    "linkedin": "",
+    "x": "",
+    "youtube": ""
+  },
+  "tagline": "Personalized eye care focused on you and your family",
+  "hours": [
+    {
+      "day": "Monday",
+      "open": "8:00 AM",
+      "close": "5:00 PM",
+      "closed": false
+    },
+    {
+      "day": "Tuesday",
+      "open": "8:00 AM",
+      "close": "5:00 PM",
+      "closed": false
+    },
+    {
+      "day": "Wednesday",
+      "open": "10:00 AM",
+      "close": "7:00 PM",
+      "closed": false
+    },
+    {
+      "day": "Thursday",
+      "open": "8:00 AM",
+      "close": "5:00 PM",
+      "closed": false
+    },
+    {
+      "day": "Friday",
+      "open": "8:00 AM",
+      "close": "12:00 PM",
+      "closed": false
+    },
+    {
+      "day": "Saturday",
+      "open": "9:00 AM",
+      "close": "4:00 PM",
+      "closed": true
+    },
+    {
+      "day": "Sunday",
+      "open": "00:00",
+      "close": "00:00",
+      "closed": true
+    }
+  ],
+  "social_proof": {
+    "rating": 5,
+    "review_count": 148,
+    "years": 8,
+    "customers": "500+ clients helped"
+  },
+  "floating_cta": {
+    "label": "Schedule an appointment",
+    "href": "/contact/"
+  },
+  "seo": {
+    "title": "Rooted Wellness Studio | Massage & Bodywork in Anytown",
+    "description": "Restorative massage therapy, deep tissue work, and holistic bodywork in downtown Anytown. Book your session online — new clients always welcome.",
+    "og_image": ""
+  }
+}

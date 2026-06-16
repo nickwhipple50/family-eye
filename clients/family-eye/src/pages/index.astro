@@ -1,0 +1,120 @@
+---
+/**
+ * pages/index.astro
+ * Health & Wellness kit — Home page
+ *
+ * Sections:
+ *   1. Hero        — split, practitioner with client or calming space
+ *   2. StatsRow    — years in practice, clients helped, services, rating
+ *   3. ServiceList — grid-icon, what they offer
+ *   4. TestimonialRow — client experiences
+ *   5. CTABand     — "Book a session"
+ *
+ * Tone guidance:
+ *   This kit is different from service-business and professional services
+ *   in one important way — the client is often anxious, in pain, or
+ *   approaching something vulnerable. The copy throughout should be warm,
+ *   low-pressure, and reassuring. Avoid urgency language ("limited spots",
+ *   "don't wait"). Avoid clinical language unless the client is a
+ *   medical practice.
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, StatsRow, ServiceList, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const settings = (await getCollection('site_settings'))[0]?.data;
+---
+
+<Layout
+  title='Home'
+  description={settings?.seo?.description}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — split, warm and welcoming -->
+    <Hero
+      variant='split'
+      heading='Personalized eye care focused on you and your family'
+      body='Family Eye Health Associates is your home for the very best in primary eye care.  We welcome all Rhode Islanders to experience a superior level of personal service and compassionate care.'
+      cta={{ label: 'Request an appointment', href: '/contact' }}
+      secondaryCta={{ label: 'Give us a call', href: 'tel:+14019210098' }}
+      image={{
+        src: '/assets/images/glasses-on-eye-chart.webp',
+        alt: 'Practitioner working with a client in a calm treatment room',
+      }}
+    />
+
+    <!-- ② STATS ROW — gentle, not salesy -->
+    <StatsRow
+      variant='band'
+      surface='inverse'
+      items={[
+        { value: 10000, suffix: '+', label: 'Patients treated' },
+        { value: 50, suffix: '+', label: 'Years combined experience' },
+        { value: 4.9, suffix: '★', label: 'Average rating', decimals: 1 },
+      ]}
+    />
+
+    <!-- ③ SERVICE LIST -->
+
+    <ServiceList
+      heading='What we offer'
+      variant='grid-icon'
+      columns={3}
+      surface='subtle'
+      items={[
+        {
+          name: 'Eye exams',
+          description:
+            'At Family Eye Health Associates we practice to the highest standards of medical optometry with a commitment to both your ocular and systemic health.',
+        },
+        {
+          name: 'Eyewear studio',
+          description:
+            'The Eyewear Studio at Family Eye Health Associates has something for every style and budget. We also repair and adjust glasses.',
+        },
+        {
+          name: 'Emergency treatment',
+          description:
+            'From itchy eyes to pink eye to foreign bodies, our doctors are trained to treat most urgent eye conditions. Our emergency line is available 24/7.',
+        },
+      ]}
+    />
+
+    <!-- ④ TESTIMONIALS — client experiences -->
+    <TestimonialRow
+      heading='What our patients say'
+      variant='cards'
+      columns={3}
+      surface='base'
+      items={[
+        {
+          quote:
+            'Dr. Branca [and] Family Eye Health took their time and [were] considerate. Highly recommend them for all your eye needs.',
+          name: 'Facebook recommendation',
+        },
+        {
+          quote:
+            'The whole staff is very friendly and professional. I always look forward to my eye appointments because of the warm, welcoming environment.',
+          name: '5-star Google review',
+        },
+        {
+          quote:
+            'Dr Gardner and Dr Sellechio... have successfuly helped me through several eye issues and I appreciate having such great doctors!',
+          name: '5-star Yelp review',
+        },
+      ]}
+    />
+
+    <!-- ⑤ CTA BAND — warm, no pressure -->
+    <CTABand
+      heading='Accepting new patients in Rhode Island'
+      body="Reach out to us online or by phone and we'll set you up with an appointment."
+      primaryCta={{ label: 'Request an appointment', href: '/contact' }}
+      secondaryCta={{ label: 'Give us a call', href: 'tel:+14019210098' }}
+    />
+  </main>
+</Layout>

@@ -1,0 +1,130 @@
+/*
+ * theme.css
+ * MMM T1 — Health & Wellness Kit
+ *
+ * Brand direction: Soft and natural — sage green / warm cream, calm and grounded
+ * Font pairing:    Serif heading + sans body — warm, trustworthy, approachable
+ *
+ * THE ONLY FILE THAT CHANGES PER PROJECT.
+ *
+ * Designed to work for massage therapists, acupuncturists, naturopaths,
+ * yoga studios, nutritionists, mental health practitioners, and similar
+ * wellness businesses.
+ *
+ * Junior dev checklist (~30 min):
+ *   [ ] Replace @font-face src paths with real font files in /public/fonts/
+ *   [ ] Update --color-primary and variants
+ *   [ ] Update --color-accent and variants
+ *   [ ] Update og.config.json brandColor and accentColor
+ *   [ ] Update manifest.json theme_color
+ *   [ ] Update <meta name="theme-color"> in Base.astro
+ */
+
+/* ============================================================
+   FONTS
+   ============================================================ */
+
+@font-face {
+  font-family: 'Heading';
+  src: url('/fonts/heading-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Heading';
+  src: url('/fonts/heading-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Body';
+  src: url('/fonts/body-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Body';
+  src: url('/fonts/body-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Body';
+  src: url('/fonts/body-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   BRAND TOKENS
+   ============================================================ */
+
+:root {
+  /* --- Fonts --- */
+  --font-heading: 'Heading', 'Georgia', serif;
+  --font-body: 'Body', system-ui, sans-serif;
+  --font-weight-heading: var(--font-weight-bold);
+
+  /* --- Primary colors --- */
+  --color-primary: #2c328e;
+  --color-primary-light: #262c81;
+  --color-primary-dark: #101344;
+
+  /* --- Primary colors --- */
+  --color-accent: #77abc5;
+  --color-accent-light: #b4d7ea;
+  --color-accent-dark: #618ca2;
+
+  /* --- Surface colors --- */
+  --color-surface-base: #f0f1f2;
+  --color-surface-subtle: #e1e2e5;
+  --color-surface-muted: #c4c6cd;
+  --color-surface-inverse: var(--color-primary-dark);
+
+  /* --- Text --- */
+  --color-text-base: #1a1b1f;
+  --color-text-muted: #8c909d;
+  --color-text-subtle: #a8abb5;
+  --color-text-heading: #101114;
+  --color-text-inverse: #f0f1f2;
+  --color-text-link: var(--color-primary);
+  --color-text-link-hover: var(--color-primary-dark);
+
+  /* --- Borders --- */
+  --color-border: #e2d9cc;
+  --color-border-strong: #c8bdb0;
+  --color-border-focus: var(--color-primary);
+
+  /* --- Nav --- */
+  --color-nav-bg: transparent;
+  --color-nav-bg-scrolled: color-mix(in srgb, var(--color-surface-base) 90%, transparent);
+  --color-nav-text: var(--color-text-base);
+  --color-nav-backdrop-blur: 12px;
+
+  /* --- Gradient text --- */
+  --color-heading-grad-a: var(--color-primary);
+  --color-heading-grad-b: var(--color-accent);
+
+  /* --- Shadow --- */
+  --color-shadow: #2a2420;
+
+  /* --- Mesh gradient --- */
+  --color-mesh-a: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  --color-mesh-b: color-mix(in srgb, var(--color-accent) 10%, transparent);
+
+  /* --- Noise — very subtle on this kit, keeps surfaces feeling organic --- */
+  --noise-opacity: 0.04;
+
+  /* --- Radius — rounder and softer, not sharp or corporate --- */
+  --radius-card: var(--radius-xl);
+  --radius-btn: var(--radius-full); /* Pill buttons — approachable feel */
+}

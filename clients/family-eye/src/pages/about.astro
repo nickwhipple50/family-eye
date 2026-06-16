@@ -1,0 +1,149 @@
+---
+/**
+ * pages/about.astro
+ * Health & Wellness kit — About page
+ *
+ * Sections:
+ *   1. Hero          — split, practitioner photo — trust is personal here
+ *   2. FeatureGrid   — philosophy, approach, credentials, why this practice
+ *   3. TeamGrid      — solo or multi-practitioner
+ *   4. TestimonialRow — client stories reinforce the personal connection
+ *   5. CTABand
+ *
+ * Note: In wellness, clients are choosing a person more than a service.
+ * The practitioner photo in the hero is important — a real, warm photo
+ * of the actual practitioner outperforms any other image on this page.
+ * Push back on launching with a stock photo here.
+ *
+ * The FeatureGrid should reflect real values and approach — not generic
+ * wellness language. What does this practitioner actually believe about
+ * the body? What's their method? Why did they enter this field?
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, FeatureGrid, TeamGrid, TestimonialRow, CTABand } from '@mmm/components';
+import { getCollection } from 'astro:content';
+
+const team = await getCollection('team');
+const testimonials = await getCollection('testimonials');
+const settings = (await getCollection('site_settings'))[0]?.data;
+
+const sortedTeam = team
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((m) => m.data);
+
+console.log(sortedTeam);
+
+const sortedTestimonials = testimonials
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((t) => t.data);
+
+const featuredIndex = Math.max(
+  0,
+  sortedTestimonials.findIndex((t) => t.featured)
+);
+
+const siteName = settings?.site_name ?? 'us';
+---
+
+<Layout
+  title='About'
+  description={`Meet the practitioners at ${siteName} — trained, licensed, and genuinely invested in your wellbeing.`}
+  breadcrumbs={[{ label: 'About', href: '/about' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO — split, warm practitioner photo -->
+    <Hero
+      variant='split'
+      heading='Caring for Rhode Island eyes since 2005'
+      body='Our doctors grew up in Rhode Island, and our practice is locally owned. We are proud to care for the vision needs of our fellow Rhode Islanders and proud to be a local small business.'
+      cta={{ label: 'Request an appointment', href: '/contact' }}
+      secondaryCta={{ label: 'Give us a call', href: 'tel:+14019210098' }}
+      image={{
+        src: '/assets/images/ophthalmoscope.webp',
+        alt: 'Lead practitioner in the treatment room',
+      }}
+    />
+
+    <!-- ② FEATURE GRID — philosophy and approach -->
+    <!--
+      Kit author: replace these with the practitioner's actual beliefs.
+      The most effective About pages in wellness are specific and personal —
+      not a list of generic values any practice could claim.
+    -->
+    <FeatureGrid
+      heading='How we approach your care'
+      variant='plain'
+      columns={3}
+      surface='subtle'
+      items={[
+        {
+          icon: 'eye',
+          heading: 'Your very best vision',
+          body: 'Our doctors have over 40 years of combined experience providing optimal vision to our patients. Whatever your visual needs are, we will make sure you are seeing the very best that you can.',
+        },
+        {
+          icon: 'clock',
+          heading: 'We take our time with you',
+          body: 'We do not rush our patients. The doctor spends a lot of time with each patient making sure that all of their visual needs and concerns are addressed.',
+        },
+        {
+          icon: 'heart',
+          heading: "You're family here",
+          body: 'Patients do not feel like a number here. They feel like part of the family.',
+        },
+        {
+          icon: 'microscope',
+          heading: 'Modern care with a personal touch',
+          body: 'We provide modern evidence-based eye care with the personal touch of yesterday.',
+        },
+        {
+          icon: 'glasses',
+          heading: 'The latest in eyewear technology',
+          body: 'Our eyewear is made with the newest innovations in frame and optical technology.',
+        },
+        {
+          icon: 'phone',
+          heading: "We're here when you need us",
+          body: "From urgent eye concerns to broken frames, we're available beyond your annual exam, including a 24/7 emergency line. Year-round support, no appointment necessary for many needs.",
+        },
+      ]}
+    />
+
+    <!-- ③ TEAM GRID -->
+    {
+      sortedTeam.length > 0 && (
+        <TeamGrid
+          heading={sortedTeam.length === 1 ? 'Your practitioner' : 'Our practitioners'}
+          columns={3}
+          surface='base'
+          items={sortedTeam}
+        />
+      )
+    }
+
+    <!-- ④ TESTIMONIALS -->
+    {
+      sortedTestimonials.length > 0 && (
+        <TestimonialRow
+          heading='Kind words from our patients'
+          variant='featured'
+          surface='subtle'
+          featuredIndex={featuredIndex}
+          items={sortedTestimonials}
+        />
+      )
+    }
+
+    <!-- ⑤ CTA BAND -->
+    <CTABand
+      heading='Ready to work together?'
+      body="New clients are always welcome. Book online or send a message if you'd like to talk first."
+      primaryCta={{ label: 'Request an appointment', href: '/contact' }}
+      secondaryCta={{ label: 'See our services', href: '/services' }}
+    />
+  </main>
+</Layout>

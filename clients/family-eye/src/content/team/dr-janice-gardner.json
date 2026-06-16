@@ -1,0 +1,6 @@
+{
+  "name": "Dr. Janice Gardner",
+  "bio": "Dr. Gardner grew up in Warwick, having graduated from Toll Gate High School with high honors. She subsequently received her Bachelor of Arts in Biology at Boston University and Doctorate of Optometry from The New England College of Optometry. Her diverse clinical education included sites such as community healthcare centers, Veteran's Hospitals, and multi-disciplinary private practice. She received clinical honors during her fourth year internship and was the recipient of The William Feinbloom Low Vision Award for outstanding achievement in low vision. Her clinical interests include contact lenses, pediatrics, and management of eye diseases such as glaucoma, diabetic eye disease, dry eye syndrome, and age-related macular degeneration. She has experience speaking Spanish in several healthcare settings. Dr. Gardner practices complete family eye care and welcomes new patients of all ages.  Outside of the office she enjoys the outdoors, playing golf, hiking, and skiing.",
+  "photo": { "src": "/images/uploads/dr-gardner.jpg", "alt": "a headshot of Dr. Gardner" },
+  "order": 2
+}

@@ -1,0 +1,107 @@
+---
+/**
+ * pages/faq.astro
+ * Health & Wellness kit — FAQ page
+ *
+ * Sections:
+ *   1. Hero         — centered, brief and warm
+ *   2. FAQAccordion — pre-populated with real client objections
+ *   3. CTABand      — "Still have questions? Let's talk."
+ *
+ * Per t1.md: "FAQ: pre-populate with real objections."
+ * The FAQ page for wellness businesses does real conversion work.
+ * People don't book until their fears are answered. The hardcoded
+ * fallback below covers the most common objections across modalities —
+ * kit author should replace with questions specific to this practice.
+ *
+ * Common categories to cover:
+ *   — What to expect / first visit logistics
+ *   — What to wear / how to prepare
+ *   — Pain, pressure, and comfort during treatment
+ *   — Cancellation and scheduling policies
+ *   — Insurance and payment
+ *   — Contraindications and who shouldn't book
+ */
+
+import Layout from '../layouts/KitLayout.astro';
+import { Hero, FAQAccordion, CTABand } from '@mmm/components';
+import { getCollection, getEntry } from 'astro:content';
+
+const faqItems = await getCollection('faq');
+const settings = (await getCollection('site_settings'))[0]?.data;
+
+const sortedFaq = faqItems
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+  .map((f) => f.data);
+
+// Hardcoded fallback FAQ — shown when the CMS collection is empty.
+// Kit author: replace these via the CMS with questions relevant to
+// this specific practice and modality.
+const fallbackFaq = [
+  {
+    question: 'At what age should my child have their first eye exam?',
+    answer:
+      'Unless your child has a noticeable eye or vision problem or your pediatrician recommends one earlier, we generally recommend a first comprehensive eye exam between kindergarten and first grade.',
+  },
+  {
+    question: 'Do you take my vision/health insurance?',
+    answer: 'We take most health and vision insurances that are available.',
+  },
+  {
+    question: "What if I don't like my glasses?",
+    answer: 'All of our eyewear is guaranteed.  If you’re not happy we will make it better.',
+  },
+  {
+    question: 'Will you dilate my eyes?',
+    answer:
+      'The standard of care for an eye exam includes dilation.  In order to fully evaluate your eyes for many conditions, dilation is needed.  We will never force you to be dilated if you do not wish.  In addition, we will never sell you on something that supposedly replaces dilation but requires you to waive your right to a proper eye exam.',
+  },
+  {
+    question: 'How long does an eye exam take?',
+    answer:
+      'Plan on spending about an hour with us.  If you need more time to browse our extensive eyewear collection, we will never rush you out the door!',
+  },
+  {
+    question: 'What is the difference between an optometrist and an opthamologist?',
+    answer:
+      "In simple terms, ophthalmologists are MDs or DOs and perform surgery and optometrists are ODs who don't perform surgery in Rhode Island.  Otherwise, both specialties are trained to diagnose and treat all eye conditions non-surgically.  When a need for surgery arises, Family Eye Health Associates has extensive relationships with some of the best ophthalmologists in the state and will ensure that you get the very best care.",
+  },
+];
+
+const displayFaq = sortedFaq.length > 0 ? sortedFaq : fallbackFaq;
+---
+
+<Layout
+  title='FAQ'
+  description='Common questions about our services, what to expect, cancellation policies, and more. Everything you need to know before your first visit.'
+  breadcrumbs={[{ label: 'FAQ', href: '/faq' }]}
+>
+  <main
+    id='main-content'
+    tabindex='-1'
+  >
+    <!-- ① HERO -->
+    <Hero
+      variant='centered'
+      heading='Common questions'
+      body="Everything you need to know before your first visit. If something's missing, call us! We're happy to talk through anything."
+      cta={{ label: 'Request an appointment', href: '/contact' }}
+      secondaryCta={{ label: 'Give us a call', href: 'tel:+14019210098' }}
+    />
+
+    <!-- ② FAQ ACCORDION -->
+    <FAQAccordion
+      heading='Frequently asked questions'
+      surface='subtle'
+      items={displayFaq}
+    />
+
+    <!-- ③ CTA BAND -->
+    <CTABand
+      heading='Still have questions?'
+      body="Give us a call or send us a message through our Contact page and we'll get back to you with an answer."
+      primaryCta={{ label: 'Get in touch', href: '/contact' }}
+      secondaryCta={{ label: 'Give us a call', href: 'tel:+14019210098' }}
+    />
+  </main>
+</Layout>

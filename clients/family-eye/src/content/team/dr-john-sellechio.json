@@ -1,0 +1,9 @@
+{
+  "name": "Dr. John C. Sellechio",
+  "bio": "Dr. Sellechio is a lifelong Warwick resident and has been practicing optometry in Rhode Island since 2002. He received his doctorate with clinical honors from the New England College of Optometry in Boston. He received his bachelors degree in biology from Rhode Island College after having graduated from Bishop Hendricken High School in Warwick. Dr. Sellechio provides comprehensive family eye care with a focus on management of ocular disease including infections, glaucoma, diabetic eye care, and retinal disease. He also provides complete contact lens care, including specialty contact lenses. He is Clinical Instructor of Optometry with the New England College of Optometry, and an Affiliated Professor of Optometry with the Massachusetts College of Pharmacy and Health Sciences, the Illinois College of Optometry, and Midwestern University. He teaches optometry to interns and residents from these schools at the Providence VA Medical Center and is a member of the National Association of VA Optometrists. When not looking at eyes, he enjoys photography and spending time outdoors.",
+  "photo": {
+    "src": "/images/uploads/dr-sellechio.jpg",
+    "alt": "a headshot of Dr. Sellechio"
+  },
+  "order": 1
+}

@@ -61,4 +61,8 @@ export type IconName =
   | 'download'
   | 'upload'
   | 'link'
-  | 'rss';
+  | 'rss'
+  | 'glasses'
+  | 'microscope'
+  | 'sun-moon'
+  | 'scan-eye';

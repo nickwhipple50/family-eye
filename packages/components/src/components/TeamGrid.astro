@@ -51,7 +51,7 @@ interface TeamPhoto {
 
 interface TeamMember {
   name: string;
-  role: string;
+  role?: string;
   bio?: string;
   photo?: TeamPhoto;
 }
@@ -159,7 +159,7 @@ function avatarColourIndex(name: string): number {
               {/* Text */}
               <div class='team-grid__text'>
                 <h3 class='team-grid__name'>{member.name}</h3>
-                <p class='team-grid__role'>{member.role}</p>
+                {member.role && <p class='team-grid__role'>{member.role}</p>}
                 {member.bio && <p class='team-grid__bio'>{member.bio}</p>}
               </div>
             </li>

@@ -1,0 +1,9 @@
+{
+  "name": "Dr. Victoria Branca",
+  "bio": "Dr. Branca is a Rhode Island native, who grew up in Western Cranston, and is a proud Cranston High School West alumnus. She graduated from the University of Rhode Island (URI) Summa Cum Laude with a Bachelor of Science degree in Biological Sciences, and completed her Doctor of Optometry at Massachusetts College of Pharmacy and Healthy Sciences (MCPHS) University School of Optometry in 2020. While obtaining her doctorate degree, Dr. Branca received membership into the Beta Sigma Kappa honor society, and received the Alcon Case Award for demonstrated excellence in contact lens patient care. Dr. Branca completed her residency in advanced ocular disease and primary care at the Veterans Administration Medical Center in Providence, RI, at which time she managed ocular disease and complex ocular conditions in a veteran patient population. When not practicing Optometry, she enjoys spending time with her family and friends.",
+  "photo": {
+    "src": "/images/uploads/dr-branca.jpg",
+    "alt": "Headshot of Dr. Victoria Branca"
+  },
+  "order": 3
+}
