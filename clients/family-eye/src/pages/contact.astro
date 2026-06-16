@@ -96,6 +96,7 @@ const siteName = settings?.site_name ?? 'us';
                 type: 'email',
                 required: true,
                 width: 'full',
+                placeholder: 'name@email.com',
                 autocomplete: 'email',
               },
               {
@@ -160,7 +161,9 @@ const siteName = settings?.site_name ?? 'us';
               </li>
               <li class='contact-page__step'>
                 <span class='contact-page__step-number'>03</span>
-                <span class='contact-page__step-text'> </span>
+                <span class='contact-page__step-text'
+                  >Bring your insurance card and any necessary copayment with you to your visit.</span
+                >
               </li>
             </ol>
           </div>
@@ -215,6 +218,26 @@ const siteName = settings?.site_name ?? 'us';
                 </>
               )
             }
+            <dt class='contact-page__info-label'>Pay a bill</dt>
+            <dd class='contact-page__info-value'>
+              Pay your bill securely online using this link:
+              <form
+                name='PrePage'
+                method='post'
+                action='https://Simplecheckout.authorize.net/payment/CatalogPayment.aspx'
+              >
+                <input
+                  type='hidden'
+                  name='LinkId'
+                  value='8bb24ee6-1399-4e81-a672-958a1f42c922'
+                />
+                <input
+                  type='submit'
+                  class='contact-page__link'
+                  value='Pay Your Bill'
+                />
+              </form>
+            </dd>
           </dl>
 
           <!-- Gentle privacy note -->
@@ -330,6 +353,10 @@ const siteName = settings?.site_name ?? 'us';
   .contact-page__link {
     color: var(--color-primary);
     text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
     transition: color var(--duration-fast) var(--ease-default);
   }
 
