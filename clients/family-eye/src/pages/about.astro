@@ -25,7 +25,6 @@ import { Hero, FeatureGrid, TeamGrid, TestimonialRow, CTABand } from '@mmm/compo
 import { getCollection } from 'astro:content';
 
 const team = await getCollection('team');
-const testimonials = await getCollection('testimonials');
 const settings = (await getCollection('site_settings'))[0]?.data;
 
 const sortedTeam = team
@@ -33,15 +32,6 @@ const sortedTeam = team
   .map((m) => m.data);
 
 console.log(sortedTeam);
-
-const sortedTestimonials = testimonials
-  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
-  .map((t) => t.data);
-
-const featuredIndex = Math.max(
-  0,
-  sortedTestimonials.findIndex((t) => t.featured)
-);
 
 const siteName = settings?.site_name ?? 'us';
 ---
@@ -126,17 +116,27 @@ const siteName = settings?.site_name ?? 'us';
     }
 
     <!-- ④ TESTIMONIALS -->
-    {
-      sortedTestimonials.length > 0 && (
-        <TestimonialRow
-          heading='Kind words from our patients'
-          variant='featured'
-          surface='subtle'
-          featuredIndex={featuredIndex}
-          items={sortedTestimonials}
-        />
-      )
-    }
+    <TestimonialRow
+      heading='Kind words from our patients'
+      variant='cards'
+      surface='subtle'
+      featuredIndex={0}
+      items={[
+        {
+          quote: 'Absolutely no sales pitch, upsell, or pressure when purchasing frames.',
+          name: '5-star Google review',
+        },
+        {
+          quote:
+            "From the moment I walked in, the staff greeted me with a smile and were super friendly. I actually can't wait to go back in another year for my next exam!",
+          name: '5-star Facebook review',
+        },
+        {
+          quote: "I wasn't rushed at all, the doctor spent a lot of time with me.",
+          name: '5-star Google review',
+        },
+      ]}
+    />
 
     <!-- ⑤ CTA BAND -->
     <CTABand
