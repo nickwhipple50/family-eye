@@ -25,6 +25,11 @@
  *   based on a hash of the name — same name always gets the same colour.
  *   Colours are set via CSS custom properties so they respect the token system.
  *
+ * Bios:
+ *   Collapsed to 3 lines by default via line-clamp. A native <details>
+ *   expander lifts the clamp on click — no JS. "Read more" / "Read less"
+ *   label is CSS-generated from the [open] state.
+ *
  * Max items: 12. TeamGrid is the only component with a higher ceiling —
  * larger teams are a legitimate use case. Grid handles layout gracefully.
  * Beyond 12 = content modelling problem, not a component problem.
@@ -160,7 +165,15 @@ function avatarColourIndex(name: string): number {
               <div class='team-grid__text'>
                 <h3 class='team-grid__name'>{member.name}</h3>
                 {member.role && <p class='team-grid__role'>{member.role}</p>}
-                {member.bio && <p class='team-grid__bio'>{member.bio}</p>}
+                {member.bio && (
+                  <details class='team-grid__bio-details'>
+                    <p class='team-grid__bio'>{member.bio}</p>
+                    <summary
+                      class='team-grid__bio-toggle'
+                      aria-hidden='true'
+                    />
+                  </details>
+                )}
               </div>
             </li>
           );
@@ -186,6 +199,8 @@ function avatarColourIndex(name: string): number {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-card-gap);
+    /* Expanded cards grow on their own row rather than stretching neighbours */
+    align-items: start;
   }
 
   @media (min-width: 480px) {
@@ -346,15 +361,69 @@ function avatarColourIndex(name: string): number {
     margin: 0;
   }
 
+  /* ============================================================
+     BIO — collapsed to 3 lines, expandable via native <details>
+     ============================================================ */
+
+  .team-grid__bio-details {
+    width: 100%;
+    margin: var(--space-xs) 0 0;
+  }
+
   .team-grid__bio {
     font-size: var(--text-base);
     line-height: var(--leading-relaxed);
     color: var(--color-text-muted);
-    margin: var(--space-xs) 0 0;
-    /* Constrain bio to 3 lines — clips gracefully, doesn't blow out card height */
+    margin: 0;
+    /* Collapsed: clamp to 3 lines */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* Open: lift the clamp, show full bio */
+  .team-grid__bio-details[open] .team-grid__bio {
+    -webkit-line-clamp: unset;
+    display: block;
+  }
+
+  .team-grid__bio-toggle {
+    display: inline-block;
+    margin-top: var(--space-2xs);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-accent);
+    cursor: pointer;
+    list-style: none; /* Remove default disclosure triangle */
+    user-select: none;
+  }
+
+  /* Remove the default marker across browsers */
+  .team-grid__bio-toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .team-grid__bio-toggle::after {
+    content: 'Read more';
+  }
+
+  .team-grid__bio-details[open] .team-grid__bio-toggle::after {
+    content: 'Read less';
+  }
+
+  .team-grid__bio-toggle:hover::after {
+    text-decoration: underline;
+  }
+
+  /* Honour reduced-motion: nothing animates here, but keep the toggle
+     usable and visible regardless of motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .team-grid__card {
+      transition: none;
+    }
+    .team-grid__card:hover {
+      transform: none;
+    }
   }
 </style>
