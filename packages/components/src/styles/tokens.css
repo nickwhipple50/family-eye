@@ -103,35 +103,31 @@ body {
   --font-mono: 'Courier New', monospace;
 
   /*
-   * --- Static type scale (Tailwind-style) ---
-   * Discrete rem values — no fluid scaling.
-   * Rounded to clean rem values near the larger (1440px) end of the
-   * previous fluid clamps, so desktop type is close to unchanged;
-   * type no longer shrinks on small screens.
-   * Base anchor: 18px (1.125rem).
+   * --- Fluid type scale — Utopia method ---
+   * Viewport: 390px → 1440px
+   * Min ratio: 1.2 (Minor Third) | Max ratio: 1.25 (Major Third)
+   * Base: 16px @ 390px → 18px @ 1440px
+   * Previously used 1.25/1.333 — reduced after display sizes were too large in practice.
+   * Uses `vi` (inline viewport unit) — equivalent to vw for horizontal writing modes.
    */
 
-  /* Flat — sub-xs */
-  --text-2xs: 0.5rem; /* ~8px */
-  --text-xs: 0.625rem; /* ~10px */
+  /* Flat — sub-xs barely changes, no fluid scaling needed */
+  --text-2xs: 0.512rem; /* ~8px */
+  --text-xs: 0.64rem; /* ~10px */
 
-  /* Static steps */
-  --text-sm: 0.875rem; /* 14px */
-  --text-base: 1.125rem; /* 18px */
-  --text-md: 1.375rem; /* 22px */
-  --text-lg: 1.75rem; /* 28px */
-  --text-xl: 2.25rem; /* 36px */
-  --text-2xl: 2.75rem; /* 44px */
-  --text-3xl: 3.5rem; /* 56px */
-  --text-4xl: 4.5rem; /* 72px */
+  /* Fluid steps */
+  --text-sm: clamp(0.8333rem, 0.8086rem + 0.1016vi, 0.9rem); /* 13.3px → 14.4px */
+  --text-base: clamp(1rem, 0.9536rem + 0.1905vi, 1.125rem); /* 16px   → 18px   */
+  --text-md: clamp(1.2rem, 1.1234rem + 0.3143vi, 1.4062rem); /* 19.2px → 22.5px */
+  --text-lg: clamp(1.44rem, 1.322rem + 0.4843vi, 1.7578rem); /* 23px   → 28.1px */
+  --text-xl: clamp(1.728rem, 1.5537rem + 0.7151vi, 2.1973rem); /* 27.6px → 35.2px */
+  --text-2xl: clamp(2.0736rem, 1.8236rem + 1.0255vi, 2.7466rem); /* 33.2px → 43.9px */
+  --text-3xl: clamp(2.4883rem, 2.1374rem + 1.4399vi, 3.4332rem); /* 39.8px → 54.9px */
+  --text-4xl: clamp(2.986rem, 2.5011rem + 1.9894vi, 4.2915rem); /* 47.8px → 68.7px */
 
-  /* --- Semantic heading aliases (point to scale steps) ---
-     Mobile-first: the largest headings start a step down so they
-     don't overflow narrow viewports, then scale up at wider
-     breakpoints (see media queries below). Smaller headings are
-     flat across all sizes. */
-  --text-display: var(--text-3xl); /* Hero headline — 56px mobile, 72px ≥768px */
-  --text-h1: var(--text-2xl); /* 44px mobile, 56px ≥768px */
+  /* --- Semantic heading aliases (point to scale steps) --- */
+  --text-display: var(--text-4xl); /* Hero headline */
+  --text-h1: var(--text-3xl);
   --text-h2: var(--text-2xl);
   --text-h3: var(--text-xl);
   --text-h4: var(--text-lg);
@@ -171,37 +167,35 @@ body {
    ============================================================ */
 
   /*
-   * --- Static space scale (Tailwind-style) ---
-   * Discrete rem values — no fluid scaling.
-   * Base values pinned to the larger (1440px) end of the previous
-   * fluid clamps, so desktop spacing is unchanged; mobile no longer
-   * tightens slightly.
-   * T-shirt naming (3xs → 4xl).
+   * --- Fluid space scale — Utopia method ---
+   * Viewport: 390px → 1440px
+   * Base: 16px @ 390px → 18px @ 1440px
+   * T-shirt naming (3xs → 4xl) matches Utopia conventions.
    *
-   * One-up pairs are retained as token names for backwards
-   * compatibility but, being static, each collapses to a single
-   * value (pinned to the larger of the two adjacent steps).
+   * One-up pairs span between adjacent steps — useful for section
+   * padding and component gaps where you want more range than a
+   * single step provides.
    */
 
   /* --- Base scale --- */
-  --space-3xs: 0.25rem; /*   4px */
-  --space-2xs: 0.5rem; /*   8px */
-  --space-xs: 0.75rem; /*  12px */
-  --space-s: 1rem; /*  16px */
-  --space-m: 1.5rem; /*  24px */
-  --space-l: 2rem; /*  32px */
-  --space-xl: 3rem; /*  48px */
-  --space-2xl: 4rem; /*  64px */
-  --space-3xl: 6rem; /*  96px */
-  --space-4xl: 8rem; /* 128px */
+  --space-3xs: clamp(0.25rem, 0.2384rem + 0.0476vi, 0.2812rem); /*  4px →  4.5px */
+  --space-2xs: clamp(0.5rem, 0.4768rem + 0.0952vi, 0.5625rem); /*  8px →  9px   */
+  --space-xs: clamp(0.75rem, 0.7152rem + 0.1429vi, 0.8438rem); /* 12px → 13.5px */
+  --space-s: clamp(1rem, 0.9536rem + 0.1905vi, 1.125rem); /* 16px → 18px   */
+  --space-m: clamp(1.5rem, 1.4304rem + 0.2857vi, 1.6875rem); /* 24px → 27px   */
+  --space-l: clamp(2rem, 1.9071rem + 0.381vi, 2.25rem); /* 32px → 36px   */
+  --space-xl: clamp(3rem, 2.8607rem + 0.5714vi, 3.375rem); /* 48px → 54px   */
+  --space-2xl: clamp(4rem, 3.8143rem + 0.7619vi, 4.5rem); /* 64px → 72px   */
+  --space-3xl: clamp(6rem, 5.7214rem + 1.1429vi, 6.75rem); /* 96px → 108px  */
+  --space-4xl: clamp(8rem, 7.6286rem + 1.5238vi, 9rem); /* 128px → 144px */
 
-  /* --- One-up pairs (now static — pinned to the larger step) --- */
-  --space-xs-s: 1rem; /*  16px (was 12 → 18) */
-  --space-s-m: 1.5rem; /*  24px (was 16 → 27) */
-  --space-m-l: 2rem; /*  32px (was 24 → 36) */
-  --space-l-xl: 3rem; /*  48px (was 32 → 54) */
-  --space-xl-2xl: 4rem; /*  64px (was 48 → 72) */
-  --space-2xl-3xl: 6rem; /*  96px (was 64 → 108) */
+  /* --- One-up pairs (span between two adjacent steps) --- */
+  --space-xs-s: clamp(0.75rem, 0.6107rem + 0.5714vi, 1.125rem); /* 12px → 18px  */
+  --space-s-m: clamp(1rem, 0.7446rem + 1.0476vi, 1.6875rem); /* 16px → 27px  */
+  --space-m-l: clamp(1.5rem, 1.2214rem + 1.1429vi, 2.25rem); /* 24px → 36px  */
+  --space-l-xl: clamp(2rem, 1.4893rem + 2.0952vi, 3.375rem); /* 32px → 54px  */
+  --space-xl-2xl: clamp(3rem, 2.4429rem + 2.2857vi, 4.5rem); /* 48px → 72px  */
+  --space-2xl-3xl: clamp(4rem, 2.9786rem + 4.1905vi, 6.75rem); /* 64px → 108px */
 
   /* --- Semantic aliases (map intent → scale step) --- */
   --space-section-y: var(--space-2xl-3xl); /* Section top/bottom padding */
@@ -229,14 +223,8 @@ body {
   --max-width-narrow: 720px; /* Prose, centered hero text */
   --max-width-wide: 1440px; /* Fullbleed sections */
 
-  /*
-   * Gutters kept fluid intentionally — horizontal page breathing room
-   * benefits from viewport-awareness even though component spacing is
-   * now static. These are inline clamps (not aliases of the static
-   * one-up pairs above) to preserve that behavior.
-   */
-  --gutter: clamp(1rem, 0.7446rem + 1.0476vi, 1.6875rem); /* 16px → 27px */
-  --gutter-sm: clamp(0.75rem, 0.6107rem + 0.5714vi, 1.125rem); /* 12px → 18px */
+  --gutter: var(--space-s-m); /* Horizontal page padding: 16px → 27px */
+  --gutter-sm: var(--space-xs-s); /* Tighter gutter: 12px → 18px */
 
   --nav-height: 4rem; /* Used by sticky headers, hero padding-top */
   --nav-height-scrolled: 3.5rem;
@@ -423,22 +411,6 @@ body {
   /* --- Floating CTA button (addons.md) --- */
   --floating-cta-size: 3rem;
   --floating-cta-offset: var(--space-m);
-}
-
-/* ============================================================
-   TYPE SCALE — RESPONSIVE STEP-UP
-   Mobile-first: the largest headings default a step down (set in
-   the heading aliases above) and step up here at the md breakpoint.
-   Now that the type scale is static, this is where any
-   viewport-driven sizing lives — keep heading size-bumps in this
-   block rather than scattering media queries across components.
-   ============================================================ */
-
-@media (min-width: 768px) {
-  :root {
-    --text-display: var(--text-4xl); /* 72px */
-    --text-h1: var(--text-3xl); /* 56px */
-  }
 }
 
 /* ============================================================
