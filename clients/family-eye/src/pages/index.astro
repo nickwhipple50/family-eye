@@ -42,7 +42,7 @@ const settings = (await getCollection('site_settings'))[0]?.data;
       cta={{ label: 'Request an appointment', href: '/contact' }}
       secondaryCta={{ label: 'Give us a call', href: 'tel:+14019210098' }}
       image={{
-        src: '/assets/images/glasses-on-eye-chart.webp',
+        src: '/images/uploads/personalized-eye-care.jpeg',
         alt: 'Practitioner working with a client in a calm treatment room',
       }}
     />
@@ -68,16 +68,19 @@ const settings = (await getCollection('site_settings'))[0]?.data;
       items={[
         {
           name: 'Eye exams',
+          icon: 'eye',
           description:
             'At Family Eye Health Associates we practice to the highest standards of medical optometry with a commitment to both your ocular and systemic health.',
         },
         {
           name: 'Eyewear studio',
+          icon: 'glasses',
           description:
             'The Eyewear Studio at Family Eye Health Associates has something for every style and budget. We also repair and adjust glasses.',
         },
         {
-          name: 'Emergency treatment',
+          name: 'Urgent treatment',
+          icon: 'shield',
           description:
             'From itchy eyes to pink eye to foreign bodies, our doctors are trained to treat most urgent eye conditions. Our emergency line is available 24/7.',
         },

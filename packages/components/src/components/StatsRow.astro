@@ -45,13 +45,15 @@
  *     ]}
  *   />
  */
-
+ import Icon from './Icon.astro';
+  import type { IconName } from './Icon.astro';
 interface StatItem {
   value: number;
   suffix?: string;
   prefix?: string;
   label: string;
   decimals?: number;
+  icon?: IconName;
 }
 
 interface Props {
@@ -99,6 +101,11 @@ const instanceId = `stats-${Math.random().toString(36).slice(2, 7)}`;
             class='stats-row__item'
             style={`--item-index: ${index}`}
           >
+          {item.icon && (
+              <div class='stats-row__icon'>
+                <Icon name={item.icon} size={28} stroke={1.75} />
+              </div>
+            )}
             <div
               class='stats-row__number'
               aria-live='polite'

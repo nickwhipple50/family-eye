@@ -19,6 +19,10 @@
       "href": "/about/"
     },
     {
+      "label": "Pay a bill",
+      "href": "/https://simplecheckout.authorize.net/payment/CatalogPayment.aspx/"
+    },
+    {
       "label": "FAQ",
       "href": "/faq/"
     },

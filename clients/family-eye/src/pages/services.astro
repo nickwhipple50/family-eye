@@ -18,7 +18,7 @@
  */
 
 import Layout from '../layouts/KitLayout.astro';
-import { Hero, ServiceList, ProcessSteps, CTABand, FeatureGrid } from '@mmm/components';
+import { Hero, ServiceList, ProcessSteps, CTABand, FeatureGrid, LogoBar } from '@mmm/components';
 ---
 
 <Layout
@@ -35,7 +35,7 @@ import { Hero, ServiceList, ProcessSteps, CTABand, FeatureGrid } from '@mmm/comp
       variant='centered'
       heading='Eye Exams & Eyewear Studio'
       body='We provide modern and comfortable eye care with a personal touch.  All of our eyewear and contact lenses are the newest and best technology in optics.  We are a locally owned small business with doctors that grew up here and are your neighbors.'
-      cta={{ label: 'Book a session', href: '/contact' }}
+      cta={{ label: 'Appointment', href: '/contact' }}
       secondaryCta={{ label: 'Read our FAQ', href: '/faq' }}
     />
 
@@ -43,36 +43,61 @@ import { Hero, ServiceList, ProcessSteps, CTABand, FeatureGrid } from '@mmm/comp
     <ServiceList
       heading='Eye exams do more than test your vision'
       body='At Family Eye Health Associates we practice to the highest standards of medical optometry with a commitment to both your ocular and systemic health.'
-      variant='grid-icon'
+      variant='grid-image'
       columns={2}
       surface='base'
       items={[
         {
+          
+          image: {
+  src: '/images/uploads/systemic-wellness.jpeg',
+  alt: 'Doctor examining a patient during a comprehensive eye exam',
+},
           name: 'Systemic wellness',
           description:
             'Many systemic conditions can be detected or observed during an eye exam such as diabetes, hypertension, high cholesterol, carotid artery disease, multiple sclerosis, heart disease, brain tumors, and thyroid disease. Make an annual eye exam part of your total wellness plan.',
         },
         {
+          image: {
+  src: '/images/uploads/contact-lenses.jpeg',
+  alt: 'contact lenses testing',
+},
           name: 'Contact lenses',
           description:
             "We provide comprehensive contact lens care for all of our patients. From daily disposable contacts to custom made lenses for eye disease such as keratoconus, we can fit just about anyone's eyes!",
         },
         {
+          image: {
+  src: '/images/uploads/vision-therapy.jpeg',
+  alt: 'vision thearpy',
+},
           name: 'Vision therapy',
           description:
             "When our eyes don't work well as a team, it can affect our work or school performance. Our doctors are trained to detect these problems and create a customized solution for your needs — whether it's glasses or a vision therapy program to enhance the way your eyes work together and optimize your visual potential.",
         },
         {
+          image: {
+  src: '/images/uploads/pediatric-exams.jpeg',
+  alt: 'pediatric exams',
+},
           name: 'Pediatric exams',
           description:
             "While our pediatrician colleagues do a fantastic job at finding major vision problems in children, our doctors are trained in uncovering subtle vision problems that may be affecting your child's life and schoolwork. We recommend a complete eye exam by kindergarten.",
         },
         {
+          image: {
+  src: '/images/uploads/glaumcoma.jpeg',
+  alt: 'Glaucoma and macula degeneration',
+},
           name: 'Glaucoma and macula degeneration',
           description:
             'Glaucoma and macula degeneration are the silent destroyers of our vision. By the time you notice symptoms, there is usually some degree of permanent vision loss. Our doctors are trained in the detection and treatment of these potentially blinding diseases.',
         },
         {
+          image: {
+  src: '/images/uploads/cataracts.jpeg',
+  alt: 'Examining cataracts',
+},
           name: 'Cataracts',
           description:
             "A cataract is a haze that forms within our eye's natural lens as we age. It is a normal part of getting older for all of us. Our doctors look for cataracts during your eye exam and provide complete pre- and post-operative care with several of the best cataract surgeons in the state.",
@@ -104,6 +129,34 @@ import { Hero, ServiceList, ProcessSteps, CTABand, FeatureGrid } from '@mmm/comp
         },
       ]}
     />
+
+    </section>
+
+<!-- LOGO MARQUEE — eyewear/insurance brands -->
+    <LogoBar
+      heading='Brands we carry'
+      variant='marquee'
+      speed='normal'
+      surface='subtle'
+      items={[
+        { src: '/images/uploads/calvinklein.jpg', alt: 'Calvin Klein', width: 120, height: 40 },
+        { src: '/images/uploads/coach.jpg', alt: 'coach', width: 120, height: 40 },
+        { src: '/images/uploads/demi.jpg', alt: 'demi', width: 120, height: 40 },
+        { src: '/images/uploads/dilli.png', alt: 'Dilli Dalli', width: 80, height: 40 },
+        { src: '/images/uploads/izod.jpg', alt: 'izod', width: 120, height: 40 },
+        { src: '/images/uploads/match.jpg', alt: 'match', width: 120, height: 40 },
+        { src: '/images/uploads/michael-kors.png', alt: 'michael', width: 120, height: 40 },
+        { src: '/images/uploads/nautica.jpg', alt: 'nautica', width: 120, height: 40 },
+        { src: '/images/uploads/ninewest.jpg', alt: 'ninewest', width: 120, height: 40 },
+        { src: '/images/uploads/polo.jpg', alt: 'polo', width: 120, height: 40 },
+        { src: '/images/uploads/ralph.jpg', alt: 'ralph', width: 120, height: 40 },
+        { src: '/images/uploads/rayban-kids.png', alt: 'Ray-Ban Kids', width: 60, height: 40 },
+        { src: '/images/uploads/rayban.jpg', alt: 'Ray-Ban ', width: 60, height: 40 },
+        { src: '/images/uploads/vera.png', alt: 'vera', width: 120, height: 40 },
+       
+      ]}
+    />
+
     <!-- ③ PROCESS STEPS — what to expect at your first visit -->
     <div
       id='first-visit'
@@ -140,7 +193,7 @@ import { Hero, ServiceList, ProcessSteps, CTABand, FeatureGrid } from '@mmm/comp
     <CTABand
       heading='Ready to become a patient?'
       body="We're accepting new patients of all ages. Request an appointment online and we'll confirm within one business day."
-      primaryCta={{ label: 'Book a session', href: '/contact' }}
+      primaryCta={{ label: 'Appointment', href: '/contact' }}
       secondaryCta={{ label: 'Read our FAQ', href: '/faq' }}
     />
   </main>
