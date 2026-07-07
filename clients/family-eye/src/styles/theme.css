@@ -109,6 +109,7 @@
   --color-nav-bg-scrolled: color-mix(in srgb, var(--color-surface-base) 90%, transparent);
   --color-nav-text: var(--color-text-base);
   --color-nav-backdrop-blur: 12px;
+  --nav-height: 6rem;
 
   /* --- Gradient text --- */
   --color-heading-grad-a: var(--color-primary);
