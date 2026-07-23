@@ -96,6 +96,23 @@ function isActive(href: string): boolean {
               {link.label}
             </a>
           ))}
+          <form
+            name='PrePage'
+            method='post'
+            action='https://Simplecheckout.authorize.net/payment/CatalogPayment.aspx'
+          >
+            <input
+              type='hidden'
+              name='LinkId'
+              value='8bb24ee6-1399-4e81-a672-958a1f42c922'
+            />
+            <button
+              type='submit'
+              class='nav__link'
+            >
+              Pay Your Bill
+            </button>
+          </form>
         </nav>
       )
     }
@@ -344,6 +361,7 @@ function isActive(href: string): boolean {
     height: 7.5rem;
     width: auto;
     display: block;
+    margin-top: 1.5rem;
   }
 
   .nav__logo-text {
@@ -382,6 +400,9 @@ function isActive(href: string): boolean {
     border-radius: var(--radius-sm);
     position: relative;
     transition: color var(--duration-fast) var(--ease-default);
+    background: none;
+    border: none;
+    cursor: pointer;
   }
 
   .nav__link::after {

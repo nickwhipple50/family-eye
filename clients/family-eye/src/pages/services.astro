@@ -48,56 +48,55 @@ import { Hero, ServiceList, ProcessSteps, CTABand, FeatureGrid, LogoBar } from '
       surface='base'
       items={[
         {
-          
           image: {
-  src: '/images/uploads/systemic-wellness.jpeg',
-  alt: 'Doctor examining a patient during a comprehensive eye exam',
-},
+            src: '/images/uploads/systemic-wellness.jpeg',
+            alt: 'Doctor examining a patient during a comprehensive eye exam',
+          },
           name: 'Systemic wellness',
           description:
             'Many systemic conditions can be detected or observed during an eye exam such as diabetes, hypertension, high cholesterol, carotid artery disease, multiple sclerosis, heart disease, brain tumors, and thyroid disease. Make an annual eye exam part of your total wellness plan.',
         },
         {
           image: {
-  src: '/images/uploads/contact-lenses.jpeg',
-  alt: 'contact lenses testing',
-},
+            src: '/images/uploads/contacts.jpeg',
+            alt: 'contact lenses testing',
+          },
           name: 'Contact lenses',
           description:
             "We provide comprehensive contact lens care for all of our patients. From daily disposable contacts to custom made lenses for eye disease such as keratoconus, we can fit just about anyone's eyes!",
         },
         {
           image: {
-  src: '/images/uploads/vision-therapy.jpeg',
-  alt: 'vision thearpy',
-},
+            src: '/images/uploads/vision-therapy.jpeg',
+            alt: 'vision thearpy',
+          },
           name: 'Vision therapy',
           description:
             "When our eyes don't work well as a team, it can affect our work or school performance. Our doctors are trained to detect these problems and create a customized solution for your needs — whether it's glasses or a vision therapy program to enhance the way your eyes work together and optimize your visual potential.",
         },
         {
           image: {
-  src: '/images/uploads/pediatric-exams.jpeg',
-  alt: 'pediatric exams',
-},
+            src: '/images/uploads/kids.jpeg',
+            alt: 'pediatric exams',
+          },
           name: 'Pediatric exams',
           description:
             "While our pediatrician colleagues do a fantastic job at finding major vision problems in children, our doctors are trained in uncovering subtle vision problems that may be affecting your child's life and schoolwork. We recommend a complete eye exam by kindergarten.",
         },
         {
           image: {
-  src: '/images/uploads/glaumcoma.jpeg',
-  alt: 'Glaucoma and macula degeneration',
-},
+            src: '/images/uploads/glaumcoma.jpeg',
+            alt: 'Glaucoma and macula degeneration',
+          },
           name: 'Glaucoma and macula degeneration',
           description:
             'Glaucoma and macula degeneration are the silent destroyers of our vision. By the time you notice symptoms, there is usually some degree of permanent vision loss. Our doctors are trained in the detection and treatment of these potentially blinding diseases.',
         },
         {
           image: {
-  src: '/images/uploads/cataracts.jpeg',
-  alt: 'Examining cataracts',
-},
+            src: '/images/uploads/contact-lenses.jpeg',
+            alt: 'Examining cataracts',
+          },
           name: 'Cataracts',
           description:
             "A cataract is a haze that forms within our eye's natural lens as we age. It is a normal part of getting older for all of us. Our doctors look for cataracts during your eye exam and provide complete pre- and post-operative care with several of the best cataract surgeons in the state.",
@@ -129,72 +128,69 @@ import { Hero, ServiceList, ProcessSteps, CTABand, FeatureGrid, LogoBar } from '
         },
       ]}
     />
+  </main>
 
-    </section>
+  <!-- LOGO MARQUEE — eyewear/insurance brands -->
+  <LogoBar
+    heading='Brands we carry'
+    variant='marquee'
+    speed='normal'
+    surface='subtle'
+    items={[
+      { src: '/images/uploads/calvinklein.jpg', alt: 'Calvin Klein', width: 120, height: 40 },
+      { src: '/images/uploads/coach.jpg', alt: 'coach', width: 120, height: 40 },
+      { src: '/images/uploads/demi.jpg', alt: 'demi', width: 120, height: 40 },
+      { src: '/images/uploads/dilli.png', alt: 'Dilli Dalli', width: 80, height: 40 },
+      { src: '/images/uploads/izod.jpg', alt: 'izod', width: 120, height: 40 },
+      { src: '/images/uploads/match.jpg', alt: 'match', width: 120, height: 40 },
+      { src: '/images/uploads/michael-kors.png', alt: 'michael', width: 120, height: 40 },
+      { src: '/images/uploads/nautica.jpg', alt: 'nautica', width: 120, height: 40 },
+      { src: '/images/uploads/ninewest.jpg', alt: 'ninewest', width: 120, height: 40 },
+      { src: '/images/uploads/polo.jpg', alt: 'polo', width: 120, height: 40 },
+      { src: '/images/uploads/ralph.jpg', alt: 'ralph', width: 120, height: 40 },
+      { src: '/images/uploads/rayban-kids.png', alt: 'Ray-Ban Kids', width: 60, height: 40 },
+      { src: '/images/uploads/rayban.jpg', alt: 'Ray-Ban ', width: 60, height: 40 },
+      { src: '/images/uploads/vera.png', alt: 'vera', width: 120, height: 40 },
+    ]}
+  />
 
-<!-- LOGO MARQUEE — eyewear/insurance brands -->
-    <LogoBar
-      heading='Brands we carry'
-      variant='marquee'
-      speed='normal'
-      surface='subtle'
+  <!-- ③ PROCESS STEPS — what to expect at your first visit -->
+  <div
+    id='first-visit'
+    style='scroll-margin-top: var(--nav-height)'
+  >
+    <ProcessSteps
+      heading='What to expect at your first visit'
+      body="First visits can feel unfamiliar. Here's exactly what happens, so you can arrive relaxed."
+      variant='numbered'
+      layout='horizontal'
+      surface='base'
       items={[
-        { src: '/images/uploads/calvinklein.jpg', alt: 'Calvin Klein', width: 120, height: 40 },
-        { src: '/images/uploads/coach.jpg', alt: 'coach', width: 120, height: 40 },
-        { src: '/images/uploads/demi.jpg', alt: 'demi', width: 120, height: 40 },
-        { src: '/images/uploads/dilli.png', alt: 'Dilli Dalli', width: 80, height: 40 },
-        { src: '/images/uploads/izod.jpg', alt: 'izod', width: 120, height: 40 },
-        { src: '/images/uploads/match.jpg', alt: 'match', width: 120, height: 40 },
-        { src: '/images/uploads/michael-kors.png', alt: 'michael', width: 120, height: 40 },
-        { src: '/images/uploads/nautica.jpg', alt: 'nautica', width: 120, height: 40 },
-        { src: '/images/uploads/ninewest.jpg', alt: 'ninewest', width: 120, height: 40 },
-        { src: '/images/uploads/polo.jpg', alt: 'polo', width: 120, height: 40 },
-        { src: '/images/uploads/ralph.jpg', alt: 'ralph', width: 120, height: 40 },
-        { src: '/images/uploads/rayban-kids.png', alt: 'Ray-Ban Kids', width: 60, height: 40 },
-        { src: '/images/uploads/rayban.jpg', alt: 'Ray-Ban ', width: 60, height: 40 },
-        { src: '/images/uploads/vera.png', alt: 'vera', width: 120, height: 40 },
-       
+        {
+          title: 'Request your appointment',
+          body: "Use the form on our Contact page or call us directly. We'll follow up within one business day to confirm a time. ",
+        },
+        {
+          title: 'Complete your intake',
+          body: 'Download and fill out our intake form, which covers health history, current medications, and insurance information. Completing it ahead of time helps your first appointment go smoothly.',
+        },
+        {
+          title: 'Your first visit',
+          body: 'At your first visit with us we will take our time to get to know you.  We want you to feel welcome and comfortable as we strive to understand your visual needs.  You will have a comprehensive eye exam that looks at your total vision needs and eye health.  We will take the time to address all of your vision and eye concerns.',
+        },
+        {
+          title: 'After your visit',
+          body: "We recommend annual exams, but we are here for you year-round.  Whether it's just standing by our eyewear, following-up for other eye conditions, or being there for you for urgent eye problems, you can count on us to always be available to you.",
+        },
       ]}
     />
+  </div>
 
-    <!-- ③ PROCESS STEPS — what to expect at your first visit -->
-    <div
-      id='first-visit'
-      style='scroll-margin-top: var(--nav-height)'
-    >
-      <ProcessSteps
-        heading='What to expect at your first visit'
-        body="First visits can feel unfamiliar. Here's exactly what happens, so you can arrive relaxed."
-        variant='numbered'
-        layout='horizontal'
-        surface='base'
-        items={[
-          {
-            title: 'Request your appointment',
-            body: "Use the form on our Contact page or call us directly. We'll follow up within one business day to confirm a time. ",
-          },
-          {
-            title: 'Complete your intake',
-            body: 'Download and fill out our intake form, which covers health history, current medications, and insurance information. Completing it ahead of time helps your first appointment go smoothly.',
-          },
-          {
-            title: 'Your first visit',
-            body: 'At your first visit with us we will take our time to get to know you.  We want to feel welcome and comfortable as we strive to understand your visual needs.  You will have a comprehensive eye exam that looks at your total vision needs and eye health.  We will take the time to address all of your vision and eye concerns.',
-          },
-          {
-            title: 'After your visit',
-            body: "We recommend annual exams, but we are here for you year-round.  Whether it's just standing by our eyewear, following-up for other eye conditions, or being there for you for emergency eye problems, you can count on us to always be available to you.",
-          },
-        ]}
-      />
-    </div>
-
-    <!-- ④ CTA BAND -->
-    <CTABand
-      heading='Ready to become a patient?'
-      body="We're accepting new patients of all ages. Request an appointment online and we'll confirm within one business day."
-      primaryCta={{ label: 'Appointment', href: '/contact' }}
-      secondaryCta={{ label: 'Read our FAQ', href: '/faq' }}
-    />
-  </main>
+  <!-- ④ CTA BAND -->
+  <CTABand
+    heading='Ready to become a patient?'
+    body="We're accepting new patients of all ages. Request an appointment online and we'll confirm within one business day."
+    primaryCta={{ label: 'Appointment', href: '/contact' }}
+    secondaryCta={{ label: 'Read our FAQ', href: '/faq' }}
+  />
 </Layout>

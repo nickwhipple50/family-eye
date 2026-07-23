@@ -58,6 +58,18 @@ const siteName = settings?.site_name ?? 'us';
       }}
     />
 
+    <!-- ③ TEAM GRID -->
+    {
+      sortedTeam.length > 0 && (
+        <TeamGrid
+          heading={sortedTeam.length === 1 ? 'Your Practitioner' : 'Our Practitioners'}
+          columns={3}
+          surface='base'
+          items={sortedTeam}
+        />
+      )
+    }
+
     <!-- ② FEATURE GRID — philosophy and approach -->
     <!--
       Kit author: replace these with the practitioner's actual beliefs.
@@ -103,23 +115,11 @@ const siteName = settings?.site_name ?? 'us';
       ]}
     />
 
-    <!-- ③ TEAM GRID -->
-    {
-      sortedTeam.length > 0 && (
-        <TeamGrid
-          heading={sortedTeam.length === 1 ? 'Your practitioner' : 'Our practitioners'}
-          columns={3}
-          surface='base'
-          items={sortedTeam}
-        />
-      )
-    }
-
     <!-- ④ TESTIMONIALS -->
     <TestimonialRow
       heading='Kind words from our patients'
       variant='cards'
-      surface='subtle'
+      surface='base'
       featuredIndex={0}
       items={[
         {

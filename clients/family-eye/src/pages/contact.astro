@@ -168,6 +168,21 @@ const siteName = settings?.site_name ?? 'us';
             </ol>
           </div>
 
+          {
+            contact?.address && (
+              <iframe
+                src={`https://www.google.com/maps?q=${encodeURIComponent(contact.address)}&output=embed`}
+                width='100%'
+                height='250'
+                style='border:0; border-radius: var(--card-radius); margin-block-start: var(--space-xs);'
+                allowfullscreen
+                loading='lazy'
+                referrerpolicy='no-referrer-when-downgrade'
+                title={`${siteName} location`}
+              />
+            )
+          }
+
           <!-- Contact details -->
           <dl class='contact-page__info'>
             {
@@ -180,6 +195,21 @@ const siteName = settings?.site_name ?? 'us';
                       class='contact-page__link'
                     >
                       {contact.phone}
+                    </a>
+                  </dd>
+                </>
+              )
+            }
+            {
+              contact?.fax && (
+                <>
+                  <dt class='contact-page__info-label'>Fax</dt>
+                  <dd class='contact-page__info-value'>
+                    <a
+                      href={`tel:${contact.fax.replace(/\D/g, '')}`}
+                      class='contact-page__link'
+                    >
+                      {contact.fax}
                     </a>
                   </dd>
                 </>
@@ -203,7 +233,7 @@ const siteName = settings?.site_name ?? 'us';
             {
               contact?.address && (
                 <>
-                  <dt class='contact-page__info-label'>Studio</dt>
+                  <dt class='contact-page__info-label'>Address</dt>
                   <dd class='contact-page__info-value'>
                     <address>{contact.address}</address>
                   </dd>
@@ -214,25 +244,12 @@ const siteName = settings?.site_name ?? 'us';
               contact?.service_area && (
                 <>
                   <dt class='contact-page__info-label'>Office location</dt>
-                  <dd class='contact-page__info-value'>{contact.service_area}
-                    {contact?.address && (
-              <iframe
-                src={`https://www.google.com/maps?q=${encodeURIComponent(contact.address)}&output=embed`}
-                width='100%'
-                height='250'
-                style='border:0; border-radius: var(--card-radius); margin-block-start: var(--space-xs);'
-                allowfullscreen
-                loading='lazy'
-                referrerpolicy='no-referrer-when-downgrade'
-                title={`${siteName} location`}
-              />
-            )} 
-                  </dd>
+                  <dd class='contact-page__info-value'>{contact.service_area}</dd>
                 </>
               )
             }
             <dt class='contact-page__info-label'>Pay a bill</dt>
-            
+
             <dd class='contact-page__info-value'>
               Pay your bill securely online using this link:
               <form
@@ -250,11 +267,9 @@ const siteName = settings?.site_name ?? 'us';
                   class='contact-page__link'
                   value='Pay Your Bill'
                 />
-                <in
               </form>
             </dd>
           </dl>
-          
 
           <!-- Gentle privacy note -->
           <p class='contact-page__privacy'>

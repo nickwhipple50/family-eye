@@ -24,6 +24,7 @@ const site_settings = defineCollection({
     contact: z
       .object({
         phone: z.string().optional(),
+        fax: z.string().optional(),
         email: z.string().optional(),
         address: z.string().optional(),
         service_area: z.string().optional(),

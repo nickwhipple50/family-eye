@@ -180,7 +180,18 @@ const socialLinks: SocialLink[] = [
                     href={`tel:${contact.phone.replace(/\s/g, '')}`}
                     class='footer__contact-link'
                   >
-                    {contact.phone}
+                    Phone: {contact.phone}
+                  </a>
+                </li>
+              )}
+              {contact.fax && (
+                <li>
+                  <a
+                    href={`tel:${contact.fax.replace(/\s/g, '')}`}
+                    class='footer__contact-link'
+                  >
+                    Fax:
+                    {contact.fax}
                   </a>
                 </li>
               )}
@@ -456,7 +467,8 @@ const socialLinks: SocialLink[] = [
   }
 
   .footer__contact-link {
-    font-size: var(--text-sm);
+    font-size: var(--text-md);
+    font-weight: 600;
     color: color-mix(in srgb, var(--color-text-inverse) 70%, transparent);
     text-decoration: none;
     transition: color var(--duration-fast) var(--ease-default);
