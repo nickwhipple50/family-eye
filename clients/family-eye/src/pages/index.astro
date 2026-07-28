@@ -135,18 +135,21 @@ const settings = (await getCollection('site_settings'))[0]?.data;
   .testimonial-cta {
     display: flex;
     justify-content: center;
-    padding: 1rem 0 3rem;
+    margin-top: -1.5rem;
+    padding-bottom: 3rem;
   }
   .testimonial-cta a {
     display: inline-block;
-    padding: 0.75rem 1.75rem;
+    padding: 0.85rem 2rem;
     border-radius: 999px;
-    background: var(--color-primary, #4b3f8f);
+    background: #7fa8c9;
     color: #fff;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 1rem;
     text-decoration: none;
+    text-align: center;
   }
   .testimonial-cta a:hover {
-    opacity: 0.9;
+    background: #6b96b9;
   }
 </style>
