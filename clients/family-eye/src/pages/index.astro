@@ -43,7 +43,7 @@ const settings = (await getCollection('site_settings'))[0]?.data;
       cta={{ label: 'Request an appointment', href: '/contact' }}
       secondaryCta={{ label: 'Give us a call', href: 'tel:+14019210098' }}
       image={{
-        src: '/public/images/uploads/Optical_Photo.jpg',
+        src: '/images/uploads/Optical_Photo.jpg',
         alt: 'Happy patient being fitted for new glasses',
       }}
     />
@@ -107,13 +107,13 @@ const settings = (await getCollection('site_settings'))[0]?.data;
         },
         {
           quote:
-            'Dr Gardner and Dr Sellechio... have successfuly helped me through several eye issues and I appreciate having such great doctors!',
+            'Dr Gardner and Dr Sellechio... have successfully helped me through several eye issues and I appreciate having such great doctors!',
           name: '5-star Yelp review',
         },
       ]}
-      primaryCta={{ label: 'Get ready for your visit', href: "https://drive.google.com/file/d/1JIPOvQ3MaJA_O8L2bBDkexojpZbo8x-C/view" }}
+      primaryCta={{ label: 'Get ready for your visit', href: 'https://drive.google.com/file/d/1JIPOvQ3MaJA_O8L2bBDkexojpZbo8x-C/view' }}
     />
-
+    
     <!-- ⑤ CTA BAND — warm, no pressure -->
     <CTABand
       heading='Accepting new patients in Rhode Island'
