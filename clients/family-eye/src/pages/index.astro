@@ -112,7 +112,7 @@ const settings = (await getCollection('site_settings'))[0]?.data;
         },
       ]}
     />
-    
+
      <div class="testimonial-cta">
       <a href="https://drive.google.com/file/d/1JIPOvQ3MaJA_O8L2bBDkexojpZbo8x-C/view" target="_blank" rel="noopener">
         Get ready for your visit
@@ -130,3 +130,23 @@ const settings = (await getCollection('site_settings'))[0]?.data;
     <VspPopup />
   </main>
 </Layout>
+
+<style>
+  .testimonial-cta {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0 3rem;
+  }
+  .testimonial-cta a {
+    display: inline-block;
+    padding: 0.75rem 1.75rem;
+    border-radius: 999px;
+    background: var(--color-primary, #4b3f8f);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .testimonial-cta a:hover {
+    opacity: 0.9;
+  }
+</style>
