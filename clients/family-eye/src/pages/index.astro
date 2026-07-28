@@ -148,8 +148,10 @@ const settings = (await getCollection('site_settings'))[0]?.data;
     font-size: 1rem;
     text-decoration: none;
     text-align: center;
+    transition: transform 0.2s ease, background 0.2s ease;
   }
   .testimonial-cta a:hover {
     background: #6b96b9;
+    transform: translateY(-3px);
   }
 </style>
