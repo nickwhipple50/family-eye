@@ -22,6 +22,7 @@
 import Layout from '../layouts/KitLayout.astro';
 import { Hero, StatsRow, ServiceList, TestimonialRow, CTABand } from '@mmm/components';
 import { getCollection } from 'astro:content';
+import VspPopup from '../components/VspPopup.astro';
 
 const settings = (await getCollection('site_settings'))[0]?.data;
 ---
@@ -42,7 +43,7 @@ const settings = (await getCollection('site_settings'))[0]?.data;
       cta={{ label: 'Request an appointment', href: '/contact' }}
       secondaryCta={{ label: 'Give us a call', href: 'tel:+14019210098' }}
       image={{
-        src: '/images/uploads/happy.jpeg',
+        src: '/public/images/uploads/Optical_Photo.jpg',
         alt: 'Happy patient being fitted for new glasses',
       }}
     />
@@ -110,6 +111,7 @@ const settings = (await getCollection('site_settings'))[0]?.data;
           name: '5-star Yelp review',
         },
       ]}
+      primaryCta={{ label: 'Get ready for your visit', href: "https://drive.google.com/file/d/1JIPOvQ3MaJA_O8L2bBDkexojpZbo8x-C/view" }}
     />
 
     <!-- ⑤ CTA BAND — warm, no pressure -->
@@ -119,5 +121,7 @@ const settings = (await getCollection('site_settings'))[0]?.data;
       primaryCta={{ label: 'Request an appointment', href: '/contact' }}
       secondaryCta={{ label: 'Give us a call', href: 'tel:+14019210098' }}
     />
+
+    <VspPopup />
   </main>
 </Layout>

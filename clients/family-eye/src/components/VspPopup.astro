@@ -1,0 +1,70 @@
+---
+// src/components/VspPopup.astro
+---
+
+<div id="vsp-popup-overlay" class="vsp-popup-overlay">
+  <div class="vsp-popup-inner">
+    <span id="vsp-popup-close" class="vsp-popup-close">✕</span>
+    <a href="https://www.vspdirect.com/my-vsp-plan/welcome?click=FAMILYEYEHEA&RR_WCID=2BA98BEE-4E90-43C5-9D12-4075ABE8779A&RR_WCID_TTL=396&REFERRALCODE=FAMILYEYEHEA&utm_campaign=VSP+Platinum+Doctors+Program" target="_blank" rel="noopener">
+      <img
+        src="https://cdn.vsp.com/dam/jcr:1eee5fc4-b3b1-4fd4-b0f1-6834a85a46f0/115600-23-VC-IPWebsiteAds_300x250-2.png"
+        alt="Need vision coverage? VSP Individual Vision Plans"
+        width="300"
+        height="250"
+      />
+    </a>
+  </div>
+</div>
+
+<style>
+  .vsp-popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999998;
+    justify-content: center;
+    align-items: center;
+  }
+  .vsp-popup-inner {
+    position: relative;
+    max-width: 300px;
+  }
+  .vsp-popup-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    background: #fff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 999999;
+  }
+  .vsp-popup-inner img {
+    display: block;
+    border-radius: 8px;
+  }
+</style>
+
+<script>
+  const overlay = document.getElementById('vsp-popup-overlay');
+  const closeBtn = document.getElementById('vsp-popup-close');
+
+  setTimeout(() => {
+    if (overlay) overlay.style.display = 'flex';
+  }, 2000);
+
+  closeBtn?.addEventListener('click', () => {
+    if (overlay) overlay.style.display = 'none';
+  });
+
+  overlay?.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.style.display = 'none';
+  });
+</script>
