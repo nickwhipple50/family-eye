@@ -88,6 +88,24 @@ const settings = (await getCollection('site_settings'))[0]?.data;
       ]}
     />
 
+       <!-- ③.5 SECOND SPLIT SECTION — reusing Hero's split layout -->
+    <Hero
+      variant='split'
+      heading='Pay your bill securely online'
+      body='Family Eye Health Associates, LLC takes the security of your information seriously. To prevent unauthorized access, 
+      maintain data accuracy, and ensure the appropriate use of your information, Family Eye Health Associates has implemented numerous physical, 
+      electronic and administrative procedures to safeguard and secure the information we collect online. 
+      However, it is impossible for us to fully guarantee that these measures will prevent any or all unauthorized use of your information. 
+      We also do not share, sell or give to any 3rd party’s any personal or private information except when processing your credit card payment your 
+      credit card details are provided to our PCI Compliant Payment Processor and Gateway to process your payment only no data is saved during the payment 
+      process.'
+      cta={{ label: 'Pay you Bill', href: "https://simplecheckout.authorize.net/payment/CatalogPayment.aspx" }}
+      image={{
+        src: '/images/uploads/your-image.jpg',
+        alt: 'Descriptive alt text',
+      }}
+    />
+
     <!-- ④ TESTIMONIALS — client experiences -->
     <TestimonialRow
       heading='What our patients say'
@@ -126,6 +144,8 @@ const settings = (await getCollection('site_settings'))[0]?.data;
       primaryCta={{ label: 'Request an appointment', href: '/contact' }}
       secondaryCta={{ label: 'Give us a call', href: 'tel:+14019210098' }}
     />
+
+    
 
     <VspPopup />
   </main>
