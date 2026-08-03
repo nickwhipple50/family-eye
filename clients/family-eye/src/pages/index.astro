@@ -41,9 +41,9 @@ const settings = (await getCollection('site_settings'))[0]?.data;
       heading='Personalized eye care focused on you and your family'
       body='Family Eye Health Associates is your home for the very best in primary eye care.  We welcome all Rhode Islanders to experience a superior level of personal service and compassionate care.'
       cta={{ label: 'Request an appointment', href: '/contact' }}
-      secondaryCta={{ label: 'Give us a call', href: 'tel:+14019210098' }}
+      secondaryCta={{ label: 'Pre-Register Now!', href: 'https://drive.google.com/file/d/1JIPOvQ3MaJA_O8L2bBDkexojpZbo8x-C/view' }}
       image={{
-        src: '/images/uploads/Optical_Photo.jpg',
+        src: '/images/uploads/happy.jpeg',
         alt: 'Happy patient being fitted for new glasses',
       }}
     />
@@ -88,21 +88,6 @@ const settings = (await getCollection('site_settings'))[0]?.data;
       ]}
     />
 
-       <!-- ③.5 SECOND SPLIT SECTION — reusing Hero's split layout -->
-    <Hero
-      variant='split'
-      heading='Pay your bill securely online'
-      body='Family Eye Health Associates, LLC takes the security of your information seriously. We use physical, electronic, and administrative 
-      safeguards to protect the data we collect online, though no security measure can fully guarantee against unauthorized access. We never share, sell, 
-      or give your personal or private information to third parties — except that your credit card details are sent to our PCI-compliant payment processor 
-      solely to process your payment; no data is saved during that process.'
-      cta={{ label: 'Pay you Bill', href: "https://simplecheckout.authorize.net/payment/CatalogPayment.aspx" }}
-      image={{
-        src: '/images/uploads/happy.jpeg', 
-        alt: 'Descriptive alt text',
-      }}
-    />
-
     <!-- ④ TESTIMONIALS — client experiences -->
     <TestimonialRow
       heading='What our patients say'
@@ -128,11 +113,6 @@ const settings = (await getCollection('site_settings'))[0]?.data;
       ]}
     />
 
-     <div class="testimonial-cta">
-      <a href="https://drive.google.com/file/d/1JIPOvQ3MaJA_O8L2bBDkexojpZbo8x-C/view" target="_blank" rel="noopener">
-        Get ready for your visit
-      </a>
-    </div>
     
     <!-- ⑤ CTA BAND — warm, no pressure -->
     <CTABand
@@ -148,27 +128,3 @@ const settings = (await getCollection('site_settings'))[0]?.data;
   </main>
 </Layout>
 
-<style>
-  .testimonial-cta {
-    display: flex;
-    justify-content: center;
-    margin-top: -1.5rem;
-    padding-bottom: 3rem;
-  }
-  .testimonial-cta a {
-    display: inline-block;
-    padding: 0.85rem 2rem;
-    border-radius: 999px;
-    background: #7fa8c9;
-    color: #fff;
-    font-weight: 700;
-    font-size: 1rem;
-    text-decoration: none;
-    text-align: center;
-    transition: transform 0.2s ease, background 0.2s ease;
-  }
-  .testimonial-cta a:hover {
-    background: #6b96b9;
-    transform: translateY(-3px);
-  }
-</style>
